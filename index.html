@@ -16,9 +16,9 @@
         :root { 
             --primary: #023047; 
             --secondary: #fb8500; 
-            --light-bg: #f8f9fa; 
-            --text-dark: #212529; 
-            --text-light: #6c757d; 
+            --light-bg: #f2f4f8; 
+            --text-dark: #0F1111; 
+            --text-light: #565959; 
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
         body { background-color: var(--light-bg); color: var(--text-dark); scroll-behavior: smooth; }
@@ -87,26 +87,30 @@
         .pharmacy-banner p { font-size: 16px; opacity: 0.9; }
 
         .container { max-width: 1200px; margin: 20px auto 40px; padding: 0 20px; min-height: 50vh; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 30px; }
-        .no-results { text-align: center; color: var(--text-light); font-size: 18px; grid-column: 1 / -1; padding: 50px 0; }
-        .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: transform 0.3s ease; position: relative; display: flex; flex-direction: column; border-top: 4px solid var(--secondary); }
-        .product-img { width: 100%; height: 220px; object-fit: cover; }
-        .product-info { padding: 20px; text-align: center; display: flex; flex-direction: column; flex-grow: 1; }
-        .product-cat { font-size: 12px; color: var(--secondary); font-weight: bold; margin-bottom: 5px; display: block; }
-        .product-title { font-size: 18px; color: var(--primary); margin-bottom: 10px; font-weight: 700; flex-grow: 1; }
-        .product-price { font-size: 22px; color: var(--primary); font-weight: 800; margin-bottom: 15px; }
-        .add-btn { background-color: var(--primary); color: white; border: none; padding: 10px 0; width: 100%; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: auto; }
-        .add-btn:hover { background-color: var(--secondary); }
         
-        .deal-container { margin-bottom: 50px; text-align: center; }
-        .deal-title { color: #e63946; font-size: 28px; font-weight: 900; margin-bottom: 20px; animation: pulseTitle 2s infinite; font-family: 'Changa', sans-serif; }
-        @keyframes pulseTitle { 0% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 10px rgba(230, 57, 70, 0.5); } 100% { transform: scale(1); } }
-        .deal-card { background: linear-gradient(135deg, #fff9e6, #ffffff); border: 3px solid var(--secondary); border-radius: 20px; padding: 20px; display: flex; flex-direction: row; gap: 30px; align-items: center; max-width: 900px; margin: 0 auto; box-shadow: 0 15px 35px rgba(0,0,0,0.1); position: relative; overflow: hidden; text-align: right; }
-        .deal-ribbon { position: absolute; top: 20px; left: -40px; background: #e63946; color: white; padding: 8px 45px; transform: rotate(-45deg); font-weight: 800; font-size: 16px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .deal-img { width: 300px; height: 300px; object-fit: cover; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        /* 🌟 تصميم المنتجات على ستايل أمازون 🌟 */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .no-results { text-align: center; color: var(--text-light); font-size: 18px; grid-column: 1 / -1; padding: 50px 0; }
+        .product-card { background: white; border: 1px solid #e7e7e7; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.2s ease; }
+        .product-card:hover { box-shadow: 0 0 12px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 180px; object-fit: contain; padding: 15px; background: white; border-bottom: 1px solid #f2f2f2; }
+        .product-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; text-align: right; }
+        .product-cat { font-size: 11px; color: var(--text-light); margin-bottom: 5px; display: block; }
+        .product-title { font-size: 15px; color: var(--text-dark); margin-bottom: 8px; font-weight: 400; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-price { font-size: 22px; color: var(--primary); font-weight: 700; margin-bottom: 15px; }
+        .add-btn { background-color: var(--secondary); color: white; border: none; padding: 10px 0; width: 100%; border-radius: 50px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: auto; }
+        .add-btn:hover { background-color: #e07600; }
+        
+        /* تصميم عرض اليوم */
+        .deal-container { margin-bottom: 40px; text-align: center; }
+        .deal-title { color: #e63946; font-size: 24px; font-weight: 900; margin-bottom: 15px; animation: pulseTitle 2s infinite; font-family: 'Changa', sans-serif; }
+        @keyframes pulseTitle { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .deal-card { background: white; border: 2px solid var(--secondary); border-radius: 12px; padding: 20px; display: flex; flex-direction: row; gap: 30px; align-items: center; max-width: 900px; margin: 0 auto; position: relative; overflow: hidden; text-align: right; }
+        .deal-ribbon { position: absolute; top: 15px; left: -35px; background: #e63946; color: white; padding: 5px 40px; transform: rotate(-45deg); font-weight: 800; font-size: 14px; }
+        .deal-img { width: 250px; height: 250px; object-fit: contain; padding: 10px; background: white; }
         .deal-info { flex-grow: 1; }
-        .deal-name { font-size: 30px; color: var(--primary); font-weight: 800; margin-bottom: 15px; }
-        .deal-price { font-size: 35px; color: #e63946; font-weight: 900; margin-bottom: 25px; }
+        .deal-name { font-size: 24px; color: var(--text-dark); font-weight: 700; margin-bottom: 10px; }
+        .deal-price { font-size: 30px; color: #B12704; font-weight: 900; margin-bottom: 20px; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; overflow-y: auto; }
         .modal-content { background-color: white; width: 90%; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 30px; position: relative; }
@@ -115,7 +119,7 @@
         .admin-form button { background-color: var(--secondary); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
         .btn-primary { background-color: var(--primary) !important; }
         
-        .admin-product-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--light-bg); margin-bottom: 10px; border-radius: 8px; border-right: 4px solid var(--primary); }
+        .admin-product-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9fa; margin-bottom: 10px; border-radius: 8px; border-right: 4px solid var(--primary); }
         .delete-btn { background-color: #e63946 !important; color: white; border: none; padding: 5px 10px !important; width: auto !important; border-radius: 5px; cursor: pointer; font-size: 14px !important; margin-bottom: 0 !important; }
         .icon-btn { background: none !important; border: none !important; font-size: 20px !important; cursor: pointer; padding: 5px !important; color: #6c757d; transition: 0.3s; margin-bottom: 0 !important; width: auto !important; }
         .icon-btn:hover { color: var(--primary); transform: scale(1.2); }
@@ -134,9 +138,12 @@
         .social-link-icon:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         
         .saas-admin-container { max-width: 800px; margin: 50px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        
         .loading-spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid rgba(0,0,0,0.1); border-radius: 50%; border-top-color: var(--primary); animation: spin 1s ease-in-out infinite; margin-top: 15px; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* زر عرض الإيصال في لوحة الأدمن */
+        .view-receipt-btn { background: #007185; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 13px; margin: 5px 0; display: inline-block; }
+        .view-receipt-btn:hover { background: #00596b; }
     </style>
 </head>
 <body>
@@ -281,6 +288,14 @@
         <div id="merchantsList" style="text-align: right; max-height: 250px; overflow-y: auto;"></div>
     </div>
 
+    <div id="adminReceiptModal" class="modal">
+        <div class="modal-content" style="text-align: center; background: #f8f9fa;">
+            <span class="close-btn" onclick="closeModal('adminReceiptModal')"><i class="fa-solid fa-xmark"></i></span>
+            <h2 style="color:var(--primary); margin-bottom:20px;">إيصال الدفع</h2>
+            <img id="adminReceiptDisplay" style="max-width:100%; max-height: 70vh; object-fit:contain; border-radius: 10px; border: 2px solid #ddd;">
+        </div>
+    </div>
+
     <div id="storeApp">
         <header class="store-header">
             <div class="logo">
@@ -377,13 +392,6 @@
                     <input type="file" id="adminStoreLogo" accept="image/*">
                     <button onclick="saveStoreSettings()" class="btn-primary">حفظ البيانات 💾</button>
 
-                    <div id="pharmacyAdminSection" style="display:none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-                        <h3 style="color:var(--primary); margin-bottom:10px;"><i class="fa-solid fa-pills"></i> 🔍 دليل أسعار الأدوية السريع</h3>
-                        <p style="font-size: 13px; color: var(--text-light); margin-bottom: 10px;">ابحث بأول حروف من اسم الدواء لمعرفة سعره التقريبي وإضافته لمتجرك بسرعة.</p>
-                        <input type="text" id="medicineSearchInput" placeholder="ابحث عن دواء (مثال: Panadol)..." onkeyup="searchMedicineDB()" style="direction: ltr; text-align: left;">
-                        <div id="medicineSearchResults" style="max-height: 150px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #eee; border-radius: 8px; display:none; padding:10px; background:#f8f9fa;"></div>
-                    </div>
-
                     <h3 style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">الأقسام</h3>
                     <div style="display:flex; gap:10px; margin-bottom:15px;">
                         <input type="text" id="newCategoryInput" placeholder="اسم القسم" style="margin-bottom:0;">
@@ -452,17 +460,6 @@
         let storeData = { phone: "", name: "", address: "", facebook: "", instagram: "", logo: null, categories: ['عام'], storeType: 'general' };
         let storeProducts = []; let cart = []; let total = 0; let currentCategory = 'الكل';
 
-        // 💊 قاعدة بيانات مصغرة للأدوية المصرية (للتجربة)
-        const egpMedicinesDB = [
-            { name: "Panadol Extra", price: 35 }, { name: "Panadol Advance", price: 30 },
-            { name: "Augmentin 1gm", price: 90 }, { name: "Augmentin 625mg", price: 75 },
-            { name: "Congestal", price: 45 }, { name: "Comtrex", price: 39 },
-            { name: "Brufen 400mg", price: 45 }, { name: "Brufen 600mg", price: 55 },
-            { name: "Cataflam 50mg", price: 42 }, { name: "Voltaren 50mg", price: 38 },
-            { name: "Amoxicillin 500mg", price: 65 }, { name: "Zithromax 1gm", price: 120 },
-            { name: "Concor 50", price: 50 }, { name: "Nexium 5mg", price: 80 }
-        ];
-
         // 🟢 الدعم الفني
         function loadPlatformContact() {
             db.collection("settings").doc("platform_info").onSnapshot(doc => {
@@ -494,15 +491,12 @@
             const root = document.documentElement;
             let iconClass = 'fa-store';
             document.getElementById('pharmacyBanner').style.display = 'none';
-            const pharmAdminSec = document.getElementById('pharmacyAdminSection');
-            if(pharmAdminSec) pharmAdminSec.style.display = 'none';
 
             switch(type) {
                 case 'pharmacy':
                     root.style.setProperty('--primary', '#2a9d8f'); root.style.setProperty('--secondary', '#e76f51');
                     iconClass = 'fa-pills';
                     document.getElementById('pharmacyBanner').style.display = 'block';
-                    if(pharmAdminSec) pharmAdminSec.style.display = 'block';
                     break;
                 case 'electronics':
                     root.style.setProperty('--primary', '#212529'); root.style.setProperty('--secondary', '#e63946'); iconClass = 'fa-plug'; break;
@@ -593,6 +587,11 @@
             });
         }
 
+        function viewAdminReceipt(imgBase64) {
+            document.getElementById('adminReceiptDisplay').src = imgBase64;
+            openModal('adminReceiptModal');
+        }
+
         function loadAllMerchantsAdmin() {
             db.collection("platform_merchants").orderBy("createdAt", "desc").onSnapshot(snapshot => {
                 const pList = document.getElementById('pendingMerchantsList'); const aList = document.getElementById('merchantsList');
@@ -602,7 +601,7 @@
                     const data = doc.data(); const link = window.location.origin + window.location.pathname + "?store=" + doc.id;
                     if (data.status === 'pending') {
                         hasP = true; let planName = data.plan === '1_month' ? 'شهر' : (data.plan === '2_months' ? 'شهرين' : '3 شهور');
-                        pList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid #e63946; background: #fff;"><strong>الرقم: ${data.phone}</strong><span style="font-size:13px; color:#666;">الباقة: ${planName} (${data.pricePaid} ج.م) | باسورد: ${data.password}</span><a href="${data.receipt}" target="_blank" style="color:#2a9d8f; font-size:13px; margin:8px 0; display:block;"><i class="fa-solid fa-receipt"></i> إيصال الدفع</a><button onclick="approveMerchant('${doc.id}', '${data.phone}', '${data.storeType}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%;">✅ موافقة وتفعيل</button></div>`;
+                        pList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid #e63946; background: #fff;"><strong>الرقم: ${data.phone}</strong><span style="font-size:13px; color:#666;">الباقة: ${planName} (${data.pricePaid} ج.م) | باسورد: ${data.password}</span><button onclick="viewAdminReceipt('${data.receipt}')" class="view-receipt-btn"><i class="fa-solid fa-receipt"></i> عرض إيصال الدفع</button><button onclick="approveMerchant('${doc.id}', '${data.phone}', '${data.storeType}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ موافقة وتفعيل</button></div>`;
                     } else if (data.status === 'active') {
                         hasA = true; aList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid #2a9d8f; background: #fff;"><strong>الرقم: ${data.phone}</strong><span style="font-size:12px; color:#666;">باسورد: ${data.password}</span><a href="${link}" target="_blank" style="color:var(--secondary); font-size:13px; margin-top:5px; font-weight:bold;">🔗 فتح المتجر</a></div>`;
                     }
@@ -688,7 +687,7 @@
 
         function addNewProduct() {
             const name = document.getElementById('newProductName').value; const price = document.getElementById('newProductPrice').value; const category = document.getElementById('newProductCategory').value; const isMeter = document.getElementById('newProductIsMeter').checked; const imageFile = document.getElementById('newProductImage').files[0]; const btn = document.getElementById('addProductBtn');
-            if (!name || !price || !category || !imageFile) return alert("اكمل البيانات"); btn.innerText = "جاري الرفع... ⏳"; btn.disabled = true;
+            if (!name || !price || !category || !imageFile) return alert("اكمل البيانات والصورة"); btn.innerText = "جاري الرفع... ⏳"; btn.disabled = true;
             const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); const compressedImage = canvas.toDataURL('image/jpeg', 0.6); const productId = Date.now().toString() + Math.random().toString(36).substr(2, 5); db.collection("stores").doc(currentStoreId).collection("products").doc(productId).set({ name: name, price: parseFloat(price), category: category, image: compressedImage, isMeter: isMeter, sortOrder: Date.now(), isDealOfDay: false }).then(() => { document.getElementById('newProductName').value = ''; document.getElementById('newProductPrice').value = ''; document.getElementById('newProductImage').value = ''; document.getElementById('newProductIsMeter').checked = false; btn.innerText = "إضافة المنتج ☁️"; btn.disabled = false; showToast("تم الرفع! 🚀"); }); }; img.src = e.target.result; }; reader.readAsDataURL(imageFile);
         }
         function deleteProduct(id) { if(confirm("تأكيد المسح؟")) db.collection("stores").doc(currentStoreId).collection("products").doc(id).delete(); }
@@ -718,34 +717,6 @@
             if(!text) return alert("لا يوجد نص!");
             let msg = `*طلب صرف روشتة من ${storeData.name}* 💊\n\nالأدوية المطلوبة:\n${text}\n\n(برجاء مراجعة الروشتة الأصلية مع العميل)`;
             window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        // 🔍 بحث الأدوية السريع للصيدلي
-        function searchMedicineDB() {
-            const query = document.getElementById('medicineSearchInput').value.toLowerCase().trim();
-            const resContainer = document.getElementById('medicineSearchResults');
-            if(query.length < 2) { resContainer.style.display = 'none'; return; }
-            
-            const results = egpMedicinesDB.filter(m => m.name.toLowerCase().includes(query));
-            if(results.length === 0) {
-                resContainer.innerHTML = '<p style="text-align:center; color:#6c757d; font-size:14px; margin:0;">لم يتم العثور على أدوية مطابقة.</p>';
-                resContainer.style.display = 'block'; return;
-            }
-            
-            let html = '';
-            results.forEach(m => {
-                html += `<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; padding:8px 0; font-size:15px;"><span style="font-weight:bold; color:var(--primary);">${m.name}</span><div style="display:flex; align-items:center; gap:10px;"><span style="color:#e63946; font-weight:bold;">${m.price} ج.م</span><button onclick="quickAddMedicine('${m.name}', ${m.price})" style="background:var(--secondary); color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:12px;">إضافة ➕</button></div></div>`;
-            });
-            resContainer.innerHTML = html; resContainer.style.display = 'block';
-        }
-
-        function quickAddMedicine(name, price) {
-            document.getElementById('newProductName').value = name;
-            document.getElementById('newProductPrice').value = price;
-            document.getElementById('medicineSearchResults').style.display = 'none';
-            document.getElementById('medicineSearchInput').value = '';
-            showToast("تم النقل! أضف القسم واضغط رفع.");
-            document.getElementById('newProductName').scrollIntoView({behavior: 'smooth'});
         }
 
         function openModal(id) { document.getElementById(id).style.display = 'block'; }
