@@ -9,6 +9,7 @@
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         :root { 
@@ -108,7 +109,7 @@
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; overflow-y: auto; }
         .modal-content { background-color: white; width: 95%; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 25px; position: relative; }
-        .close-btn { position: absolute; top: 15px; left: 15px; font-size: 20px; cursor: pointer; color: var(--text-gray); background: var(--light-bg); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+        .close-btn { position: absolute; top: 15px; left: 15px; font-size: 20px; cursor: pointer; color: var(--text-gray); background: var(--light-bg); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; }
         
         .floating-action-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
         
@@ -126,7 +127,7 @@
         #merchantDashboardApp { background-color: var(--light-bg); min-height: 100vh; padding-bottom: 80px; max-width: 600px; margin: 0 auto; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
         
         .dash-header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); }
-        .dash-header h1 { font-family: 'Changa', sans-serif; color: var(--text-dark); font-size: 22px; margin: 0; font-weight: 800; }
+        .dash-header h1 { font-family: 'Changa', sans-serif; color: var(--primary); font-size: 22px; margin: 0; font-weight: 800; }
         .dash-header-icons { display: flex; gap: 15px; font-size: 20px; color: var(--text-gray); }
         .dash-header-icons i { cursor: pointer; transition: 0.2s; }
         .dash-header-icons i:hover { color: var(--primary); }
@@ -275,7 +276,7 @@
     <div id="merchantDashboardApp">
         <div class="dash-header">
             <div class="dash-header-icons">
-                <i class="fa-solid fa-share-nodes" onclick="copyStoreLink()" title="مشاركة المتجر"></i>
+                <i class="fa-solid fa-share-nodes" onclick="shareStoreLink()" title="مشاركة المتجر"></i>
                 <i class="fa-regular fa-eye" onclick="previewAsCustomer()" title="معاينة المتجر"></i>
             </div>
             <h1>Bola</h1>
@@ -283,25 +284,37 @@
 
         <div class="dash-content">
             <div id="dash-home" class="dash-view" style="display:block;">
-                <h3 style="margin-bottom:15px; color:var(--text-dark);">نظرة عامة</h3>
-                <div class="dash-card" style="display: flex; justify-content: space-between; align-items: center;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid var(--border-color);">
                     <div>
-                        <span style="display:block; font-size:13px; color:var(--text-gray); margin-bottom:5px;">رابط متجرك المباشر:</span>
-                        <a id="storeLinkDisplay" href="#" target="_blank" style="color:var(--primary); font-weight:bold; text-decoration:none; font-size:14px; direction:ltr; display:block;">...</a>
+                        <h2 style="font-size: 14px; color: var(--text-gray); margin-bottom: 5px;">صباح الخير،</h2>
+                        <h3 style="font-size: 18px; color: var(--text-dark); margin: 0; font-family:'Changa', sans-serif;">متجر <span id="dashGreetingName">...</span></h3>
                     </div>
-                    <button onclick="copyStoreLink()" style="background:var(--light-bg); border:1px solid #ddd; padding:8px 12px; border-radius:8px; color:var(--text-dark); cursor:pointer; font-weight:bold;"><i class="fa-regular fa-copy"></i> نسخ</button>
+                    <button onclick="openQrModal()" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-family: 'Tajawal'; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); transition: 0.2s;">
+                        عرض كود المتجر <i class="fa-solid fa-qrcode"></i>
+                    </button>
                 </div>
                 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                    <div class="dash-card" style="text-align:center; padding:25px 15px;">
-                        <i class="fa-solid fa-box-open" style="font-size:30px; color:var(--secondary); margin-bottom:12px;"></i>
-                        <h3 id="stat-products" style="margin:0; font-size:24px; color:var(--text-dark);">0</h3>
-                        <span style="font-size:13px; color:var(--text-gray); font-weight:bold;">المنتجات المعروضة</span>
+                    <div class="dash-card" style="text-align:center; padding:20px 15px; margin-bottom:0;">
+                        <i class="fa-solid fa-users" style="font-size:24px; color:#4caf50; margin-bottom:10px;"></i>
+                        <h3 id="stat-visitors" style="margin:0; font-size:22px; color:var(--text-dark);">0</h3>
+                        <span style="font-size:12px; color:var(--text-gray); font-weight:bold;">عدد زوار متجرك</span>
                     </div>
-                    <div class="dash-card" style="text-align:center; padding:25px 15px;">
-                        <i class="fa-solid fa-layer-group" style="font-size:30px; color:var(--primary); margin-bottom:12px;"></i>
-                        <h3 id="stat-categories" style="margin:0; font-size:24px; color:var(--text-dark);">0</h3>
-                        <span style="font-size:13px; color:var(--text-gray); font-weight:bold;">أقسام المتجر</span>
+                    <div class="dash-card" style="text-align:center; padding:20px 15px; margin-bottom:0;">
+                        <i class="fa-solid fa-box-open" style="font-size:24px; color:var(--secondary); margin-bottom:10px;"></i>
+                        <h3 id="stat-products" style="margin:0; font-size:22px; color:var(--text-dark);">0</h3>
+                        <span style="font-size:12px; color:var(--text-gray); font-weight:bold;">عدد المنتجات</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top:15px;" class="dash-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="display:block; font-size:13px; color:var(--text-gray); margin-bottom:5px;">رابط متجرك المباشر:</span>
+                            <a id="storeLinkDisplay" href="#" target="_blank" style="color:var(--primary); font-weight:bold; text-decoration:none; font-size:13px; direction:ltr; display:block; word-break: break-all;">...</a>
+                        </div>
+                        <button onclick="copyStoreLink()" style="background:var(--light-bg); border:1px solid #ddd; padding:8px 12px; border-radius:8px; color:var(--text-dark); cursor:pointer; font-weight:bold; margin-right:10px;"><i class="fa-regular fa-copy"></i></button>
                     </div>
                 </div>
             </div>
@@ -515,6 +528,24 @@
         </div>
     </div>
 
+    <div id="qrModal" class="modal">
+        <div class="modal-content" style="text-align: center; border-radius: 20px; padding: 30px 20px; max-width: 400px;">
+            <span class="close-btn" onclick="closeModal('qrModal')"><i class="fa-solid fa-xmark"></i></span>
+            <h2 style="color:var(--text-dark); font-size: 18px; margin-bottom: 5px;">كود المتجر للمشاركة</h2>
+            <p style="color:var(--text-gray); font-weight: bold; margin-bottom: 20px; font-size: 14px;">متجر <span id="qrModalStoreName">...</span></p>
+            
+            <div style="display: flex; justify-content: center; margin-bottom: 20px; padding: 15px; background: white; border: 1px solid #eee; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <div id="qrcode"></div>
+            </div>
+            
+            <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 20px;">امسح الكود لزيارة المتجر</p>
+            
+            <button onclick="shareStoreLink()" style="background:var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);">
+                مشاركة رابط المتجر <i class="fa-solid fa-share-nodes"></i>
+            </button>
+        </div>
+    </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAzildDtyvUV3eNBWkin8wXQsMaEwFoeDs",
@@ -532,7 +563,7 @@
         const isSuperAdmin = urlParams.get('super') === 'bola'; 
 
         let tempPhone = ""; let tempPass = ""; let tempCategory = ""; let selectedPlan = ""; let selectedPrice = 0; let receiptBase64 = "";
-        let storeData = { phone: "", name: "", address: "", facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: 'general' };
+        let storeData = { phone: "", name: "", address: "", facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: 'general', visitors: 0 };
         let storeProducts = []; let cart = []; let total = 0; let currentCategory = 'الكل';
 
         function getExpiryTimestamp(plan) {
@@ -580,12 +611,13 @@
             document.getElementById('loginApp').style.display = 'none';
             let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === currentStoreId;
             
-            // فتح لوحة التاجر مباشرة لو مسجل دخول
             if(isLoggedAsAdmin) {
                 document.getElementById('storeApp').style.display = 'none';
                 document.getElementById('merchantDashboardApp').style.display = 'block';
             } else {
                 document.getElementById('storeApp').style.display = 'block';
+                // زيادة عدد الزوار لو اللي فاتح العميل مش التاجر
+                db.collection("stores").doc(currentStoreId).update({ visitors: firebase.firestore.FieldValue.increment(1) }).catch(e => console.log(e));
             }
             loadStoreData(currentStoreId);
         } else {
@@ -631,7 +663,7 @@
         function createManualStore() {
             const name = document.getElementById('manualStoreName').value; const rawP = document.getElementById('manualStorePhone').value.trim(); const pass = document.getElementById('manualStorePass').value; const type = document.getElementById('manualStoreCategory').value;
             if(!name || !rawP || !pass) return alert("أكمل البيانات"); const phone = "20" + rawP; const storeId = "store_" + Date.now(); let expiry = getExpiryTimestamp('1_month');
-            db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: type }).then(() => { alert("تم الإنشاء!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }); });
+            db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: type, visitors: 0 }).then(() => { alert("تم الإنشاء!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }); });
         }
 
         function viewAdminReceipt(imgBase64) { document.getElementById('adminReceiptDisplay').src = imgBase64; openModal('adminReceiptModal'); }
@@ -655,7 +687,7 @@
                 if(!hasP) pList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا توجد طلبات جديدة.</p>'; if(!hasA) aList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا يوجد تجار حالياً.</p>';
             });
         }
-        function approveMerchant(merchantId, merchantPhone, storeType, plan) { if(confirm("تفعيل المتجر؟")) { let expiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ status: 'active', expiryDate: expiry }).then(() => { db.collection("stores").doc(merchantId).set({ name: "متجر جديد", address: "وصف المتجر", phone: merchantPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: storeType || 'general' }).then(() => showToast("تم التفعيل 🎉")); }); } }
+        function approveMerchant(merchantId, merchantPhone, storeType, plan) { if(confirm("تفعيل المتجر؟")) { let expiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ status: 'active', expiryDate: expiry }).then(() => { db.collection("stores").doc(merchantId).set({ name: "متجر جديد", address: "وصف المتجر", phone: merchantPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: storeType || 'general', visitors: 0 }).then(() => showToast("تم التفعيل 🎉")); }); } }
         function toggleStoreStatus(id, newStatus) { if(confirm(newStatus === 'active' ? "تأكيد تفعيل المتجر مرة أخرى؟" : "تأكيد إيقاف المتجر عن العمل؟")) { db.collection("platform_merchants").doc(id).update({ status: newStatus }).then(() => showToast("تم تحديث حالة المتجر!")); } }
         function renewStoreTime(id) { let days = prompt("أدخل عدد الأيام لتجديد الباقة (مثلاً 30 لشهر):", "30"); if(days && !isNaN(days) && parseInt(days) > 0) { db.collection("platform_merchants").doc(id).get().then(docSnap => { let currentExpiry = docSnap.data().expiryDate || Date.now(); if(currentExpiry < Date.now()) currentExpiry = Date.now(); let newExpiry = currentExpiry + (parseInt(days) * 24 * 60 * 60 * 1000); db.collection("platform_merchants").doc(id).update({ expiryDate: newExpiry }).then(() => showToast("تم تجديد الباقة بنجاح! ⏱️")); }); } }
         function deleteStoreComplete(id) { if(confirm("⚠️ هل أنت متأكد من حذف هذا المتجر نهائياً بكل بياناته؟ (لا يمكن التراجع!)")) { db.collection("platform_merchants").doc(id).delete().then(() => { db.collection("stores").doc(id).delete().then(() => showToast("تم الحذف بنجاح 🗑️")); }); } }
@@ -667,7 +699,6 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(viewId).style.display = 'block';
             
-            // إذا لم يكن الزر المضغوط هو علامة الزائد المركزية، قم بتفعيله لونياً
             if(element && !element.classList.contains('nav-fab')) {
                 element.classList.add('active');
             }
@@ -690,6 +721,35 @@
         function merchantLogout() { sessionStorage.removeItem('loggedStoreId'); window.location.href = window.location.pathname; }
         
         function copyStoreLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + "?store=" + currentStoreId).then(() => showToast("تم نسخ الرابط 🚀")); }
+
+        function openQrModal() {
+            const storeFullLink = window.location.origin + window.location.pathname + "?store=" + currentStoreId;
+            document.getElementById("qrcode").innerHTML = ""; // مسح الكود القديم
+            
+            // إنشاء الـ QR Code الجديد
+            new QRCode(document.getElementById("qrcode"), {
+                text: storeFullLink,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+            
+            openModal('qrModal');
+        }
+
+        function shareStoreLink() {
+            const storeFullLink = window.location.origin + window.location.pathname + "?store=" + currentStoreId;
+            if (navigator.share) {
+                navigator.share({
+                    title: `متجر ${storeData.name}`,
+                    url: storeFullLink
+                }).catch(console.error);
+            } else {
+                copyStoreLink();
+            }
+        }
 
 
         // تحميل بيانات المتجر
@@ -729,8 +789,16 @@
                 if (doc.exists) {
                     storeData = doc.data(); applyStoreTheme(storeData.storeType || 'general');
                     
-                    document.getElementById('headerStoreName').innerText = storeData.name || "متجري"; 
+                    let storeNameDisplay = storeData.name || "متجري";
+                    
+                    // واجهة العميل
+                    document.getElementById('headerStoreName').innerText = storeNameDisplay; 
                     document.getElementById('headerStoreAddress').innerText = storeData.address || ""; 
+                    
+                    // واجهة التاجر
+                    document.getElementById('dashGreetingName').innerText = storeNameDisplay;
+                    document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
+                    document.getElementById('stat-visitors').innerText = storeData.visitors || 0;
                     
                     if(storeData.logo) { 
                         document.getElementById('headerLogoImg').src = storeData.logo; document.getElementById('headerLogoImg').style.display = 'block'; document.getElementById('headerLogoIcon').style.display = 'none'; 
@@ -740,11 +808,9 @@
                     
                     document.getElementById('adminStoreName').value = storeData.name || ""; document.getElementById('adminStoreAddress').value = storeData.address || ""; document.getElementById('adminPhone').value = p; document.getElementById('adminFacebook').value = storeData.facebook || ""; document.getElementById('adminInstagram').value = storeData.instagram || "";
                     
-                    // تحديث الإحصائيات والرابط في واجهة التاجر
                     const storeFullLink = window.location.origin + window.location.pathname + "?store=" + storeId;
                     document.getElementById('storeLinkDisplay').innerText = storeFullLink.substring(0, 30) + "...";
                     document.getElementById('storeLinkDisplay').href = storeFullLink;
-                    document.getElementById('stat-categories').innerText = (storeData.categories ? storeData.categories.length : 0);
 
                     updateSocialLinks();
                     renderCategoriesUI();
