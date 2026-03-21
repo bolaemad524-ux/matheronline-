@@ -926,49 +926,69 @@
 
         function exportStoreProducts() { if(storeProducts.length === 0) return alert("لا توجد منتجات لحفظها."); const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storeProducts)); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", `store_backup_${currentStoreId}.json`); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); showToast("تم التحميل! 📥"); }
         
-        function importStoreProducts(event) { 
-            const file = event.target.files[0]; 
-            if (!file) return; 
-            if (!confirm("هل أنت متأكد من استعادة المنتجات من هذا الملف؟")) return; 
-            
-            const reader = new FileReader(); 
-            reader.onload = function(e) { 
-                try { 
-                    const importedProducts = JSON.parse(e.target.result); 
-                    let count = 0; 
-                    
+        function importStoreProducts(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!confirm("هل أنت متأكد من استعادة المنتجات من هذا الملف؟")) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let parsedData = JSON.parse(e.target.result);
+                    let importedProducts = [];
+
+                    if (Array.isArray(parsedData)) {
+                        importedProducts = parsedData;
+                    } else if (parsedData && Array.isArray(parsedData.products)) {
+                        importedProducts = parsedData.products;
+                    } else {
+                        throw new Error("صيغة الملف غير مدعومة");
+                    }
+
+                    if (importedProducts.length === 0) {
+                        alert("الملف فارغ ولا يحتوي على منتجات.");
+                        return;
+                    }
+
+                    let count = 0;
                     let newCategories = new Set(storeData.categories || ['الكل']);
-                    
-                    importedProducts.forEach((product, index) => { 
-                        if(product.category) newCategories.add(product.category); 
-                        
-                        const productId = product.id || Date.now().toString() + Math.random().toString(36).substr(2, 5); 
-                        db.collection("stores").doc(currentStoreId).collection("products").doc(productId).set({ 
-                            name: product.name, 
-                            price: product.price, 
-                            category: product.category, 
-                            description: product.description || "", 
-                            image: product.image || product.imgUrl || "", 
-                            isMeter: product.isMeter || false, 
-                            sortOrder: product.sortOrder || (Date.now() + index), 
-                            isDealOfDay: product.isDealOfDay || false 
-                        }).then(() => { 
-                            count++; 
-                            if(count === importedProducts.length) { 
+
+                    importedProducts.forEach((product, index) => {
+                        if(product.category) newCategories.add(product.category);
+
+                        let pId = product.id ? product.id.toString() : "";
+                        const productId = pId || Date.now().toString() + Math.random().toString(36).substr(2, 5);
+
+                        db.collection("stores").doc(currentStoreId).collection("products").doc(productId).set({
+                            name: product.name || "بدون اسم",
+                            price: Number(product.price) || 0,
+                            category: product.category || "الكل",
+                            description: product.description || product.desc || "", 
+                            image: product.image || product.imgUrl || "",
+                            isMeter: product.isMeter || product.isMetered || false, 
+                            sortOrder: product.sortOrder || (Date.now() + index),
+                            isDealOfDay: product.isDealOfDay || false
+                        }).then(() => {
+                            count++;
+                            if(count === importedProducts.length) {
                                 db.collection("stores").doc(currentStoreId).update({
                                     categories: Array.from(newCategories)
                                 }).then(() => {
-                                    showToast("تمت استعادة المنتجات والأقسام بنجاح! 🔄"); 
-                                    document.getElementById('backupFileInput').value = ""; 
+                                    showToast("تمت استعادة المنتجات بنجاح! 🔄");
+                                    document.getElementById('backupFileInput').value = "";
                                 });
-                            } 
-                        }); 
-                    }); 
-                } catch (error) { 
-                    alert("عذراً، هذا الملف غير صالح أو تالف."); 
-                } 
-            }; 
-            reader.readAsText(file); 
+                            }
+                        }).catch(error => {
+                            console.error("خطأ في رفع المنتج", error);
+                            count++; 
+                        });
+                    });
+                } catch (error) {
+                    console.error(error);
+                    alert("عذراً، هذا الملف غير صالح أو تالف.");
+                }
+            };
+            reader.readAsText(file);
         }
 
         function addToCart(id, name, price, isMeter) { let quantity = 1; if (isMeter) { let qtyInput = prompt(`كم متر تريد من "${name}"؟`, "1"); if (qtyInput === null || qtyInput.trim() === "" || isNaN(qtyInput) || Number(qtyInput) <= 0) return; quantity = Number(qtyInput); } cart.push({ id, name, price, quantity, isMeter }); updateCartUI(); showToast("تمت الإضافة للسلة!"); }
