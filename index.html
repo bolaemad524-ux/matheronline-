@@ -55,6 +55,19 @@
         .plan-price { font-size: 22px; font-weight: 900; color: var(--primary); }
         .receipt-preview { width: 100%; max-height: 200px; object-fit: contain; margin-bottom: 15px; display: none; border: 2px dashed #ccc; border-radius: 10px; }
 
+        /* تنسيقات نافذة الدفع الجديدة */
+        .payment-methods-logos { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .payment-logo { width: 60px; height: 60px; object-fit: contain; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #eee; background: white; padding: 5px; }
+        .instapay-logo { border-color: #6a1b9a; }
+        .wallet-logo { border-color: #e60000; }
+        
+        .payment-number-box { background: linear-gradient(135deg, #f0f6ff 0%, #e2edff 100%); border: 2px dashed var(--primary); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; position: relative; overflow: hidden; }
+        .payment-number-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--primary); }
+        .payment-amount { font-size: 20px; font-weight: bold; color: var(--text-dark); margin-bottom: 10px; display: block; }
+        .payment-number { font-size: 32px; font-weight: 900; color: var(--primary); letter-spacing: 3px; font-family: monospace; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+        .payment-number i { font-size: 20px; color: var(--text-gray); transition: 0.2s; }
+        .payment-number:hover i { color: var(--primary); }
+
         /* المتجر */
         .store-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; padding-bottom: 80px; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
         .store-header { background-color: white; position: sticky; top: 0; z-index: 100; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
@@ -144,6 +157,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .dash-card { background: white; padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        
         .admin-form input:not([type="checkbox"]), .admin-form select, .admin-form textarea { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; background: var(--light-bg); font-family: 'Tajawal', sans-serif;}
         .admin-form input:focus, .admin-form select:focus, .admin-form textarea:focus { background: white; border-color: var(--primary); outline: none; }
         .admin-form button.btn-save { background-color: var(--primary); color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
@@ -152,6 +166,13 @@
         .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 5px; color: var(--text-gray); }
         .icon-btn:hover { color: var(--primary); }
         .delete-btn { background-color: #e63946 !important; color: white; border: none; padding: 5px 10px !important; border-radius: 5px; cursor: pointer; font-size: 14px !important; margin-bottom: 0 !important; }
+        
+        .input-icon-wrapper { position: relative; margin-bottom: 15px; }
+        .input-icon-wrapper i { position: absolute; right: 15px; top: 15px; color: var(--primary); font-size: 18px; }
+        .input-icon-wrapper input, .input-icon-wrapper select, .input-icon-wrapper textarea { padding-right: 45px !important; margin-bottom: 0 !important; width: 100%; }
+        
+        .image-upload-box { border: 2px dashed var(--primary); padding: 30px; text-align: center; border-radius: 12px; background: #f0f6ff; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
+        .image-upload-box:hover { background: #e2edff; }
     </style>
 </head>
 <body>
@@ -205,17 +226,31 @@
                 </div>
 
                 <div id="authStep3" style="display: none; text-align: right;">
-                    <h2 style="text-align: center;">إتمام الدفع 💸</h2>
-                    <div style="background: var(--light-bg); border:1px solid var(--border-color); border-radius:12px; padding:15px; text-align:center; margin-bottom:20px;">
-                        <p style="font-weight:bold; font-size:16px; margin-bottom:10px;">قم بتحويل مبلغ <span id="selectedPlanPrice" style="color:#e63946; font-size:22px; font-weight:900;"></span></p>
-                        <div style="font-size:26px; font-weight:900; color:var(--primary); margin:10px 0; letter-spacing: 2px;">01285957035</div>
+                    <h2 style="text-align: center; color:var(--primary); margin-bottom: 20px;">إتمام الدفع 💸</h2>
+                    
+                    <p style="text-align: center; font-size: 16px; font-weight: bold; color: var(--text-gray); margin-bottom: 15px;">
+                        يمكنك التحويل عبر إنستاباي أو المحافظ الإلكترونية
+                    </p>
+                    
+                    <div class="payment-methods-logos">
+                        <img src="https://play-lh.googleusercontent.com/9vGv1YgC-g-oH3G4s7tTf5OqzrJ1eB-r1yBwLqH7yE5bE2V-Z3gX3bS3F4zR1n8xM2A=w240-h480-rw" class="payment-logo instapay-logo" alt="InstaPay">
+                        <img src="https://play-lh.googleusercontent.com/1-hKozfW7f2XG_oNn9DkG3pP1M9s3V9S-F1L2K8T2K-D2yV_V8Y_1C_b0H0_J1Q_Jw=w240-h480-rw" class="payment-logo wallet-logo" alt="Vodafone Cash">
                     </div>
-                    <label style="font-weight:bold; display:block; margin-bottom:8px;">أرفق صورة الإيصال:</label>
+
+                    <div class="payment-number-box">
+                        <span class="payment-amount">قم بتحويل مبلغ <span id="selectedPlanPrice" style="color:#e63946; font-size:24px; font-weight:900;"></span></span>
+                        <div class="payment-number" onclick="copyPaymentNumber()" title="اضغط لنسخ الرقم">
+                            <span id="thePaymentNumber">01285957035</span>
+                            <i class="fa-regular fa-copy"></i>
+                        </div>
+                    </div>
+
+                    <label style="font-weight:bold; display:block; margin-bottom:8px;">أرفق صورة الإيصال (سكرين شوت):</label>
                     <input type="file" id="receiptInput" accept="image/*" onchange="previewReceipt(event)">
                     <img id="receiptImagePreview" class="receipt-preview">
                     
                     <button onclick="submitSubscription()" class="main-btn" id="submitSubBtn">تأكيد الدفع واشتراك</button>
-                    <button onclick="cancelPayment()" style="background:transparent; color:var(--text-gray); border:none; width:100%; padding:10px; font-weight:bold; cursor:pointer; margin-top: 10px;">إلغاء</button>
+                    <button onclick="cancelPayment()" style="background:transparent; color:var(--text-gray); border:none; width:100%; padding:10px; font-weight:bold; cursor:pointer; margin-top: 10px;">إلغاء والرجوع</button>
                 </div>
 
                 <div id="authStep4" style="display: none;">
@@ -326,19 +361,42 @@
 
             <div id="dash-add" class="dash-view">
                 <h3 style="margin-bottom:15px; color:var(--text-dark);">إضافة منتج جديد</h3>
-                <div class="dash-card admin-form">
-                    <input type="text" id="newProductName" placeholder="اسم المنتج">
-                    <input type="number" id="newProductPrice" placeholder="السعر (ج.م)">
-                    <select id="newProductCategory"></select>
-                    <textarea id="newProductDesc" rows="3" placeholder="تفاصيل ووصف المنتج (اختياري)..."></textarea>
+                <div class="dash-card admin-form" style="padding: 20px;">
                     
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px; background: var(--light-bg); padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
-                        <input type="checkbox" id="newProductIsMeter" style="width:20px; height:20px; margin:0;">
-                        <label for="newProductIsMeter" style="margin:0; font-weight:bold; color:var(--text-dark);">المنتج يباع بالمتر 📏</label>
+                    <div class="image-upload-box" onclick="document.getElementById('newProductImage').click()">
+                        <i class="fa-solid fa-camera" id="cameraIcon" style="font-size: 35px; color: var(--primary); margin-bottom: 10px;"></i>
+                        <p id="uploadText" style="margin:0; font-weight:bold; color:var(--primary);">إضافة صورة المنتج</p>
+                        <img id="newProductImagePreview" style="display:none; width:100%; max-height:150px; object-fit:contain; border-radius:8px; margin-top: 10px;">
                     </div>
-                    <label style="font-size:13px; font-weight:bold; color:var(--text-gray); margin-bottom:5px; display:block;">صورة المنتج:</label>
-                    <input type="file" id="newProductImage" accept="image/*" style="background:white; padding:10px;">
-                    <button id="addProductBtn" onclick="addNewProduct()" class="btn-save"><i class="fa-solid fa-cloud-arrow-up"></i> رفع المنتج للمتجر</button>
+                    <input type="file" id="newProductImage" accept="image/*" style="display:none;" onchange="previewNewProductImage(event)">
+
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-tag"></i>
+                        <input type="text" id="newProductName" placeholder="اسم المنتج">
+                    </div>
+
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                        <input type="number" id="newProductPrice" placeholder="السعر (ج.م)">
+                    </div>
+
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-list"></i>
+                        <select id="newProductCategory"></select>
+                    </div>
+
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-align-right"></i>
+                        <textarea id="newProductDesc" rows="3" placeholder="تفاصيل المنتج"></textarea>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; background: var(--light-bg); padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+                        <i class="fa-solid fa-ruler-combined" style="color: var(--primary); font-size: 20px;"></i>
+                        <label for="newProductIsMeter" style="margin:0; font-weight:bold; color:var(--text-dark); flex-grow: 1;">المنتج يباع بالمتر</label>
+                        <input type="checkbox" id="newProductIsMeter" style="width:22px; height:22px; margin:0; cursor:pointer;">
+                    </div>
+
+                    <button id="addProductBtn" onclick="addNewProduct()" class="btn-save" style="margin-bottom:0; padding:15px; font-size:18px;"><i class="fa-solid fa-plus-circle"></i> إضافة المنتج</button>
                 </div>
             </div>
 
@@ -601,6 +659,13 @@
             if(document.getElementById('headerLogoIcon')) document.getElementById('headerLogoIcon').className = `fa-solid ${iconClass}`;
         }
 
+        function copyPaymentNumber() {
+            const number = document.getElementById('thePaymentNumber').innerText;
+            navigator.clipboard.writeText(number).then(() => {
+                showToast("تم نسخ الرقم بنجاح!");
+            });
+        }
+
         // التوجيه الذكي للمنصة
         if (isSuperAdmin) {
             let pass = prompt("الرجاء إدخال كلمة مرور الإدارة:");
@@ -616,7 +681,6 @@
                 document.getElementById('merchantDashboardApp').style.display = 'block';
             } else {
                 document.getElementById('storeApp').style.display = 'block';
-                // زيادة عدد الزوار لو اللي فاتح العميل مش التاجر
                 db.collection("stores").doc(currentStoreId).update({ visitors: firebase.firestore.FieldValue.increment(1) }).catch(e => console.log(e));
             }
             loadStoreData(currentStoreId);
@@ -903,10 +967,28 @@
         function moveProductUp(id) { const index = storeProducts.findIndex(p => p.id === id); if (index > 0) { let currentOrder = storeProducts[index].sortOrder; let prevOrder = storeProducts[index - 1].sortOrder; if (currentOrder === prevOrder) prevOrder -= 10; db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index].id).update({ sortOrder: prevOrder }); db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index - 1].id).update({ sortOrder: currentOrder }); } }
         function moveProductDown(id) { const index = storeProducts.findIndex(p => p.id === id); if (index < storeProducts.length - 1) { let currentOrder = storeProducts[index].sortOrder; let nextOrder = storeProducts[index + 1].sortOrder; if (currentOrder === nextOrder) nextOrder += 10; db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index].id).update({ sortOrder: nextOrder }); db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index + 1].id).update({ sortOrder: currentOrder }); } }
 
+        function previewNewProductImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('newProductImagePreview').src = e.target.result;
+                    document.getElementById('newProductImagePreview').style.display = 'block';
+                    document.getElementById('cameraIcon').style.display = 'none';
+                    document.getElementById('uploadText').style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
         function addNewProduct() {
             const name = document.getElementById('newProductName').value; const price = document.getElementById('newProductPrice').value; const category = document.getElementById('newProductCategory').value; const desc = document.getElementById('newProductDesc').value; const isMeter = document.getElementById('newProductIsMeter').checked; const imageFile = document.getElementById('newProductImage').files[0]; const btn = document.getElementById('addProductBtn');
             if (!name || !price || !category || !imageFile) return alert("اكمل البيانات"); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الرفع...'; btn.disabled = true;
-            const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); const compressedImage = canvas.toDataURL('image/jpeg', 0.6); const productId = Date.now().toString() + Math.random().toString(36).substr(2, 5); db.collection("stores").doc(currentStoreId).collection("products").doc(productId).set({ name: name, price: parseFloat(price), category: category, description: desc, image: compressedImage, isMeter: isMeter, sortOrder: Date.now(), isDealOfDay: false }).then(() => { document.getElementById('newProductName').value = ''; document.getElementById('newProductPrice').value = ''; document.getElementById('newProductDesc').value = ''; document.getElementById('newProductImage').value = ''; document.getElementById('newProductIsMeter').checked = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> رفع المنتج للمتجر'; btn.disabled = false; showToast("تم الرفع!"); switchDashView('dash-products', document.querySelectorAll('.nav-item')[1]); }); }; img.src = e.target.result; }; reader.readAsDataURL(imageFile);
+            const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); const compressedImage = canvas.toDataURL('image/jpeg', 0.6); const productId = Date.now().toString() + Math.random().toString(36).substr(2, 5); db.collection("stores").doc(currentStoreId).collection("products").doc(productId).set({ name: name, price: parseFloat(price), category: category, description: desc, image: compressedImage, isMeter: isMeter, sortOrder: Date.now(), isDealOfDay: false }).then(() => { 
+                document.getElementById('newProductName').value = ''; document.getElementById('newProductPrice').value = ''; document.getElementById('newProductDesc').value = ''; document.getElementById('newProductImage').value = ''; document.getElementById('newProductIsMeter').checked = false; 
+                document.getElementById('newProductImagePreview').style.display = 'none'; document.getElementById('newProductImagePreview').src = ''; document.getElementById('cameraIcon').style.display = 'block'; document.getElementById('uploadText').style.display = 'block';
+                btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> إضافة المنتج'; btn.disabled = false; showToast("تم الرفع!"); switchDashView('dash-products', document.querySelectorAll('.nav-item')[1]); 
+            }); }; img.src = e.target.result; }; reader.readAsDataURL(imageFile);
         }
         function deleteProduct(id) { if(confirm("مسح المنتج؟")) db.collection("stores").doc(currentStoreId).collection("products").doc(id).delete(); }
 
