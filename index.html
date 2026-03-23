@@ -258,7 +258,7 @@
                         <option value="restaurant">مطعم / كافيه / حلويات</option>
                     </select>
                     
-                    <button id="startTrialBtn" onclick="startFreeTrial()" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); transition: 0.3s;">
+                    <button id="startTrialBtn" onclick="startFreeTrial()" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); transition: 0.3s;">
                         ابدأ تجربتك المجانية (3 أيام) 🚀
                     </button>
                     <button onclick="goBackToStep1()" style="background:var(--light-bg); color:var(--text-dark); border:1px solid var(--border-color); width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 10px;">رجوع</button>
@@ -716,20 +716,20 @@
                     loadAllMerchantsAdmin();
                 })
                 .catch((error) => {
-                    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                        if(pass === "941997") {
-                            firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass)
-                            .then(() => {
-                                document.getElementById('storeApp').style.display = 'none';
-                                document.getElementById('superAdminApp').style.display = 'block';
-                                loadAllMerchantsAdmin();
-                            });
-                        } else {
-                            alert("كلمة المرور غير صحيحة!");
+                    // لو الحساب مش موجود أو في أي خطأ، وكان الباسورد هو الافتراضي، ننشئ الحساب فوراً
+                    if(pass === "941997") {
+                        firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass)
+                        .then(() => {
+                            document.getElementById('storeApp').style.display = 'none';
+                            document.getElementById('superAdminApp').style.display = 'block';
+                            loadAllMerchantsAdmin();
+                        })
+                        .catch(err2 => {
+                            alert("حدث خطأ من السيرفر: " + err2.message);
                             window.location.href = window.location.pathname;
-                        }
+                        });
                     } else {
-                        alert("حدث خطأ في تسجيل الدخول.");
+                        alert("كلمة المرور غير صحيحة!");
                         window.location.href = window.location.pathname;
                     }
                 });
@@ -1398,6 +1398,10 @@
                 msg += `${i + 1}- ${item.name} (${qtyDesc}) بـ ${itemTotal} ج.م\n`; 
             }); 
             msg += `\n*الإجمالي: ${total} ج.م*`; 
+            
+            // إضافة روابط التواصل المخصصة لنهاية النص
+            msg += `\n\nللتواصل السريع:\nواتساب: https://wa.me/201285957035`;
+            
             window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
         }
 
