@@ -82,8 +82,20 @@
 
         .header-actions { display: flex; align-items: center; gap: 10px; }
         .contact-icon-btn { background: #f0f6ff; color: var(--primary); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
-        .cart-icon-btn { background: var(--primary); color: white; border: none; padding: 0 15px; height: 40px; border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2); }
-        .cart-badge { background: white; color: var(--primary); padding: 2px 6px; border-radius: 10px; font-size: 12px; }
+        .cart-icon-btn { background: var(--primary); color: white; border: none; padding: 0 15px; height: 40px; border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2); }
+        .cart-badge { background: white; color: var(--primary); padding: 2px 6px; border-radius: 10px; font-size: 12px; transition: 0.3s; }
+
+        /* تأثير الإضافة للعربة */
+        .cart-glow { background-color: #e63946 !important; box-shadow: 0 0 15px rgba(230, 57, 70, 0.8) !important; animation: pulse-red 0.8s infinite alternate !important; }
+        .cart-glow .cart-badge { color: #e63946 !important; }
+        @keyframes pulse-red {
+            from { transform: scale(1); box-shadow: 0 0 10px rgba(230, 57, 70, 0.5); }
+            to { transform: scale(1.1); box-shadow: 0 0 20px rgba(230, 57, 70, 0.9); }
+        }
+        
+        .cart-tooltip { position: absolute; top: 120%; left: 50%; transform: translateX(-50%) translateY(-10px); background: #e63946; color: white; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.3s all; box-shadow: 0 3px 10px rgba(0,0,0,0.2); z-index: 101; pointer-events: none; }
+        .cart-tooltip::after { content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); border-width: 6px; border-style: solid; border-color: transparent transparent #e63946 transparent; }
+        .cart-tooltip.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
         .search-wrapper { padding: 20px 15px 10px; background: white; }
         .search-box { position: relative; width: 100%; }
@@ -349,6 +361,11 @@
                         <h3 id="stat-products" style="margin:0; font-size:22px; color:var(--text-dark);">0</h3>
                         <span style="font-size:12px; color:var(--text-gray); font-weight:bold;">عدد المنتجات</span>
                     </div>
+                    <div class="dash-card" style="text-align:center; padding:20px 15px; margin-bottom:0; grid-column: span 2; background: linear-gradient(135deg, #f0f6ff, #e2edff); border-color: var(--primary);">
+                        <i class="fa-solid fa-cart-arrow-down" style="font-size:28px; color:var(--primary); margin-bottom:10px;"></i>
+                        <h3 id="stat-orders" style="margin:0; font-size:26px; color:var(--primary); font-weight:900;">0</h3>
+                        <span style="font-size:14px; color:var(--text-dark); font-weight:bold;">إجمالي الطلبات المؤكدة</span>
+                    </div>
                 </div>
                 
                 <div style="margin-top:15px;" class="dash-card">
@@ -497,14 +514,17 @@
                     </div>
                 </div>
 
-                <div class="header-actions">
+                <div class="header-actions" style="position: relative;">
                     <button class="contact-icon-btn" onclick="openModal('socialModal')">
                         <i class="fa-solid fa-phone"></i>
                     </button>
-                    <button class="cart-icon-btn" onclick="openModal('cartModal')">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                        <span class="cart-badge" id="cart-count">0</span>
-                    </button>
+                    <div style="position: relative; display: inline-block;">
+                        <button id="mainCartBtn" class="cart-icon-btn" onclick="openModal('cartModal')">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span class="cart-badge" id="cart-count">0</span>
+                        </button>
+                        <div id="cartTooltip" class="cart-tooltip">اضغط هنا لتأكيد الأوردر</div>
+                    </div>
                 </div>
             </header>
 
@@ -644,7 +664,7 @@
         const isSuperAdmin = urlParams.get('super') === 'bola'; 
 
         let tempPhone = ""; let tempPass = ""; let tempCategory = ""; let selectedPlan = ""; let selectedPrice = 0; let receiptBase64 = "";
-        let storeData = { phone: "", name: "", address: "", facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: 'general', visitors: 0 };
+        let storeData = { phone: "", name: "", address: "", facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: 'general', visitors: 0, ordersCount: 0 };
         let storeProducts = []; let cart = []; let total = 0; let currentCategory = 'الكل';
 
         function getExpiryTimestamp(plan) {
@@ -750,7 +770,7 @@
         function createManualStore() {
             const name = document.getElementById('manualStoreName').value; const rawP = document.getElementById('manualStorePhone').value.trim(); const pass = document.getElementById('manualStorePass').value; const type = document.getElementById('manualStoreCategory').value;
             if(!name || !rawP || !pass) return alert("أكمل البيانات"); const phone = "20" + rawP; const storeId = "store_" + Date.now(); let expiry = getExpiryTimestamp('1_month');
-            db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: type, visitors: 0 }).then(() => { alert("تم الإنشاء!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }); });
+            db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: type, visitors: 0, ordersCount: 0 }).then(() => { alert("تم الإنشاء!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }); });
         }
 
         function viewAdminReceipt(imgBase64) { document.getElementById('adminReceiptDisplay').src = imgBase64; openModal('adminReceiptModal'); }
@@ -774,7 +794,7 @@
                 if(!hasP) pList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا توجد طلبات جديدة.</p>'; if(!hasA) aList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا يوجد تجار حالياً.</p>';
             });
         }
-        function approveMerchant(merchantId, merchantPhone, storeType, plan) { if(confirm("تفعيل المتجر؟")) { let expiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ status: 'active', expiryDate: expiry }).then(() => { db.collection("stores").doc(merchantId).set({ name: "متجر جديد", address: "وصف المتجر", phone: merchantPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: storeType || 'general', visitors: 0 }).then(() => showToast("تم التفعيل 🎉")); }); } }
+        function approveMerchant(merchantId, merchantPhone, storeType, plan) { if(confirm("تفعيل المتجر؟")) { let expiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ status: 'active', expiryDate: expiry }).then(() => { db.collection("stores").doc(merchantId).set({ name: "متجر جديد", address: "وصف المتجر", phone: merchantPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: storeType || 'general', visitors: 0, ordersCount: 0 }).then(() => showToast("تم التفعيل 🎉")); }); } }
         function toggleStoreStatus(id, newStatus) { if(confirm(newStatus === 'active' ? "تأكيد تفعيل المتجر مرة أخرى؟" : "تأكيد إيقاف المتجر عن العمل؟")) { db.collection("platform_merchants").doc(id).update({ status: newStatus }).then(() => showToast("تم تحديث حالة المتجر!")); } }
         function renewStoreTime(id) { let days = prompt("أدخل عدد الأيام لتجديد الباقة (مثلاً 30 لشهر):", "30"); if(days && !isNaN(days) && parseInt(days) > 0) { db.collection("platform_merchants").doc(id).get().then(docSnap => { let currentExpiry = docSnap.data().expiryDate || Date.now(); if(currentExpiry < Date.now()) currentExpiry = Date.now(); let newExpiry = currentExpiry + (parseInt(days) * 24 * 60 * 60 * 1000); db.collection("platform_merchants").doc(id).update({ expiryDate: newExpiry }).then(() => showToast("تم تجديد الباقة بنجاح! ⏱️")); }); } }
         function deleteStoreComplete(id) { if(confirm("⚠️ هل أنت متأكد من حذف هذا المتجر نهائياً بكل بياناته؟ (لا يمكن التراجع!)")) { db.collection("platform_merchants").doc(id).delete().then(() => { db.collection("stores").doc(id).delete().then(() => showToast("تم الحذف بنجاح 🗑️")); }); } }
@@ -886,6 +906,7 @@
                     document.getElementById('dashGreetingName').innerText = storeNameDisplay;
                     document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
                     document.getElementById('stat-visitors').innerText = storeData.visitors || 0;
+                    document.getElementById('stat-orders').innerText = storeData.ordersCount || 0;
                     
                     if(storeData.logo) { 
                         document.getElementById('headerLogoImg').src = storeData.logo; document.getElementById('headerLogoImg').style.display = 'block'; document.getElementById('headerLogoIcon').style.display = 'none'; 
@@ -1043,13 +1064,61 @@
             }; reader.readAsText(file);
         }
 
-        function addToCart(id, name, price, isMeter) { let quantity = 1; if (isMeter) { let qtyInput = prompt(`كم متر تريد من "${name}"؟`, "1"); if (qtyInput === null || qtyInput.trim() === "" || isNaN(qtyInput) || Number(qtyInput) <= 0) return; quantity = Number(qtyInput); } cart.push({ id, name, price, quantity, isMeter }); updateCartUI(); showToast("تمت الإضافة للسلة!"); }
+        function addToCart(id, name, price, isMeter) { 
+            let quantity = 1; 
+            if (isMeter) { 
+                let qtyInput = prompt(`كم متر تريد من "${name}"؟`, "1"); 
+                if (qtyInput === null || qtyInput.trim() === "" || isNaN(qtyInput) || Number(qtyInput) <= 0) return; 
+                quantity = Number(qtyInput); 
+            } 
+            cart.push({ id, name, price, quantity, isMeter }); 
+            updateCartUI(); 
+            showToast("تمت الإضافة للسلة!"); 
+            
+            const cartBtn = document.getElementById('mainCartBtn');
+            const tooltip = document.getElementById('cartTooltip');
+            if(cartBtn && tooltip) {
+                cartBtn.classList.add('cart-glow');
+                tooltip.classList.add('show');
+                
+                clearTimeout(window.cartGlowTimeout);
+                window.cartGlowTimeout = setTimeout(() => {
+                    cartBtn.classList.remove('cart-glow');
+                    tooltip.classList.remove('show');
+                }, 4000);
+            }
+        }
         function updateCartUI() { document.getElementById('cart-count').innerText = cart.length; const cartItemsDiv = document.getElementById('cart-items'); cartItemsDiv.innerHTML = ''; total = 0; cart.forEach((item, i) => { let itemTotal = item.price * item.quantity; total += itemTotal; let qtyDesc = item.isMeter ? `(${item.quantity} متر)` : ``; cartItemsDiv.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;"><span><button onclick="cart.splice(${i},1); updateCartUI();" style="color:red; background:none; border:none; cursor:pointer; margin-left:5px;"><i class="fa-solid fa-trash"></i></button> ${item.name} <small style="color:var(--text-gray);">${qtyDesc}</small></span><strong>${itemTotal} ج.م</strong></div>`; }); document.getElementById('cart-total').innerText = total; }
-        function checkout() { if (cart.length === 0) return alert("العربة فارغة!"); let msg = `*طلب جديد من ${storeData.name}* 🛍️\n\n`; cart.forEach((item, i) => { let itemTotal = item.price * item.quantity; let qtyDesc = item.isMeter ? `${item.quantity} متر` : `1 قطعة`; msg += `${i + 1}- ${item.name} (${qtyDesc}) بـ ${itemTotal} ج.م\n`; }); msg += `\n*الإجمالي: ${total} ج.م*`; window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); }
+        
+        function checkout() { 
+            if (cart.length === 0) return alert("العربة فارغة!"); 
+            
+            // تسجيل الطلب في قاعدة البيانات لزيادة العداد للتاجر
+            db.collection("stores").doc(currentStoreId).update({
+                ordersCount: firebase.firestore.FieldValue.increment(1)
+            }).catch(e => console.log(e));
+
+            let msg = `*طلب جديد من ${storeData.name}* 🛍️\n\n`; 
+            cart.forEach((item, i) => { 
+                let itemTotal = item.price * item.quantity; 
+                let qtyDesc = item.isMeter ? `(${item.quantity} متر)` : `1 قطعة`; 
+                msg += `${i + 1}- ${item.name} (${qtyDesc}) بـ ${itemTotal} ج.م\n`; 
+            }); 
+            msg += `\n*الإجمالي: ${total} ج.م*`; 
+            window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
+        }
 
         function sendPrescriptionDirectly() { let msg = `*طلب صرف روشتة من ${storeData.name}* 💊\n\nمرحباً، أريد صرف الأدوية الموجودة في الروشتة التي سأقوم بإرسال صورتها لكم الآن.`; window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); closeModal('prescriptionModal'); }
 
-        function openModal(id) { document.getElementById(id).style.display = 'block'; }
+        function openModal(id) { 
+            document.getElementById(id).style.display = 'block'; 
+            if(id === 'cartModal') {
+                const cartBtn = document.getElementById('mainCartBtn');
+                const tooltip = document.getElementById('cartTooltip');
+                if(cartBtn) cartBtn.classList.remove('cart-glow');
+                if(tooltip) tooltip.classList.remove('show');
+            }
+        }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
         window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.style.display = "none"; }
