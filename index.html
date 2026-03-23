@@ -704,7 +704,7 @@
             });
         }
 
-        // مسار الإدارة المحمي بالـ Auth
+        // 🎯 مسار الإدارة المحمي بالـ Auth (تم إصلاح خطأ User exists هنا)
         if (isSuperAdmin) {
             document.getElementById('loginApp').style.display = 'none'; 
             let pass = prompt("الرجاء إدخال كلمة مرور الإدارة:");
@@ -716,8 +716,8 @@
                     loadAllMerchantsAdmin();
                 })
                 .catch((error) => {
-                    // لو الحساب مش موجود أو في أي خطأ، وكان الباسورد هو الافتراضي، ننشئ الحساب فوراً
-                    if(pass === "941997") {
+                    if (pass === "941997") {
+                        // محاولة إنشاء الحساب لو دي أول مرة
                         firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass)
                         .then(() => {
                             document.getElementById('storeApp').style.display = 'none';
@@ -725,7 +725,11 @@
                             loadAllMerchantsAdmin();
                         })
                         .catch(err2 => {
-                            alert("حدث خطأ من السيرفر: " + err2.message);
+                            if (err2.code === 'auth/email-already-in-use') {
+                                alert("لقد قمت بتغيير كلمة المرور مسبقاً! الرجاء استخدام كلمة المرور الجديدة، أو أن كلمة المرور غير صحيحة.");
+                            } else {
+                                alert("حدث خطأ من السيرفر: " + err2.message);
+                            }
                             window.location.href = window.location.pathname;
                         });
                     } else {
@@ -752,6 +756,7 @@
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
         }
 
+        // 🎯 كوبري تسجيل دخول التجار (لترحيل الحسابات القديمة بسلاسة)
         function checkMerchantLogin() {
             let rawPhone = document.getElementById('loginPhone').value.trim();
             tempPass = document.getElementById('loginPass').value.trim();
@@ -766,7 +771,6 @@
             btn.innerText = "جاري التحقق... ⏳";
             btn.disabled = true;
 
-            // المحاولة الأولى: الدخول بنظام Auth الآمن الجديد
             firebase.auth().signInWithEmailAndPassword(fakeEmail, tempPass)
             .then((userCredential) => {
                 db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
@@ -774,25 +778,21 @@
                 });
             })
             .catch(error => {
-                // لو الحساب مش موجود في الـ Auth (تاجر قديم) أو الباسورد غلط
                 db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
                     if(snap.empty) {
-                        // تاجر جديد تماماً
                         document.getElementById('authStep1').style.display = 'none'; 
                         document.getElementById('authStep2').style.display = 'block';
                         btn.innerText = originalText;
                         btn.disabled = false;
                     } else {
-                        // تاجر قديم
                         let mData = snap.docs[0].data();
                         if (mData.password === tempPass) {
-                            // ننشئ له حساب في Auth فوراً للترحيل الصامت
                             firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass)
                             .then(() => {
                                 processLoginSuccess(snap.docs[0]);
                             })
                             .catch(err => {
-                                processLoginSuccess(snap.docs[0]); // يدخل برضه لو حصل خطأ في Auth
+                                processLoginSuccess(snap.docs[0]); 
                             });
                         } else {
                             alert("الرقم السري غير صحيح!");
