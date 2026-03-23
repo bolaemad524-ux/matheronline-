@@ -433,6 +433,12 @@
                     </div>
                     <div id="admin-categories-list"></div>
                 </div>
+                <div class="dash-card">
+                    <h3 style="font-size:15px; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-lock"></i> تغيير كلمة المرور</h3>
+                    <input type="password" id="adminNewPassword" placeholder="كلمة المرور الجديدة (6 أحرف/أرقام كحد أدنى)" style="background:white;">
+                    <input type="password" id="adminConfirmPassword" placeholder="تأكيد كلمة المرور الجديدة" style="background:white;">
+                    <button onclick="changeAdminPassword(event)" class="btn-save" style="margin-bottom:0; background:var(--secondary);">تغيير الباسورد 🔑</button>
+                </div>
             </div>
 
             <div id="dash-more" class="dash-view">
@@ -1366,6 +1372,53 @@
         }
 
         function sendPrescriptionDirectly() { let msg = `*طلب صرف روشتة من ${storeData.name}* 💊\n\nمرحباً، أريد صرف الأدوية الموجودة في الروشتة التي سأقوم بإرسال صورتها لكم الآن.`; window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); closeModal('prescriptionModal'); }
+
+        function changeAdminPassword(event) {
+            const newPass = document.getElementById('adminNewPassword').value.trim();
+            const confirmPass = document.getElementById('adminConfirmPassword').value.trim();
+            
+            if (!newPass || !confirmPass) return alert("يرجى إدخال كلمة المرور الجديدة وتأكيدها!");
+            if (newPass.length < 6) return alert("كلمة المرور يجب أن تكون 6 أحرف أو أرقام على الأقل.");
+            if (newPass !== confirmPass) return alert("كلمتي المرور غير متطابقتين!");
+
+            const user = firebase.auth().currentUser;
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            
+            if (user) {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التغيير...';
+                btn.disabled = true;
+
+                user.updatePassword(newPass).then(() => {
+                    db.collection("platform_merchants").doc(currentStoreId).update({
+                        password: newPass
+                    }).then(() => {
+                        document.getElementById('adminNewPassword').value = '';
+                        document.getElementById('adminConfirmPassword').value = '';
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        showToast("تم تغيير كلمة المرور بنجاح! 🔒");
+                    }).catch((error) => {
+                        console.error(error);
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        alert("تم التغيير في نظام الدخول، لكن حدث خطأ في تحديث قاعدة البيانات.");
+                    });
+                }).catch((error) => {
+                    console.error(error);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    
+                    if(error.code === 'auth/requires-recent-login') {
+                        alert("لدواعي أمنية، يرجى تسجيل الخروج والدخول مرة أخرى لتتمكن من تغيير كلمة المرور.");
+                    } else {
+                        alert("حدثت مشكلة في تغيير كلمة المرور.");
+                    }
+                });
+            } else {
+                alert("لا يمكن الوصول لبيانات الحساب حالياً، جرب تسجيل الخروج والدخول مجدداً.");
+            }
+        }
 
         function openModal(id) { 
             document.getElementById(id).style.display = 'block'; 
