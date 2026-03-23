@@ -258,7 +258,7 @@
                         <option value="restaurant">مطعم / كافيه / حلويات</option>
                     </select>
                     
-                    <button id="startTrialBtn" onclick="startFreeTrial()" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); transition: 0.3s;">
+                    <button id="startTrialBtn" onclick="startFreeTrial()" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); transition: 0.3s;">
                         ابدأ تجربتك المجانية (3 أيام) 🚀
                     </button>
                     <button onclick="goBackToStep1()" style="background:var(--light-bg); color:var(--text-dark); border:1px solid var(--border-color); width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 10px;">رجوع</button>
@@ -704,7 +704,7 @@
             });
         }
 
-        // 🎯 مسار الإدارة المحمي بالـ Auth (تم إصلاح خطأ User exists هنا)
+        // 🎯 مسار الإدارة المحمي بالـ Auth
         if (isSuperAdmin) {
             document.getElementById('loginApp').style.display = 'none'; 
             let pass = prompt("الرجاء إدخال كلمة مرور الإدارة:");
@@ -717,7 +717,6 @@
                 })
                 .catch((error) => {
                     if (pass === "941997") {
-                        // محاولة إنشاء الحساب لو دي أول مرة
                         firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass)
                         .then(() => {
                             document.getElementById('storeApp').style.display = 'none';
@@ -756,7 +755,7 @@
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
         }
 
-        // 🎯 كوبري تسجيل دخول التجار (لترحيل الحسابات القديمة بسلاسة)
+        // 🎯 كوبري تسجيل دخول التجار
         function checkMerchantLogin() {
             let rawPhone = document.getElementById('loginPhone').value.trim();
             tempPass = document.getElementById('loginPass').value.trim();
@@ -1159,13 +1158,29 @@
                     
                     if(mData.expiryDate) {
                         let remainingDays = Math.ceil((mData.expiryDate - Date.now()) / (1000 * 60 * 60 * 24));
+                        
+                        // إضافة شريط التجربة المجانية إذا كان المتجر في فترة التجربة
+                        let dashHome = document.getElementById('dash-home');
+                        if (isLoggedAsAdmin && remainingDays > 0) {
+                            let existingBanner = document.getElementById('expiryWarningBanner');
+                            if(existingBanner) existingBanner.remove();
+
+                            if (mData.plan === 'trial') {
+                                let banner = document.createElement('div');
+                                banner.id = 'expiryWarningBanner';
+                                banner.style.cssText = "background: linear-gradient(to right, #fb8500, #ffb703); color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 14px; position: relative; z-index: 99; display:flex; justify-content:center; align-items:center; gap:8px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(251, 133, 0, 0.2);";
+                                banner.innerHTML = `<i class="fa-solid fa-gift" style="font-size:18px;"></i> أنت في الفترة التجريبية! متبقي ${remainingDays} يوم.`;
+                                dashHome.insertBefore(banner, dashHome.firstChild);
+                            }
+                        }
+
                         if(remainingDays <= 0) {
                             if (isLoggedAsAdmin) {
                                 let renewalHtml = `
                                     <div style='text-align:center; padding: 40px 20px; max-width: 500px; margin: 0 auto;'>
                                         <i class='fa-solid fa-clock-rotate-left' style='font-size:60px; color:#fb8500; margin-bottom:15px;'></i>
                                         <h2 style='color:#fb8500; font-family: Changa, sans-serif;'>انتهت الفترة التجريبية / الباقة</h2>
-                                        <p style='color:var(--text-gray); font-size:15px; margin-bottom:25px;'>اختر باقة لتجديد اشتراكك وإعادة تفعيل المتجر فوراً.</p>
+                                        <p style='color:var(--text-gray); font-size:15px; margin-bottom:25px;'>نتمنى أن تكون تجربتك رائعة! اختر باقة الآن لتفعيل متجرك واستقبال الطلبات مجدداً.</p>
                                         
                                         <div id="renewalPlans">
                                             <div class="plan-card" onclick="showRenewalPayment('1_month', 250)"><span>اشتراك شهر</span><span class="plan-price">250 ج</span></div>
