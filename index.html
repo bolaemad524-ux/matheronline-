@@ -9,6 +9,8 @@
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -85,7 +87,6 @@
         .cart-icon-btn { background: var(--primary); color: white; border: none; padding: 0 15px; height: 40px; border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2); }
         .cart-badge { background: white; color: var(--primary); padding: 2px 6px; border-radius: 10px; font-size: 12px; transition: 0.3s; }
 
-        /* تأثير الإضافة للعربة */
         .cart-glow { background-color: #e63946 !important; box-shadow: 0 0 15px rgba(230, 57, 70, 0.8) !important; animation: pulse-red 0.8s infinite alternate !important; }
         .cart-glow .cart-badge { color: #e63946 !important; }
         @keyframes pulse-red {
@@ -697,7 +698,17 @@
             });
         }
 
-        // التوجيه الذكي للمنصة
+        // مسار دخول وتسجيل التاجر بـ Firebase Auth
+        function processLogin(snap, sId, pass) {
+            const mData = snap.docs[0].data();
+            if (mData.status === 'pending') { 
+                document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; 
+            } else if (mData.status === 'active' || mData.status === 'suspended') {
+                sessionStorage.setItem('loggedStoreId', sId); showToast("جاري الدخول...");
+                setTimeout(() => { window.location.href = window.location.pathname + "?store=" + sId; }, 1000);
+            }
+        }
+
         if (isSuperAdmin) {
             let pass = prompt("الرجاء إدخال كلمة مرور الإدارة:");
             if (pass === "941997") {
@@ -723,19 +734,29 @@
             let rawPhone = document.getElementById('loginPhone').value.trim(); tempPass = document.getElementById('loginPass').value.trim();
             if(!rawPhone || !tempPass) return alert("أدخل البيانات.");
             tempPhone = "20" + rawPhone;
+            let fakeEmail = tempPhone + "@bola-stores.com";
 
-            db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
-                if(snap.empty) { document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep2').style.display = 'block'; } 
-                else {
-                    const mData = snap.docs[0].data(); const sId = snap.docs[0].id;
-                    if (mData.password !== tempPass) return alert("الرقم السري خطأ!");
-                    
-                    if (mData.status === 'pending') { 
-                        document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; 
-                    } else {
-                        sessionStorage.setItem('loggedStoreId', sId); showToast("جاري الدخول...");
-                        setTimeout(() => { window.location.href = window.location.pathname + "?store=" + sId; }, 1000);
-                    }
+            firebase.auth().signInWithEmailAndPassword(fakeEmail, tempPass)
+            .then((userCredential) => {
+                db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
+                    if(!snap.empty) processLogin(snap, snap.docs[0].id, tempPass);
+                });
+            })
+            .catch(error => {
+                if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
+                        if(snap.empty) {
+                            document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep2').style.display = 'block';
+                        } else if (snap.docs[0].data().password === tempPass) {
+                            firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass).then(() => {
+                                processLogin(snap, snap.docs[0].id, tempPass);
+                            });
+                        } else {
+                            alert("الرقم السري خطأ!");
+                        }
+                    });
+                } else {
+                    alert("بيانات الدخول غير صحيحة!");
                 }
             });
         }
@@ -749,19 +770,41 @@
             
             const storeId = "store_" + Date.now();
             let expiry = Date.now() + (3 * 24 * 60 * 60 * 1000); 
+            let fakeEmail = tempPhone + "@bola-stores.com";
             
-            db.collection("platform_merchants").doc(storeId).set({
-                phone: tempPhone, password: tempPass, storeType: tempCategory, plan: 'trial', status: 'active', expiryDate: expiry, createdAt: new Date()
-            }).then(() => {
-                return db.collection("stores").doc(storeId).set({
-                    name: "متجر جديد", address: "وصف المتجر", phone: tempPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: tempCategory, visitors: 0, ordersCount: 0
+            firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass).catch(e=>console.log(e)).finally(() => {
+                db.collection("platform_merchants").doc(storeId).set({
+                    phone: tempPhone, password: tempPass, storeType: tempCategory, plan: 'trial', status: 'active', expiryDate: expiry, createdAt: new Date()
+                }).then(() => {
+                    return db.collection("stores").doc(storeId).set({
+                        name: "متجر جديد", address: "وصف المتجر", phone: tempPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: tempCategory, visitors: 0, ordersCount: 0
+                    });
+                }).then(() => {
+                    sessionStorage.setItem('loggedStoreId', storeId);
+                    showToast("تم إنشاء المتجر بنجاح! 🎉");
+                    setTimeout(() => { window.location.href = window.location.pathname + "?store=" + storeId; }, 1000);
+                }).catch(err => {
+                    alert("حدث خطأ في إنشاء المتجر."); btn.innerText = "ابدأ تجربتك المجانية (3 أيام) 🚀"; btn.disabled = false;
                 });
-            }).then(() => {
-                sessionStorage.setItem('loggedStoreId', storeId);
-                showToast("تم إنشاء المتجر بنجاح! 🎉");
-                setTimeout(() => { window.location.href = window.location.pathname + "?store=" + storeId; }, 1000);
-            }).catch(err => {
-                alert("حدث خطأ في إنشاء المتجر."); btn.innerText = "ابدأ تجربتك المجانية (3 أيام) 🚀"; btn.disabled = false;
+            });
+        }
+
+        function selectPlan(planId, price) { tempCategory = document.getElementById('newStoreCategory').value; selectedPlan = planId; selectedPrice = price; document.getElementById('selectedPlanPrice').innerText = price + " ج.م"; document.getElementById('authStep2').style.display = 'none'; document.getElementById('authStep3').style.display = 'block'; }
+        function cancelPayment() { document.getElementById('authStep3').style.display = 'none'; document.getElementById('authStep2').style.display = 'block'; document.getElementById('receiptInput').value = ''; document.getElementById('receiptImagePreview').style.display = 'none'; receiptBase64 = ""; }
+
+        function previewReceipt(event) {
+            const file = event.target.files[0]; if(!file) return; const reader = new FileReader();
+            reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); receiptBase64 = canvas.toDataURL('image/jpeg', 0.6); document.getElementById('receiptImagePreview').src = receiptBase64; document.getElementById('receiptImagePreview').style.display = 'block'; }; img.src = e.target.result; }; reader.readAsDataURL(file);
+        }
+
+        function submitSubscription() {
+            if(!receiptBase64) return alert("الرجاء إرفاق الإيصال!");
+            const btn = document.getElementById('submitSubBtn'); btn.innerText = "جاري الإرسال... ⏳"; btn.disabled = true;
+            const storeId = "store_" + Date.now();
+            let fakeEmail = tempPhone + "@bola-stores.com";
+
+            firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass).catch(e=>console.log(e)).finally(() => {
+                db.collection("platform_merchants").doc(storeId).set({ phone: tempPhone, password: tempPass, storeType: tempCategory, plan: selectedPlan, pricePaid: selectedPrice, receipt: receiptBase64, status: 'pending', createdAt: new Date() }).then(() => { document.getElementById('authStep3').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; }).catch(err => { alert("حدث خطأ."); btn.innerText = "تأكيد واشتراك 🚀"; btn.disabled = false; });
             });
         }
 
@@ -968,7 +1011,7 @@
             showToast("العودة للوحة الإدارة ⚙️"); 
         }
         
-        function merchantLogout() { sessionStorage.removeItem('loggedStoreId'); window.location.href = window.location.pathname; }
+        function merchantLogout() { firebase.auth().signOut().then(() => { sessionStorage.removeItem('loggedStoreId'); window.location.href = window.location.pathname; }); }
         
         function copyStoreLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + "?store=" + currentStoreId).then(() => showToast("تم نسخ الرابط 🚀")); }
 
@@ -1084,7 +1127,7 @@
                     document.getElementById('headerStoreName').innerText = storeNameDisplay; 
                     document.getElementById('headerStoreAddress').innerText = storeData.address || ""; 
                     
-                    // واجهة التاجر 
+                    // واجهة التاجر (تحديث البيانات فقط إذا لم يكن الحساب موقوفاً)
                     if(document.getElementById('dashGreetingName')) {
                         document.getElementById('dashGreetingName').innerText = storeNameDisplay;
                         document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
@@ -1308,7 +1351,6 @@
         function checkout() { 
             if (cart.length === 0) return alert("العربة فارغة!"); 
             
-            // تسجيل الطلب في قاعدة البيانات لزيادة العداد للتاجر
             db.collection("stores").doc(currentStoreId).update({
                 ordersCount: firebase.firestore.FieldValue.increment(1)
             }).catch(e => console.log(e));
