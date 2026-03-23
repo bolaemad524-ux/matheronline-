@@ -188,7 +188,7 @@
         .image-upload-box { border: 2px dashed var(--primary); padding: 30px; text-align: center; border-radius: 12px; background: #f0f6ff; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
         .image-upload-box:hover { background: #e2edff; }
 
-        /* 🎯 نظام الجولة التعريفية (Onboarding Tour) 🎯 */
+        /* 🎯 نظام الجولة التعريفية (Onboarding Tour) للتاجر والعميل 🎯 */
         .tour-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 4000; display: none; backdrop-filter: blur(2px); transition: 0.3s; }
         
         .tour-tooltip { position: fixed; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; z-index: 4001; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.4); text-align: center; transition: 0.3s; left: 50%; transform: translateX(-50%); border: 2px solid var(--primary); }
@@ -286,6 +286,12 @@
             <button onclick="savePlatformContact()" class="btn-primary" style="background:var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;">حفظ البيانات 💾</button>
         </div>
 
+        <h3 style="margin-top:30px; border-top:1px solid var(--border-color); padding-top:20px; color: #e63946; text-align: right;">🔒 تغيير كلمة مرور الإدارة</h3>
+        <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
+            <input type="text" id="adminNewPassword" placeholder="كلمة المرور الجديدة (6 أرقام/حروف على الأقل)">
+            <button onclick="changeAdminPassword(event)" class="btn-primary" style="background:#e63946; color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;">تحديث كلمة المرور 🔄</button>
+        </div>
+
         <h3 style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px; text-align: right;">➕ إضافة متجر يدوياً</h3>
         <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
             <input type="text" id="manualStoreName" placeholder="اسم المتجر">
@@ -311,6 +317,8 @@
 
         <h3 style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px; color: var(--primary); text-align: right;">✅ التجار والمتاجر</h3>
         <div id="merchantsList" style="text-align: right; max-height: 400px; overflow-y: auto; padding-right:5px;"></div>
+        
+        <button onclick="adminLogout()" style="background:var(--text-dark); color:white; border:none; padding:15px; width:100%; border-radius:10px; font-weight:bold; cursor:pointer; font-size:16px; margin-top:20px;"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل خروج الإدارة</button>
     </div>
 
     <div id="merchantDashboardApp">
@@ -432,12 +440,6 @@
                         <button onclick="addNewCategory()" style="width:auto; margin-bottom:0; padding:0 20px; background:var(--text-dark); color:white; border:none; border-radius:8px; font-weight:bold;">إضافة</button>
                     </div>
                     <div id="admin-categories-list"></div>
-                </div>
-                <div class="dash-card">
-                    <h3 style="font-size:15px; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-lock"></i> تغيير كلمة المرور</h3>
-                    <input type="password" id="adminNewPassword" placeholder="كلمة المرور الجديدة (6 أحرف/أرقام كحد أدنى)" style="background:white;">
-                    <input type="password" id="adminConfirmPassword" placeholder="تأكيد كلمة المرور الجديدة" style="background:white;">
-                    <button onclick="changeAdminPassword(event)" class="btn-save" style="margin-bottom:0; background:var(--secondary);">تغيير الباسورد 🔑</button>
                 </div>
             </div>
 
@@ -640,7 +642,6 @@
     </div>
     <i class="fa-solid fa-hand-point-down tour-pointer" id="tourPointer"></i>
 
-
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAzildDtyvUV3eNBWkin8wXQsMaEwFoeDs",
@@ -703,22 +704,38 @@
             });
         }
 
-        // مسار دخول وتسجيل التاجر بـ Firebase Auth
-        function processLogin(snap, sId, pass) {
-            const mData = snap.docs[0].data();
-            if (mData.status === 'pending') { 
-                document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; 
-            } else if (mData.status === 'active' || mData.status === 'suspended') {
-                sessionStorage.setItem('loggedStoreId', sId); showToast("جاري الدخول...");
-                setTimeout(() => { window.location.href = window.location.pathname + "?store=" + sId; }, 1000);
-            }
-        }
-
+        // مسار الإدارة المحمي بالـ Auth
         if (isSuperAdmin) {
+            document.getElementById('loginApp').style.display = 'none'; 
             let pass = prompt("الرجاء إدخال كلمة مرور الإدارة:");
-            if (pass === "941997") {
-                document.getElementById('loginApp').style.display = 'none'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('superAdminApp').style.display = 'block'; loadAllMerchantsAdmin();
-            } else { alert("كلمة المرور غير صحيحة!"); window.location.href = window.location.pathname; }
+            if (pass) {
+                firebase.auth().signInWithEmailAndPassword("admin@bola-stores.com", pass)
+                .then(() => {
+                    document.getElementById('storeApp').style.display = 'none';
+                    document.getElementById('superAdminApp').style.display = 'block';
+                    loadAllMerchantsAdmin();
+                })
+                .catch((error) => {
+                    // لو الحساب مش موجود أو في أي خطأ، وكان الباسورد هو الافتراضي، ننشئ الحساب فوراً
+                    if(pass === "941997") {
+                        firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass)
+                        .then(() => {
+                            document.getElementById('storeApp').style.display = 'none';
+                            document.getElementById('superAdminApp').style.display = 'block';
+                            loadAllMerchantsAdmin();
+                        })
+                        .catch(err2 => {
+                            alert("حدث خطأ من السيرفر: " + err2.message);
+                            window.location.href = window.location.pathname;
+                        });
+                    } else {
+                        alert("كلمة المرور غير صحيحة!");
+                        window.location.href = window.location.pathname;
+                    }
+                });
+            } else {
+                window.location.href = window.location.pathname;
+            }
         } else if (currentStoreId) {
             document.getElementById('loginApp').style.display = 'none';
             let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === currentStoreId;
@@ -736,34 +753,73 @@
         }
 
         function checkMerchantLogin() {
-            let rawPhone = document.getElementById('loginPhone').value.trim(); tempPass = document.getElementById('loginPass').value.trim();
+            let rawPhone = document.getElementById('loginPhone').value.trim();
+            tempPass = document.getElementById('loginPass').value.trim();
+            
             if(!rawPhone || !tempPass) return alert("أدخل البيانات.");
+            
             tempPhone = "20" + rawPhone;
             let fakeEmail = tempPhone + "@bola-stores.com";
+            
+            const btn = document.querySelector('#authStep1 .main-btn');
+            let originalText = btn.innerText;
+            btn.innerText = "جاري التحقق... ⏳";
+            btn.disabled = true;
 
+            // المحاولة الأولى: الدخول بنظام Auth الآمن الجديد
             firebase.auth().signInWithEmailAndPassword(fakeEmail, tempPass)
             .then((userCredential) => {
                 db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
-                    if(!snap.empty) processLogin(snap, snap.docs[0].id, tempPass);
+                    if(!snap.empty) processLoginSuccess(snap.docs[0]);
                 });
             })
             .catch(error => {
-                if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                    db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
-                        if(snap.empty) {
-                            document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep2').style.display = 'block';
-                        } else if (snap.docs[0].data().password === tempPass) {
-                            firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass).then(() => {
-                                processLogin(snap, snap.docs[0].id, tempPass);
+                // لو الحساب مش موجود في الـ Auth (تاجر قديم) أو الباسورد غلط
+                db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
+                    if(snap.empty) {
+                        // تاجر جديد تماماً
+                        document.getElementById('authStep1').style.display = 'none'; 
+                        document.getElementById('authStep2').style.display = 'block';
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    } else {
+                        // تاجر قديم
+                        let mData = snap.docs[0].data();
+                        if (mData.password === tempPass) {
+                            // ننشئ له حساب في Auth فوراً للترحيل الصامت
+                            firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass)
+                            .then(() => {
+                                processLoginSuccess(snap.docs[0]);
+                            })
+                            .catch(err => {
+                                processLoginSuccess(snap.docs[0]); // يدخل برضه لو حصل خطأ في Auth
                             });
                         } else {
-                            alert("الرقم السري خطأ!");
+                            alert("الرقم السري غير صحيح!");
+                            btn.innerText = originalText;
+                            btn.disabled = false;
                         }
-                    });
-                } else {
-                    alert("بيانات الدخول غير صحيحة!");
-                }
+                    }
+                }).catch(err => {
+                    alert("حدث خطأ في الاتصال بقاعدة البيانات.");
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                });
             });
+        }
+
+        function processLoginSuccess(doc) {
+            const mData = doc.data(); 
+            const sId = doc.id;
+            
+            if (mData.status === 'pending') { 
+                document.getElementById('authStep1').style.display = 'none'; 
+                document.getElementById('authStep4').style.display = 'block'; 
+            } else if (mData.status === 'active' || mData.status === 'suspended') {
+                sessionStorage.setItem('loggedStoreId', sId); 
+                showToast("جاري الدخول...");
+                setTimeout(() => { window.location.href = window.location.pathname + "?store=" + sId; }, 1000);
+            }
         }
 
         function goBackToStep1() { document.getElementById('authStep2').style.display = 'none'; document.getElementById('authStep1').style.display = 'block'; }
@@ -814,6 +870,45 @@
         }
 
         // إداره المنصة (Super Admin)
+        function changeAdminPassword(event) {
+            const newPass = document.getElementById('adminNewPassword').value.trim();
+            if (!newPass) return alert("يرجى إدخال كلمة المرور الجديدة!");
+            if (newPass.length < 6) return alert("كلمة المرور يجب أن تكون 6 أحرف أو أرقام على الأقل.");
+
+            const user = firebase.auth().currentUser;
+            const btn = event.target; 
+            const originalText = btn.innerHTML;
+            
+            if (user && user.email === "admin@bola-stores.com") {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التغيير...';
+                btn.disabled = true;
+
+                user.updatePassword(newPass).then(() => {
+                    document.getElementById('adminNewPassword').value = '';
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    showToast("تم تغيير كلمة المرور بنجاح! 🔒");
+                }).catch((error) => {
+                    console.error(error);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    if(error.code === 'auth/requires-recent-login') {
+                        alert("لدواعي أمنية، يرجى تسجيل الخروج والدخول مرة أخرى لتتمكن من تغيير كلمة المرور.");
+                    } else {
+                        alert("حدثت مشكلة في تغيير كلمة المرور.");
+                    }
+                });
+            } else {
+                alert("لا يمكن الوصول لبيانات الحساب حالياً، جرب تسجيل الخروج والدخول مجدداً.");
+            }
+        }
+        
+        function adminLogout() {
+            firebase.auth().signOut().then(() => {
+                window.location.href = window.location.pathname;
+            });
+        }
+
         function createManualStore() {
             const name = document.getElementById('manualStoreName').value; const rawP = document.getElementById('manualStorePhone').value.trim(); const pass = document.getElementById('manualStorePass').value; const type = document.getElementById('manualStoreCategory').value;
             if(!name || !rawP || !pass) return alert("أكمل البيانات"); const phone = "20" + rawP; const storeId = "store_" + Date.now(); let expiry = getExpiryTimestamp('1_month');
@@ -1368,57 +1463,14 @@
                 msg += `${i + 1}- ${item.name} (${qtyDesc}) بـ ${itemTotal} ج.م\n`; 
             }); 
             msg += `\n*الإجمالي: ${total} ج.م*`; 
+            
+            // إضافة روابط التواصل المخصصة
+            msg += `\n\nللتواصل السريع:\nواتساب: https://wa.me/201285957035`;
+            
             window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
         }
 
         function sendPrescriptionDirectly() { let msg = `*طلب صرف روشتة من ${storeData.name}* 💊\n\nمرحباً، أريد صرف الأدوية الموجودة في الروشتة التي سأقوم بإرسال صورتها لكم الآن.`; window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); closeModal('prescriptionModal'); }
-
-        function changeAdminPassword(event) {
-            const newPass = document.getElementById('adminNewPassword').value.trim();
-            const confirmPass = document.getElementById('adminConfirmPassword').value.trim();
-            
-            if (!newPass || !confirmPass) return alert("يرجى إدخال كلمة المرور الجديدة وتأكيدها!");
-            if (newPass.length < 6) return alert("كلمة المرور يجب أن تكون 6 أحرف أو أرقام على الأقل.");
-            if (newPass !== confirmPass) return alert("كلمتي المرور غير متطابقتين!");
-
-            const user = firebase.auth().currentUser;
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            
-            if (user) {
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التغيير...';
-                btn.disabled = true;
-
-                user.updatePassword(newPass).then(() => {
-                    db.collection("platform_merchants").doc(currentStoreId).update({
-                        password: newPass
-                    }).then(() => {
-                        document.getElementById('adminNewPassword').value = '';
-                        document.getElementById('adminConfirmPassword').value = '';
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                        showToast("تم تغيير كلمة المرور بنجاح! 🔒");
-                    }).catch((error) => {
-                        console.error(error);
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                        alert("تم التغيير في نظام الدخول، لكن حدث خطأ في تحديث قاعدة البيانات.");
-                    });
-                }).catch((error) => {
-                    console.error(error);
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    
-                    if(error.code === 'auth/requires-recent-login') {
-                        alert("لدواعي أمنية، يرجى تسجيل الخروج والدخول مرة أخرى لتتمكن من تغيير كلمة المرور.");
-                    } else {
-                        alert("حدثت مشكلة في تغيير كلمة المرور.");
-                    }
-                });
-            } else {
-                alert("لا يمكن الوصول لبيانات الحساب حالياً، جرب تسجيل الخروج والدخول مجدداً.");
-            }
-        }
 
         function openModal(id) { 
             document.getElementById(id).style.display = 'block'; 
