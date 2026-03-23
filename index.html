@@ -52,12 +52,12 @@
         .phone-input-wrapper span { background: var(--light-bg); padding: 15px 20px; font-weight: 900; color: var(--primary); border-right: 1px solid var(--border-color); font-family: monospace; font-size: 16px; }
         .phone-input-wrapper input { border: none !important; margin-bottom: 0 !important; border-radius: 0 !important; flex: 1; padding: 15px; font-size: 18px; outline: none; font-family: monospace; letter-spacing: 1px;}
         
-        .plan-card { border: 2px solid var(--border-color); border-radius: 12px; padding: 18px; margin-bottom: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: white; }
-        .plan-card:hover { border-color: var(--primary); }
+        .plan-card { border: 2px solid var(--border-color); border-radius: 12px; padding: 18px; margin-bottom: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: white; transition: 0.3s; }
+        .plan-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .plan-price { font-size: 22px; font-weight: 900; color: var(--primary); }
         .receipt-preview { width: 100%; max-height: 200px; object-fit: contain; margin-bottom: 15px; display: none; border: 2px dashed #ccc; border-radius: 10px; }
 
-        /* تنسيقات نافذة الدفع الجديدة */
+        /* تنسيقات نافذة الدفع */
         .payment-methods-logos { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
         .payment-logo { width: 60px; height: 60px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #eee; background: white; padding: 5px; }
         .instapay-logo { border-color: #6a1b9a; }
@@ -140,7 +140,7 @@
         
         .floating-action-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
         
-        .toast { position: fixed; bottom: 20px; right: -300px; background-color: var(--text-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: right 0.4s ease; z-index: 2001; font-weight: bold; font-size: 14px;}
+        .toast { position: fixed; bottom: 20px; right: -300px; background-color: var(--text-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: right 0.4s ease; z-index: 3000; font-weight: bold; font-size: 14px;}
         .toast.show { right: 20px; }
         
         .details-modal-img { width: 100%; height: 250px; object-fit: contain; border-radius: 10px; margin-bottom: 15px; background: white; padding: 10px; border: 1px solid var(--border-color); }
@@ -187,6 +187,16 @@
         
         .image-upload-box { border: 2px dashed var(--primary); padding: 30px; text-align: center; border-radius: 12px; background: #f0f6ff; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
         .image-upload-box:hover { background: #e2edff; }
+
+        /* تنسيقات جولة الترحيب (Onboarding Tour) */
+        .tour-step { display: none; animation: fadeIn 0.4s; }
+        .tour-step.active { display: block; }
+        .tour-dots { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
+        .tour-dot { width: 10px; height: 10px; background: #ddd; border-radius: 50%; transition: 0.3s; }
+        .tour-dot.active { background: var(--primary); width: 20px; border-radius: 5px; }
+        .tour-btns { display: flex; gap: 10px; justify-content: center; }
+        .tour-btn-next { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 16px; font-family: 'Tajawal'; }
+        .tour-btn-skip { background: var(--light-bg); color: var(--text-gray); border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 16px; font-family: 'Tajawal'; }
     </style>
 </head>
 <body>
@@ -238,45 +248,10 @@
                         <option value="restaurant">مطعم / كافيه / حلويات</option>
                     </select>
                     
-                    <label style="font-weight:bold; color:var(--primary); margin-bottom:5px; margin-top:15px; display:block;">اختر الباقة:</label>
-                    <div class="plan-card" onclick="selectPlan('1_month', 250)"><span>اشتراك شهر</span><span class="plan-price">250 ج</span></div>
-                    <div class="plan-card" onclick="selectPlan('2_months', 425)"><span>اشتراك شهرين</span><span class="plan-price">425 ج</span></div>
-                    <div class="plan-card" onclick="selectPlan('3_months', 650)"><span>اشتراك 3 شهور</span><span class="plan-price">650 ج</span></div>
-                    <button onclick="goBackToStep1()" style="background:var(--light-bg); color:var(--text-dark); border:1px solid var(--border-color); width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">رجوع</button>
-                </div>
-
-                <div id="authStep3" style="display: none; text-align: right;">
-                    <h2 style="text-align: center; color:var(--primary); margin-bottom: 20px;">إتمام الدفع 💸</h2>
-                    
-                    <p style="text-align: center; font-size: 16px; font-weight: bold; color: var(--text-gray); margin-bottom: 15px;">
-                        يمكنك التحويل عبر إنستاباي أو المحافظ الإلكترونية
-                    </p>
-                    
-                    <div class="payment-methods-logos">
-                        <img src="https://www.aljawalat.com/blog/wp-content/uploads/2022/04/unnamed-1280x720.jpg" class="payment-logo instapay-logo" alt="InstaPay">
-                        <img src="https://png.pngtree.com/thumb_back/fh260/background/20220821/pngtree-wallet-icon-ecommerce-money-account-photo-image_19623402.jpg" class="payment-logo wallet-logo" alt="محفظة إلكترونية">
-                    </div>
-
-                    <div class="payment-number-box">
-                        <span class="payment-amount">قم بتحويل مبلغ <span id="selectedPlanPrice" style="color:#e63946; font-size:24px; font-weight:900;"></span></span>
-                        <div class="payment-number" onclick="copyPaymentNumber()" title="اضغط لنسخ الرقم">
-                            <span id="thePaymentNumber">01285957035</span>
-                            <i class="fa-regular fa-copy"></i>
-                        </div>
-                    </div>
-
-                    <label style="font-weight:bold; display:block; margin-bottom:8px;">أرفق صورة الإيصال (سكرين شوت):</label>
-                    <input type="file" id="receiptInput" accept="image/*" onchange="previewReceipt(event)">
-                    <img id="receiptImagePreview" class="receipt-preview">
-                    
-                    <button onclick="submitSubscription()" class="main-btn" id="submitSubBtn">تأكيد الدفع واشتراك</button>
-                    <button onclick="cancelPayment()" style="background:transparent; color:var(--text-gray); border:none; width:100%; padding:10px; font-weight:bold; cursor:pointer; margin-top: 10px;">إلغاء والرجوع</button>
-                </div>
-
-                <div id="authStep4" style="display: none;">
-                    <i class="fa-solid fa-clock-rotate-left" style="font-size: 70px; color: var(--primary); margin-bottom: 25px;"></i>
-                    <h2 style="color: var(--primary);">طلبك قيد المراجعة ⏳</h2>
-                    <p style="color:var(--text-gray); font-size:16px;">تم استلام طلبك بنجاح. سيتم مراجعة الدفع وتفعيل متجرك قريباً.</p>
+                    <button id="startTrialBtn" onclick="startFreeTrial()" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); transition: 0.3s;">
+                        ابدأ تجربتك المجانية (3 أيام) 🚀
+                    </button>
+                    <button onclick="goBackToStep1()" style="background:var(--light-bg); color:var(--text-dark); border:1px solid var(--border-color); width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 10px;">رجوع</button>
                 </div>
             </div>
         </div>
@@ -337,7 +312,7 @@
             <h1>Bola</h1>
         </div>
 
-        <div class="dash-content">
+        <div class="dash-content" id="merchantDashContent">
             <div id="dash-home" class="dash-view" style="display:block;">
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid var(--border-color);">
@@ -407,7 +382,9 @@
 
                     <div class="input-icon-wrapper">
                         <i class="fa-solid fa-list"></i>
-                        <select id="newProductCategory"></select>
+                        <select id="newProductCategory">
+                            <option value="الكل">بدون قسم محدد (الكل)</option>
+                        </select>
                     </div>
 
                     <div class="input-icon-wrapper">
@@ -474,7 +451,7 @@
             </div>
         </div>
 
-        <div class="bottom-nav">
+        <div class="bottom-nav" id="dashBottomNav">
             <div class="nav-item active" onclick="switchDashView('dash-home', this)">
                 <i class="fa-solid fa-house"></i>
                 <span>الرئيسية</span>
@@ -647,6 +624,61 @@
         </div>
     </div>
 
+    <div id="onboardingModal" class="modal" style="z-index: 9999;">
+        <div class="modal-content" style="text-align: center; border-radius: 20px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            
+            <div id="tour-step-1" class="tour-step active">
+                <i class="fa-solid fa-store" style="font-size: 60px; color: var(--primary); margin-bottom: 20px;"></i>
+                <h2 style="color: var(--primary); font-family: 'Changa', sans-serif; margin-bottom: 10px;">مرحباً بك في BOLA EMAD! 🎉</h2>
+                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">منصتك المتكاملة لإدارة متجرك الإلكتروني بسهولة. دعنا نأخذك في جولة سريعة للتعرف على مميزات لوحة التحكم السحرية الخاصة بك.</p>
+            </div>
+
+            <div id="tour-step-2" class="tour-step">
+                <i class="fa-solid fa-house" style="font-size: 50px; color: var(--secondary); margin-bottom: 20px;"></i>
+                <h2 style="color: var(--text-dark); font-family: 'Changa', sans-serif; margin-bottom: 10px;">الرئيسية</h2>
+                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">من هنا يمكنك متابعة عدد زوار متجرك، وإجمالي الطلبات المؤكدة، بالإضافة لنسخ ومشاركة رابط الـ QR Code لمتجرك مع العملاء بسهولة.</p>
+            </div>
+
+            <div id="tour-step-3" class="tour-step">
+                <i class="fa-solid fa-box" style="font-size: 50px; color: var(--primary); margin-bottom: 20px;"></i>
+                <h2 style="color: var(--text-dark); font-family: 'Changa', sans-serif; margin-bottom: 10px;">المنتجات</h2>
+                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">قسم المنتجات يتيح لك رؤية جميع المنتجات التي قمت برفعها. يمكنك تعديل ترتيبها، تمييزها كـ "عرض خاص"، أو حذفها بضغطة زر.</p>
+            </div>
+
+            <div id="tour-step-4" class="tour-step">
+                <i class="fa-solid fa-plus-circle" style="font-size: 50px; color: #4caf50; margin-bottom: 20px;"></i>
+                <h2 style="color: var(--text-dark); font-family: 'Changa', sans-serif; margin-bottom: 10px;">إضافة منتج (+)</h2>
+                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">الزر العائم في منتصف الشاشة هو الأهم! من خلاله يمكنك رفع صور منتجاتك، كتابة أسعارها وتفاصيلها، وإضافتها للمتجر في ثوانٍ معدودة.</p>
+            </div>
+
+            <div id="tour-step-5" class="tour-step">
+                <i class="fa-solid fa-gear" style="font-size: 50px; color: var(--text-dark); margin-bottom: 20px;"></i>
+                <h2 style="color: var(--text-dark); font-family: 'Changa', sans-serif; margin-bottom: 10px;">الإعدادات</h2>
+                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">هنا يمكنك تغيير اسم متجرك، رفع اللوجو الخاص بك، إضافة أرقام الواتساب لاستقبال الطلبات، وإنشاء أقسام لترتيب منتجاتك.</p>
+            </div>
+
+            <div id="tour-step-6" class="tour-step">
+                <i class="fa-solid fa-rocket" style="font-size: 60px; color: var(--primary); margin-bottom: 20px;"></i>
+                <h2 style="color: var(--primary); font-family: 'Changa', sans-serif; margin-bottom: 10px;">أنت جاهز الآن! 🚀</h2>
+                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">لوحة التحكم بين يديك الآن. ابدأ في رفع منتجاتك وشارك الرابط مع عملائك لتتلقى طلباتك مباشرة على الواتساب. نتمنى لك مبيعات ضخمة!</p>
+            </div>
+
+            <div class="tour-dots">
+                <div class="tour-dot active" id="tour-dot-1"></div>
+                <div class="tour-dot" id="tour-dot-2"></div>
+                <div class="tour-dot" id="tour-dot-3"></div>
+                <div class="tour-dot" id="tour-dot-4"></div>
+                <div class="tour-dot" id="tour-dot-5"></div>
+                <div class="tour-dot" id="tour-dot-6"></div>
+            </div>
+
+            <div class="tour-btns">
+                <button class="tour-btn-skip" onclick="skipTour()">تخطي</button>
+                <button id="tourNextBtn" class="tour-btn-next" onclick="nextTourStep()">التالي</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAzildDtyvUV3eNBWkin8wXQsMaEwFoeDs",
@@ -741,8 +773,10 @@
                 else {
                     const mData = snap.docs[0].data(); const sId = snap.docs[0].id;
                     if (mData.password !== tempPass) return alert("الرقم السري خطأ!");
-                    if (mData.status === 'pending') { document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; } 
-                    else if (mData.status === 'active' || mData.status === 'suspended') {
+                    
+                    if (mData.status === 'pending') { 
+                        document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; 
+                    } else {
                         sessionStorage.setItem('loggedStoreId', sId); showToast("جاري الدخول...");
                         setTimeout(() => { window.location.href = window.location.pathname + "?store=" + sId; }, 1000);
                     }
@@ -751,19 +785,28 @@
         }
 
         function goBackToStep1() { document.getElementById('authStep2').style.display = 'none'; document.getElementById('authStep1').style.display = 'block'; }
-        function selectPlan(planId, price) { tempCategory = document.getElementById('newStoreCategory').value; selectedPlan = planId; selectedPrice = price; document.getElementById('selectedPlanPrice').innerText = price + " ج.م"; document.getElementById('authStep2').style.display = 'none'; document.getElementById('authStep3').style.display = 'block'; }
-        function cancelPayment() { document.getElementById('authStep3').style.display = 'none'; document.getElementById('authStep2').style.display = 'block'; document.getElementById('receiptInput').value = ''; document.getElementById('receiptImagePreview').style.display = 'none'; receiptBase64 = ""; }
-
-        function previewReceipt(event) {
-            const file = event.target.files[0]; if(!file) return; const reader = new FileReader();
-            reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); receiptBase64 = canvas.toDataURL('image/jpeg', 0.6); document.getElementById('receiptImagePreview').src = receiptBase64; document.getElementById('receiptImagePreview').style.display = 'block'; }; img.src = e.target.result; }; reader.readAsDataURL(file);
-        }
-
-        function submitSubscription() {
-            if(!receiptBase64) return alert("الرجاء إرفاق الإيصال!");
-            const btn = document.getElementById('submitSubBtn'); btn.innerText = "جاري الإرسال... ⏳"; btn.disabled = true;
+        
+        function startFreeTrial() {
+            tempCategory = document.getElementById('newStoreCategory').value;
+            const btn = document.getElementById('startTrialBtn');
+            btn.innerText = "جاري إنشاء المتجر... ⏳"; btn.disabled = true;
+            
             const storeId = "store_" + Date.now();
-            db.collection("platform_merchants").doc(storeId).set({ phone: tempPhone, password: tempPass, storeType: tempCategory, plan: selectedPlan, pricePaid: selectedPrice, receipt: receiptBase64, status: 'pending', createdAt: new Date() }).then(() => { document.getElementById('authStep3').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; }).catch(err => { alert("حدث خطأ."); btn.innerText = "تأكيد واشتراك 🚀"; btn.disabled = false; });
+            let expiry = Date.now() + (3 * 24 * 60 * 60 * 1000); 
+            
+            db.collection("platform_merchants").doc(storeId).set({
+                phone: tempPhone, password: tempPass, storeType: tempCategory, plan: 'trial', status: 'active', expiryDate: expiry, createdAt: new Date()
+            }).then(() => {
+                return db.collection("stores").doc(storeId).set({
+                    name: "متجر جديد", address: "وصف المتجر", phone: tempPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: tempCategory, visitors: 0, ordersCount: 0
+                });
+            }).then(() => {
+                sessionStorage.setItem('loggedStoreId', storeId);
+                showToast("تم إنشاء المتجر بنجاح! 🎉");
+                setTimeout(() => { window.location.href = window.location.pathname + "?store=" + storeId; }, 1000);
+            }).catch(err => {
+                alert("حدث خطأ في إنشاء المتجر."); btn.innerText = "ابدأ تجربتك المجانية (3 أيام) 🚀"; btn.disabled = false;
+            });
         }
 
         // إداره المنصة (Super Admin)
@@ -780,25 +823,84 @@
                 const pList = document.getElementById('pendingMerchantsList'); const aList = document.getElementById('merchantsList'); pList.innerHTML = ''; aList.innerHTML = ''; let hasP = false; let hasA = false;
                 snapshot.forEach(doc => {
                     const data = doc.data(); const link = window.location.origin + window.location.pathname + "?store=" + doc.id; let displayPhone = data.phone; if(displayPhone.startsWith("20")) displayPhone = "0" + displayPhone.substring(2);
-                    if (data.status === 'pending') {
-                        hasP = true; let planName = data.plan === '1_month' ? 'شهر' : (data.plan === '2_months' ? 'شهرين' : '3 شهور');
-                        pList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid #e63946; background: #fff;"><strong>رقم: ${displayPhone}</strong><span style="font-size:13px; color:var(--text-gray);">الباقة: ${planName} | باسورد: ${data.password}</span><button onclick="viewAdminReceipt('${data.receipt}')" class="view-receipt-btn" style="background:#007185; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px; margin:5px 0;"><i class="fa-solid fa-receipt"></i> عرض الإيصال</button><button onclick="approveMerchant('${doc.id}', '${data.phone}', '${data.storeType}', '${data.plan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل</button></div>`;
+                    
+                    if (data.status === 'pending' || data.renewalStatus === 'pending') {
+                        hasP = true; 
+                        let isRenewal = data.renewalStatus === 'pending';
+                        let planName = isRenewal ? (data.renewalPlan === '1_month' ? 'شهر' : (data.renewalPlan === '2_months' ? 'شهرين' : '3 شهور')) : (data.plan === '1_month' ? 'شهر' : (data.plan === '2_months' ? 'شهرين' : '3 شهور'));
+                        let theReceipt = isRenewal ? data.renewalReceipt : data.receipt;
+                        let actionBtn = isRenewal ? `<button onclick="approveRenewal('${doc.id}', '${data.renewalPlan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل التجديد</button>` : `<button onclick="approveMerchant('${doc.id}', '${data.phone}', '${data.storeType}', '${data.plan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل</button>`;
+                        
+                        pList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid ${isRenewal? '#fb8500':'#e63946'}; background: #fff;">
+                            <strong>رقم: ${displayPhone} ${isRenewal ? '<span style="color:#fb8500; font-size:11px;">(طلب تجديد)</span>' : ''}</strong>
+                            <span style="font-size:13px; color:var(--text-gray);">الباقة: ${planName} | باسورد: ${data.password}</span>
+                            <button onclick="viewAdminReceipt('${theReceipt}')" class="view-receipt-btn" style="background:#007185; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px; margin:5px 0;"><i class="fa-solid fa-receipt"></i> عرض الإيصال</button>
+                            ${actionBtn}
+                        </div>`;
                     } else if (data.status === 'active' || data.status === 'suspended') {
-                        hasA = true; let expiryText = "غير محدد"; let isExpired = false;
+                        hasA = true; let expiryText = "غير محدد"; let isExpired = false; let isTrial = data.plan === 'trial';
                         if(data.expiryDate) { let remainingDays = Math.ceil((data.expiryDate - Date.now()) / (1000 * 60 * 60 * 24)); if(remainingDays > 0) { expiryText = `متبقي ${remainingDays} يوم`; } else { expiryText = "انتهت الباقة"; isExpired = true; } }
                         let statusColor = data.status === 'suspended' ? '#e63946' : (isExpired ? '#fb8500' : '#2a9d8f'); let statusLabel = data.status === 'suspended' ? ' <span style="color:#e63946; font-size:12px;">(موقوف)</span>' : '';
                         let toggleBtn = data.status === 'suspended' ? `<button onclick="toggleStoreStatus('${doc.id}', 'active')" style="background:#2a9d8f; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">▶️ تفعيل</button>` : `<button onclick="toggleStoreStatus('${doc.id}', 'suspended')" style="background:#fb8500; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">⏸️ إيقاف</button>`;
-                        aList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid ${statusColor}; background: #fff;"><strong>متجر: ${displayPhone} ${statusLabel}</strong><span style="font-size:12px; color:var(--text-gray); margin-bottom:5px;">باسورد: ${data.password} | الصلاحية: <span style="${isExpired ? 'color:red; font-weight:bold;' : 'color:var(--primary); font-weight:bold;'}">${expiryText}</span></span><div style="display:flex; gap:5px; margin-top:5px; flex-wrap:wrap; width:100%;">${toggleBtn}<button onclick="renewStoreTime('${doc.id}')" style="background:#0d6efd; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🔄 تجديد</button><button onclick="deleteStoreComplete('${doc.id}')" style="background:#e63946; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🗑️ حذف نهائي</button></div><a href="${link}" target="_blank" style="color:var(--text-dark); background:var(--light-bg); padding:5px; border-radius:5px; font-size:12px; margin-top:8px; font-weight:bold; text-decoration:none; display:inline-block; border:1px solid #ddd;">🔗 فتح المتجر</a></div>`;
+                        aList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid ${statusColor}; background: #fff;"><strong>متجر: ${displayPhone} ${statusLabel} ${isTrial ? '<span style="color:#0d6efd; font-size:11px;">(تجربة)</span>' : ''}</strong><span style="font-size:12px; color:var(--text-gray); margin-bottom:5px;">باسورد: ${data.password} | الصلاحية: <span style="${isExpired ? 'color:red; font-weight:bold;' : 'color:var(--primary); font-weight:bold;'}">${expiryText}</span></span><div style="display:flex; gap:5px; margin-top:5px; flex-wrap:wrap; width:100%;">${toggleBtn}<button onclick="renewStoreTime('${doc.id}')" style="background:#0d6efd; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🔄 تجديد</button><button onclick="deleteStoreComplete('${doc.id}')" style="background:#e63946; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🗑️ حذف نهائي</button></div><a href="${link}" target="_blank" style="color:var(--text-dark); background:var(--light-bg); padding:5px; border-radius:5px; font-size:12px; margin-top:8px; font-weight:bold; text-decoration:none; display:inline-block; border:1px solid #ddd;">🔗 فتح المتجر</a></div>`;
                     }
                 });
                 if(!hasP) pList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا توجد طلبات جديدة.</p>'; if(!hasA) aList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا يوجد تجار حالياً.</p>';
             });
         }
         function approveMerchant(merchantId, merchantPhone, storeType, plan) { if(confirm("تفعيل المتجر؟")) { let expiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ status: 'active', expiryDate: expiry }).then(() => { db.collection("stores").doc(merchantId).set({ name: "متجر جديد", address: "وصف المتجر", phone: merchantPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: storeType || 'general', visitors: 0, ordersCount: 0 }).then(() => showToast("تم التفعيل 🎉")); }); } }
+        function approveRenewal(merchantId, plan) { if(confirm("تأكيد التجديد وتفعيل المتجر؟")) { let newExpiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ expiryDate: newExpiry, plan: plan, status: 'active', renewalStatus: firebase.firestore.FieldValue.delete(), renewalPlan: firebase.firestore.FieldValue.delete(), renewalPrice: firebase.firestore.FieldValue.delete(), renewalReceipt: firebase.firestore.FieldValue.delete() }).then(() => { showToast("تم تجديد الباقة بنجاح 🎉"); }); } }
         function toggleStoreStatus(id, newStatus) { if(confirm(newStatus === 'active' ? "تأكيد تفعيل المتجر مرة أخرى؟" : "تأكيد إيقاف المتجر عن العمل؟")) { db.collection("platform_merchants").doc(id).update({ status: newStatus }).then(() => showToast("تم تحديث حالة المتجر!")); } }
-        function renewStoreTime(id) { let days = prompt("أدخل عدد الأيام لتجديد الباقة (مثلاً 30 لشهر):", "30"); if(days && !isNaN(days) && parseInt(days) > 0) { db.collection("platform_merchants").doc(id).get().then(docSnap => { let currentExpiry = docSnap.data().expiryDate || Date.now(); if(currentExpiry < Date.now()) currentExpiry = Date.now(); let newExpiry = currentExpiry + (parseInt(days) * 24 * 60 * 60 * 1000); db.collection("platform_merchants").doc(id).update({ expiryDate: newExpiry }).then(() => showToast("تم تجديد الباقة بنجاح! ⏱️")); }); } }
+        function renewStoreTime(id) { let days = prompt("أدخل عدد الأيام لتجديد الباقة (مثلاً 30 لشهر):", "30"); if(days && !isNaN(days) && parseInt(days) > 0) { db.collection("platform_merchants").doc(id).get().then(docSnap => { let currentExpiry = docSnap.data().expiryDate || Date.now(); if(currentExpiry < Date.now()) currentExpiry = Date.now(); let newExpiry = currentExpiry + (parseInt(days) * 24 * 60 * 60 * 1000); db.collection("platform_merchants").doc(id).update({ expiryDate: newExpiry, status: 'active' }).then(() => showToast("تم تجديد الباقة بنجاح! ⏱️")); }); } }
         function deleteStoreComplete(id) { if(confirm("⚠️ هل أنت متأكد من حذف هذا المتجر نهائياً بكل بياناته؟ (لا يمكن التراجع!)")) { db.collection("platform_merchants").doc(id).delete().then(() => { db.collection("stores").doc(id).delete().then(() => showToast("تم الحذف بنجاح 🗑️")); }); } }
 
+        // دوال التجديد من داخل لوحة التاجر
+        let renewPlanSelected = ""; let renewPrice = 0; let renewReceiptBase64 = "";
+        function showRenewalPayment(plan, price) { renewPlanSelected = plan; renewPrice = price; document.getElementById('renewalPlans').style.display = 'none'; document.getElementById('renewalPaymentBox').style.display = 'block'; document.getElementById('renewPriceTxt').innerText = price + " ج.م"; }
+        function cancelRenewal() { document.getElementById('renewalPlans').style.display = 'block'; document.getElementById('renewalPaymentBox').style.display = 'none'; renewReceiptBase64 = ""; document.getElementById('renewReceiptInput').value = ""; document.getElementById('renewReceiptImg').style.display = 'none'; }
+        function previewRenewReceipt(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); renewReceiptBase64 = canvas.toDataURL('image/jpeg', 0.6); document.getElementById('renewReceiptImg').src = renewReceiptBase64; document.getElementById('renewReceiptImg').style.display = 'block'; }; img.src = e.target.result; }; reader.readAsDataURL(file); }
+        function submitRenewal(storeId) { if(!renewReceiptBase64) return alert("يرجى إرفاق صورة الإيصال!"); document.getElementById('submitRenewBtn').innerText = "جاري الإرسال..."; db.collection("platform_merchants").doc(storeId).update({ renewalStatus: 'pending', renewalPlan: renewPlanSelected, renewalPrice: renewPrice, renewalReceipt: renewReceiptBase64 }).then(() => { showToast("تم إرسال طلب التجديد!"); setTimeout(()=>{location.reload();}, 1500); }).catch(e => { alert("حدث خطأ"); document.getElementById('submitRenewBtn').innerText = "تأكيد التجديد"; }); }
+
+        // دوال الجولة الترحيبية للتاجر الجديد
+        let currentTourStep = 1;
+        const totalTourSteps = 6;
+
+        function startTour() {
+            document.getElementById('onboardingModal').style.display = 'block';
+            showTourStep(1);
+        }
+
+        function showTourStep(step) {
+            document.querySelectorAll('.tour-step').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tour-dot').forEach(el => el.classList.remove('active'));
+            document.getElementById('tour-step-' + step).style.display = 'block';
+            document.getElementById('tour-dot-' + step).classList.add('active');
+            
+            if (step === totalTourSteps) {
+                document.getElementById('tourNextBtn').innerText = 'ابدأ الآن 🚀';
+            } else {
+                document.getElementById('tourNextBtn').innerText = 'التالي';
+            }
+        }
+
+        function nextTourStep() {
+            if (currentTourStep < totalTourSteps) {
+                currentTourStep++;
+                showTourStep(currentTourStep);
+            } else {
+                finishTour();
+            }
+        }
+
+        function finishTour() {
+            localStorage.setItem('tourCompleted_' + currentStoreId, 'true');
+            document.getElementById('onboardingModal').style.display = 'none';
+            showToast("تم الانتهاء من الجولة! مرحباً بك.");
+        }
+        
+        function skipTour() {
+            finishTour();
+        }
 
         // دوال تبديل وعرض لوحة تحكم التاجر (App Dashboard)
         function switchDashView(viewId, element) {
@@ -874,20 +976,58 @@
                     if(mData.expiryDate) {
                         let remainingDays = Math.ceil((mData.expiryDate - Date.now()) / (1000 * 60 * 60 * 24));
                         if(remainingDays <= 0) {
-                            document.getElementById('mainStoreContainer').innerHTML = "<div style='text-align:center; padding: 100px 20px;'><i class='fa-solid fa-clock' style='font-size:70px; color:#fb8500; margin-bottom:20px;'></i><h2 style='color:#fb8500; font-family: Changa, sans-serif;'>عفواً، انتهت باقة الاشتراك</h2><p style='color:var(--text-gray); font-size:18px; margin-top:10px;'>يرجى من صاحب المتجر التواصل مع الإدارة لتجديد الباقة.</p></div>";
+                            if (isLoggedAsAdmin) {
+                                let renewalHtml = `
+                                    <div style='text-align:center; padding: 40px 20px; max-width: 500px; margin: 0 auto;'>
+                                        <i class='fa-solid fa-clock-rotate-left' style='font-size:60px; color:#fb8500; margin-bottom:15px;'></i>
+                                        <h2 style='color:#fb8500; font-family: Changa, sans-serif;'>انتهت الفترة التجريبية / الباقة</h2>
+                                        <p style='color:var(--text-gray); font-size:15px; margin-bottom:25px;'>اختر باقة لتجديد اشتراكك وإعادة تفعيل المتجر فوراً.</p>
+                                        
+                                        <div id="renewalPlans">
+                                            <div class="plan-card" onclick="showRenewalPayment('1_month', 250)"><span>اشتراك شهر</span><span class="plan-price">250 ج</span></div>
+                                            <div class="plan-card" onclick="showRenewalPayment('2_months', 425)"><span>اشتراك شهرين</span><span class="plan-price">425 ج</span></div>
+                                            <div class="plan-card" onclick="showRenewalPayment('3_months', 650)"><span>اشتراك 3 شهور</span><span class="plan-price">650 ج</span></div>
+                                        </div>
+
+                                        <div id="renewalPaymentBox" style="display:none; text-align:right;">
+                                            <h3 style="text-align:center; margin-bottom:15px; color:var(--primary);">إتمام الدفع</h3>
+                                            <div class="payment-methods-logos" style="justify-content: center; display: flex; gap: 15px; margin-bottom: 15px;">
+                                                <img src="https://www.aljawalat.com/blog/wp-content/uploads/2022/04/unnamed-1280x720.jpg" class="payment-logo instapay-logo" style="width:60px; height:60px; border-radius:10px;">
+                                                <img src="https://png.pngtree.com/thumb_back/fh260/background/20220821/pngtree-wallet-icon-ecommerce-money-account-photo-image_19623402.jpg" class="payment-logo wallet-logo" style="width:60px; height:60px; border-radius:10px;">
+                                            </div>
+                                            <div class="payment-number-box" style="padding:20px; background: linear-gradient(135deg, #f0f6ff 0%, #e2edff 100%); border: 2px dashed var(--primary); border-radius: 15px; text-align:center;">
+                                                <span class="payment-amount" style="font-size:18px; font-weight:bold; display:block; margin-bottom:10px;">مبلغ التجديد: <span id="renewPriceTxt" style="color:#e63946; font-size:24px; font-weight:900;"></span></span>
+                                                <div class="payment-number" onclick="copyPaymentNumber()" style="font-size:28px; font-weight:900; color:var(--primary); cursor:pointer;">
+                                                    <span id="thePaymentNumber">01285957035</span> <i class="fa-regular fa-copy"></i>
+                                                </div>
+                                            </div>
+                                            <label style="font-weight:bold; display:block; margin-bottom:8px;">أرفق صورة الإيصال (سكرين شوت):</label>
+                                            <input type="file" id="renewReceiptInput" accept="image/*" onchange="previewRenewReceipt(event)" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px; background:white;">
+                                            <img id="renewReceiptImg" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:10px; border:2px dashed #ccc;">
+                                            
+                                            <button id="submitRenewBtn" onclick="submitRenewal('${storeId}')" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer;">تأكيد التجديد</button>
+                                            <button onclick="cancelRenewal()" style="background:none; color:var(--text-gray); width:100%; padding:10px; border:none; cursor:pointer; font-weight:bold; margin-top:5px;">إلغاء والرجوع</button>
+                                        </div>
+                                    </div>`;
+
+                                if(mData.renewalStatus === 'pending') {
+                                    renewalHtml = `<div style='text-align:center; padding: 100px 20px;'><i class='fa-solid fa-hourglass-half' style='font-size:70px; color:var(--primary); margin-bottom:20px;'></i><h2 style='color:var(--primary); font-family: Changa, sans-serif;'>طلب التجديد قيد المراجعة</h2><p style='color:var(--text-gray); font-size:16px; margin-top:10px;'>تم استلام الإيصال وجاري تفعيل متجرك.</p></div>`;
+                                }
+
+                                if (document.getElementById('merchantDashboardApp')) {
+                                    document.getElementById('merchantDashContent').innerHTML = renewalHtml;
+                                    document.getElementById('dashBottomNav').style.display = 'none';
+                                }
+                            } else {
+                                document.getElementById('mainStoreContainer').innerHTML = "<div style='text-align:center; padding: 100px 20px;'><i class='fa-solid fa-store-slash' style='font-size:70px; color:#fb8500; margin-bottom:20px;'></i><h2 style='color:#fb8500; font-family: Changa, sans-serif;'>هذا المتجر مغلق مؤقتاً</h2><p style='color:var(--text-gray); font-size:18px; margin-top:10px;'>نعتذر، المتجر مغلق حالياً للصيانة أو لتجديد الباقة.</p></div>";
+                            }
                             return;
                         }
-                        
-                        if(isLoggedAsAdmin && remainingDays <= 5) {
-                            let existingBanner = document.getElementById('expiryWarningBanner');
-                            if(!existingBanner) {
-                                let banner = document.createElement('div');
-                                banner.id = 'expiryWarningBanner';
-                                banner.style.cssText = "background: #e63946; color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 14px; position: sticky; top: 0; z-index: 1000; display:flex; justify-content:center; align-items:center; gap:8px;";
-                                banner.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> تنبيه: باقتك ستنتهي خلال ${remainingDays} أيام. يرجى التواصل للتجديد لتجنب الإيقاف.`;
-                                document.getElementById('mainStoreContainer').prepend(banner);
-                            }
-                        }
+                    }
+
+                    // إطلاق الجولة التعريفية للتاجر الجديد
+                    if(isLoggedAsAdmin && !localStorage.getItem('tourCompleted_' + storeId)) {
+                        setTimeout(startTour, 500);
                     }
                 }
             });
@@ -902,11 +1042,13 @@
                     document.getElementById('headerStoreName').innerText = storeNameDisplay; 
                     document.getElementById('headerStoreAddress').innerText = storeData.address || ""; 
                     
-                    // واجهة التاجر
-                    document.getElementById('dashGreetingName').innerText = storeNameDisplay;
-                    document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
-                    document.getElementById('stat-visitors').innerText = storeData.visitors || 0;
-                    document.getElementById('stat-orders').innerText = storeData.ordersCount || 0;
+                    // واجهة التاجر (تحديث البيانات فقط إذا لم يكن الحساب موقوفاً)
+                    if(document.getElementById('dashGreetingName')) {
+                        document.getElementById('dashGreetingName').innerText = storeNameDisplay;
+                        document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
+                        document.getElementById('stat-visitors').innerText = storeData.visitors || 0;
+                        document.getElementById('stat-orders').innerText = storeData.ordersCount || 0;
+                    }
                     
                     if(storeData.logo) { 
                         document.getElementById('headerLogoImg').src = storeData.logo; document.getElementById('headerLogoImg').style.display = 'block'; document.getElementById('headerLogoIcon').style.display = 'none'; 
@@ -914,11 +1056,15 @@
 
                     let p = storeData.phone || ""; if (p.startsWith("20") && p.length > 10) p = p.substring(2);
                     
-                    document.getElementById('adminStoreName').value = storeData.name || ""; document.getElementById('adminStoreAddress').value = storeData.address || ""; document.getElementById('adminPhone').value = p; document.getElementById('adminFacebook').value = storeData.facebook || ""; document.getElementById('adminInstagram').value = storeData.instagram || "";
+                    if(document.getElementById('adminStoreName')){
+                        document.getElementById('adminStoreName').value = storeData.name || ""; document.getElementById('adminStoreAddress').value = storeData.address || ""; document.getElementById('adminPhone').value = p; document.getElementById('adminFacebook').value = storeData.facebook || ""; document.getElementById('adminInstagram').value = storeData.instagram || "";
+                    }
                     
                     const storeFullLink = window.location.origin + window.location.pathname + "?store=" + storeId;
-                    document.getElementById('storeLinkDisplay').innerText = storeFullLink.substring(0, 30) + "...";
-                    document.getElementById('storeLinkDisplay').href = storeFullLink;
+                    if(document.getElementById('storeLinkDisplay')){
+                        document.getElementById('storeLinkDisplay').innerText = storeFullLink.substring(0, 30) + "...";
+                        document.getElementById('storeLinkDisplay').href = storeFullLink;
+                    }
 
                     updateSocialLinks();
                     renderCategoriesUI();
@@ -933,7 +1079,9 @@
                 storeProducts = []; snapshot.forEach(doc => { let pData = doc.data(); if(pData.sortOrder === undefined) pData.sortOrder = Date.now(); storeProducts.push({ id: doc.id, ...pData }); });
                 storeProducts.sort((a, b) => a.sortOrder - b.sortOrder); 
                 
-                document.getElementById('stat-products').innerText = storeProducts.length;
+                if(document.getElementById('stat-products')){
+                    document.getElementById('stat-products').innerText = storeProducts.length;
+                }
                 filterProducts();
             });
         }
@@ -959,13 +1107,16 @@
 
         function renderCategoriesUI() {
             const navContainer = document.getElementById('categories-nav-container'); const selectContainer = document.getElementById('newProductCategory'); const adminCatList = document.getElementById('admin-categories-list');
-            navContainer.innerHTML = `<button class="cat-btn ${currentCategory === 'الكل' ? 'active' : ''}" onclick="setCategory('الكل', this)">الكل</button>`; selectContainer.innerHTML = ''; adminCatList.innerHTML = '';
+            navContainer.innerHTML = `<button class="cat-btn ${currentCategory === 'الكل' ? 'active' : ''}" onclick="setCategory('الكل', this)">الكل</button>`; 
+            if(selectContainer) selectContainer.innerHTML = '<option value="الكل">بدون قسم محدد (الكل)</option>'; 
+            if(adminCatList) adminCatList.innerHTML = '';
+            
             if (storeData.categories) { 
                 storeData.categories.forEach((cat) => { 
                     if(cat !== 'الكل') {
                         navContainer.innerHTML += `<button class="cat-btn ${currentCategory === cat ? 'active' : ''}" onclick="setCategory('${cat}', this)">${cat}</button>`; 
-                        selectContainer.innerHTML += `<option value="${cat}">${cat}</option>`; 
-                        adminCatList.innerHTML += `<div class="admin-product-item"><span>${cat}</span><button class="delete-btn" onclick="deleteCategory('${cat}')"><i class="fa-solid fa-trash"></i></button></div>`; 
+                        if(selectContainer) selectContainer.innerHTML += `<option value="${cat}">${cat}</option>`; 
+                        if(adminCatList) adminCatList.innerHTML += `<div class="admin-product-item"><span>${cat}</span><button class="delete-btn" onclick="deleteCategory('${cat}')"><i class="fa-solid fa-trash"></i></button></div>`; 
                     }
                 }); 
             }
@@ -977,18 +1128,18 @@
 
         function renderProducts(productsToRender) {
             const dealContainer = document.getElementById('deal-container'); const gridContainer = document.getElementById('products-container'); const adminList = document.getElementById('admin-products-list');
-            dealContainer.innerHTML = ''; gridContainer.innerHTML = ''; adminList.innerHTML = '';
-            if (productsToRender.length === 0) { gridContainer.innerHTML = '<div class="no-results">لا توجد منتجات حالياً.</div>'; return; }
+            if(dealContainer) dealContainer.innerHTML = ''; if(gridContainer) gridContainer.innerHTML = ''; if(adminList) adminList.innerHTML = '';
+            if (productsToRender.length === 0) { if(gridContainer) gridContainer.innerHTML = '<div class="no-results">لا توجد منتجات حالياً.</div>'; return; }
             const dealProduct = productsToRender.find(p => p.isDealOfDay); const regularProducts = productsToRender.filter(p => !p.isDealOfDay);
 
-            if (dealProduct) { 
+            if (dealProduct && dealContainer) { 
                 const priceDisplay = dealProduct.isMeter ? `${dealProduct.price} ج.م/متر` : `${dealProduct.price} ج.م`; 
                 dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">عرض خاص</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${dealProduct.name}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Tajawal';" onclick="addToCart('${dealProduct.id}', '${dealProduct.name}', ${dealProduct.price}, ${dealProduct.isMeter || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button></div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
             }
 
             regularProducts.forEach((product) => { 
                 const priceDisplay = product.isMeter ? `${product.price} ج.م / م` : `${product.price} ج.م`; 
-                gridContainer.innerHTML += `
+                if(gridContainer) gridContainer.innerHTML += `
                     <div class="product-card">
                         <div class="details-badge" onclick="showProductDetails('${product.id}')">التفاصيل</div>
                         <img src="${product.image}" class="product-img">
@@ -1003,7 +1154,10 @@
                     </div>`; 
             });
 
-            productsToRender.forEach((product) => { const priceDisplay = product.isMeter ? `${product.price} ج/م` : `${product.price} ج`; const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);'; adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:8px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`; });
+            productsToRender.forEach((product) => { 
+                const priceDisplay = product.isMeter ? `${product.price} ج/م` : `${product.price} ج`; const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);'; 
+                if(adminList) adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:8px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`; 
+            });
         }
 
         function filterProducts() { const searchTerm = document.getElementById('searchInput').value.toLowerCase(); const filtered = storeProducts.filter(p => { const matchCat = currentCategory === 'الكل' || p.category === currentCategory; const matchSearch = p.name.toLowerCase().includes(searchTerm); return matchCat && matchSearch; }); renderProducts(filtered); }
@@ -1026,8 +1180,21 @@
         }
 
         function addNewProduct() {
-            const name = document.getElementById('newProductName').value; const price = document.getElementById('newProductPrice').value; const category = document.getElementById('newProductCategory').value; const desc = document.getElementById('newProductDesc').value; const isMeter = document.getElementById('newProductIsMeter').checked; const imageFile = document.getElementById('newProductImage').files[0]; const btn = document.getElementById('addProductBtn');
-            if (!name || !price || !category || !imageFile) return alert("اكمل البيانات"); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الرفع...'; btn.disabled = true;
+            const name = document.getElementById('newProductName').value; 
+            const price = document.getElementById('newProductPrice').value; 
+            let category = document.getElementById('newProductCategory').value; 
+            const desc = document.getElementById('newProductDesc').value; 
+            const isMeter = document.getElementById('newProductIsMeter').checked; 
+            const imageFile = document.getElementById('newProductImage').files[0]; 
+            const btn = document.getElementById('addProductBtn');
+            
+            if(!category) category = "الكل";
+
+            if (!name || !price || !imageFile) return alert("يرجى إكمال البيانات الأساسية: (صورة المنتج، الاسم، السعر)"); 
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الرفع...'; 
+            btn.disabled = true;
+            
             const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); const compressedImage = canvas.toDataURL('image/jpeg', 0.6); const productId = Date.now().toString() + Math.random().toString(36).substr(2, 5); db.collection("stores").doc(currentStoreId).collection("products").doc(productId).set({ name: name, price: parseFloat(price), category: category, description: desc, image: compressedImage, isMeter: isMeter, sortOrder: Date.now(), isDealOfDay: false }).then(() => { 
                 document.getElementById('newProductName').value = ''; document.getElementById('newProductPrice').value = ''; document.getElementById('newProductDesc').value = ''; document.getElementById('newProductImage').value = ''; document.getElementById('newProductIsMeter').checked = false; 
                 document.getElementById('newProductImagePreview').style.display = 'none'; document.getElementById('newProductImagePreview').src = ''; document.getElementById('cameraIcon').style.display = 'block'; document.getElementById('uploadText').style.display = 'block';
@@ -1121,7 +1288,7 @@
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
-        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.style.display = "none"; }
+        window.onclick = function(e) { if (e.target.classList.contains('modal') && e.target.id !== 'onboardingModal') e.target.style.display = "none"; }
     </script>
 </body>
 </html>
