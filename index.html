@@ -138,7 +138,7 @@
         .modal-content { background-color: white; width: 95%; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 25px; position: relative; }
         .close-btn { position: absolute; top: 15px; left: 15px; font-size: 20px; cursor: pointer; color: var(--text-gray); background: var(--light-bg); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; }
         
-        .floating-action-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
+        .floating-action-btn { fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
         
         .toast { position: fixed; bottom: 20px; right: -300px; background-color: var(--text-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: right 0.4s ease; z-index: 3000; font-weight: bold; font-size: 14px;}
         .toast.show { right: 20px; }
@@ -342,10 +342,11 @@
                     </button>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                    <div class="dash-card" style="text-align:center; padding:20px 15px; margin-bottom:0;">
+                    <div class="dash-card" style="text-align:center; padding:20px 15px; margin-bottom:0; position: relative;">
+                        <div id="todayVisitsBadge" style="position: absolute; top: -10px; right: -10px; background: #e63946; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; display: none; animation: pulse-red 1s infinite alternate; box-shadow: 0 4px 10px rgba(230,57,70,0.4);">0</div>
                         <i class="fa-solid fa-users" style="font-size:24px; color:#4caf50; margin-bottom:10px;"></i>
                         <h3 id="stat-visitors" style="margin:0; font-size:22px; color:var(--text-dark);">0</h3>
-                        <span style="font-size:12px; color:var(--text-gray); font-weight:bold;">عدد زوار متجرك</span>
+                        <span style="font-size:12px; color:var(--text-gray); font-weight:bold;">إجمالي زوار متجرك</span>
                     </div>
                     <div class="dash-card" style="text-align:center; padding:20px 15px; margin-bottom:0;">
                         <i class="fa-solid fa-box-open" style="font-size:24px; color:var(--secondary); margin-bottom:10px;"></i>
@@ -659,7 +660,7 @@
         const isSuperAdmin = urlParams.get('super') === 'bola'; 
 
         let tempPhone = ""; let tempPass = ""; let tempCategory = ""; let selectedPlan = ""; let selectedPrice = 0; let receiptBase64 = "";
-        let storeData = { phone: "", name: "", address: "", facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: 'general', visitors: 0, ordersCount: 0 };
+        let storeData = { phone: "", name: "", address: "", facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: 'general', visitors: 0, ordersCount: 0, dailyVisits: {} };
         let storeProducts = []; let cart = []; let total = 0; let currentCategory = 'الكل';
 
         function getExpiryTimestamp(plan) {
@@ -747,8 +748,15 @@
                 document.getElementById('storeApp').style.display = 'none';
                 document.getElementById('merchantDashboardApp').style.display = 'block';
             } else {
+                // تسجيل الزيارة (الإجمالية واليومية)
                 document.getElementById('storeApp').style.display = 'block';
-                db.collection("stores").doc(currentStoreId).update({ visitors: firebase.firestore.FieldValue.increment(1) }).catch(e => console.log(e));
+                let d = new Date();
+                let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+                
+                db.collection("stores").doc(currentStoreId).update({ 
+                    visitors: firebase.firestore.FieldValue.increment(1),
+                    [`dailyVisits.${todayStr}`]: firebase.firestore.FieldValue.increment(1)
+                }).catch(e => console.log("تحديث الزوار:", e));
             }
             loadStoreData(currentStoreId);
         } else {
@@ -837,7 +845,7 @@
                     phone: tempPhone, password: tempPass, storeType: tempCategory, plan: 'trial', status: 'active', expiryDate: expiry, createdAt: new Date()
                 }).then(() => {
                     return db.collection("stores").doc(storeId).set({
-                        name: "متجر جديد", address: "وصف المتجر", phone: tempPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: tempCategory, visitors: 0, ordersCount: 0
+                        name: "متجر جديد", address: "وصف المتجر", phone: tempPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: tempCategory, visitors: 0, ordersCount: 0, dailyVisits: {}
                     });
                 }).then(() => {
                     sessionStorage.setItem('loggedStoreId', storeId);
@@ -1242,12 +1250,35 @@
                     document.getElementById('headerStoreName').innerText = storeNameDisplay; 
                     document.getElementById('headerStoreAddress').innerText = storeData.address || ""; 
                     
-                    // واجهة التاجر (تحديث البيانات فقط إذا لم يكن الحساب موقوفاً)
+                    // واجهة التاجر (تحديث البيانات والإشعارات اليومية)
                     if(document.getElementById('dashGreetingName')) {
                         document.getElementById('dashGreetingName').innerText = storeNameDisplay;
                         document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
                         document.getElementById('stat-visitors').innerText = storeData.visitors || 0;
                         document.getElementById('stat-orders').innerText = storeData.ordersCount || 0;
+                        
+                        // إشعار الزيارات اليومية
+                        let d = new Date();
+                        let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+                        let todayVisits = storeData.dailyVisits && storeData.dailyVisits[todayStr] ? storeData.dailyVisits[todayStr] : 0;
+                        
+                        let badge = document.getElementById('todayVisitsBadge');
+                        if(badge) {
+                            if(todayVisits > 0) {
+                                badge.innerText = '+' + todayVisits;
+                                badge.style.display = 'flex';
+                                
+                                let lastNotified = sessionStorage.getItem('notifiedVisits_' + storeId + '_' + todayStr);
+                                if(lastNotified != todayVisits) {
+                                    setTimeout(() => {
+                                        showToast(`🚀 أخبار رائعة! ${todayVisits} عملاء زاروا متجرك اليوم`);
+                                    }, 2500);
+                                    sessionStorage.setItem('notifiedVisits_' + storeId + '_' + todayStr, todayVisits);
+                                }
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
                     }
                     
                     if(storeData.logo) { 
