@@ -188,7 +188,7 @@
         .image-upload-box { border: 2px dashed var(--primary); padding: 30px; text-align: center; border-radius: 12px; background: #f0f6ff; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
         .image-upload-box:hover { background: #e2edff; }
 
-        /* 🎯 نظام الجولة التعريفية (Onboarding Tour) 🎯 */
+        /* 🎯 نظام الجولة التعريفية (Onboarding Tour) للتاجر والعميل 🎯 */
         .tour-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 4000; display: none; backdrop-filter: blur(2px); transition: 0.3s; }
         
         .tour-tooltip { position: fixed; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; z-index: 4001; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.4); text-align: center; transition: 0.3s; left: 50%; transform: translateX(-50%); border: 2px solid var(--primary); }
@@ -286,6 +286,12 @@
             <button onclick="savePlatformContact()" class="btn-primary" style="background:var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;">حفظ البيانات 💾</button>
         </div>
 
+        <h3 style="margin-top:30px; border-top:1px solid var(--border-color); padding-top:20px; color: #e63946; text-align: right;">🔒 تغيير كلمة مرور الإدارة</h3>
+        <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
+            <input type="text" id="newAdminPass" placeholder="كلمة المرور الجديدة (6 أرقام/حروف على الأقل)">
+            <button onclick="changeAdminPassword()" class="btn-primary" style="background:#e63946; color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;">تحديث كلمة المرور 🔄</button>
+        </div>
+
         <h3 style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px; text-align: right;">➕ إضافة متجر يدوياً</h3>
         <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
             <input type="text" id="manualStoreName" placeholder="اسم المتجر">
@@ -311,6 +317,8 @@
 
         <h3 style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px; color: var(--primary); text-align: right;">✅ التجار والمتاجر</h3>
         <div id="merchantsList" style="text-align: right; max-height: 400px; overflow-y: auto; padding-right:5px;"></div>
+        
+        <button onclick="adminLogout()" style="background:var(--text-dark); color:white; border:none; padding:15px; width:100%; border-radius:10px; font-weight:bold; cursor:pointer; font-size:16px; margin-top:20px;"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل خروج الإدارة</button>
     </div>
 
     <div id="merchantDashboardApp">
@@ -634,7 +642,6 @@
     </div>
     <i class="fa-solid fa-hand-point-down tour-pointer" id="tourPointer"></i>
 
-
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAzildDtyvUV3eNBWkin8wXQsMaEwFoeDs",
@@ -697,22 +704,38 @@
             });
         }
 
-        // مسار دخول وتسجيل التاجر بـ Firebase Auth
-        function processLogin(snap, sId, pass) {
-            const mData = snap.docs[0].data();
-            if (mData.status === 'pending') { 
-                document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; 
-            } else if (mData.status === 'active' || mData.status === 'suspended') {
-                sessionStorage.setItem('loggedStoreId', sId); showToast("جاري الدخول...");
-                setTimeout(() => { window.location.href = window.location.pathname + "?store=" + sId; }, 1000);
-            }
-        }
-
+        // مسار الإدارة المحمي بالـ Auth
         if (isSuperAdmin) {
+            document.getElementById('loginApp').style.display = 'none'; 
             let pass = prompt("الرجاء إدخال كلمة مرور الإدارة:");
-            if (pass === "941997") {
-                document.getElementById('loginApp').style.display = 'none'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('superAdminApp').style.display = 'block'; loadAllMerchantsAdmin();
-            } else { alert("كلمة المرور غير صحيحة!"); window.location.href = window.location.pathname; }
+            if (pass) {
+                firebase.auth().signInWithEmailAndPassword("admin@bola-stores.com", pass)
+                .then(() => {
+                    document.getElementById('storeApp').style.display = 'none';
+                    document.getElementById('superAdminApp').style.display = 'block';
+                    loadAllMerchantsAdmin();
+                })
+                .catch((error) => {
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                        if(pass === "941997") {
+                            firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass)
+                            .then(() => {
+                                document.getElementById('storeApp').style.display = 'none';
+                                document.getElementById('superAdminApp').style.display = 'block';
+                                loadAllMerchantsAdmin();
+                            });
+                        } else {
+                            alert("كلمة المرور غير صحيحة!");
+                            window.location.href = window.location.pathname;
+                        }
+                    } else {
+                        alert("حدث خطأ في تسجيل الدخول.");
+                        window.location.href = window.location.pathname;
+                    }
+                });
+            } else {
+                window.location.href = window.location.pathname;
+            }
         } else if (currentStoreId) {
             document.getElementById('loginApp').style.display = 'none';
             let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === currentStoreId;
@@ -738,7 +761,14 @@
             firebase.auth().signInWithEmailAndPassword(fakeEmail, tempPass)
             .then((userCredential) => {
                 db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
-                    if(!snap.empty) processLogin(snap, snap.docs[0].id, tempPass);
+                    if(!snap.empty) {
+                        const mData = snap.docs[0].data(); const sId = snap.docs[0].id;
+                        if (mData.status === 'pending') { document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; } 
+                        else if (mData.status === 'active' || mData.status === 'suspended') {
+                            sessionStorage.setItem('loggedStoreId', sId); showToast("جاري الدخول...");
+                            setTimeout(() => { window.location.href = window.location.pathname + "?store=" + sId; }, 1000);
+                        }
+                    }
                 });
             })
             .catch(error => {
@@ -748,7 +778,12 @@
                             document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep2').style.display = 'block';
                         } else if (snap.docs[0].data().password === tempPass) {
                             firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass).then(() => {
-                                processLogin(snap, snap.docs[0].id, tempPass);
+                                const mData = snap.docs[0].data(); const sId = snap.docs[0].id;
+                                if (mData.status === 'pending') { document.getElementById('authStep1').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; } 
+                                else if (mData.status === 'active' || mData.status === 'suspended') {
+                                    sessionStorage.setItem('loggedStoreId', sId); showToast("جاري الدخول...");
+                                    setTimeout(() => { window.location.href = window.location.pathname + "?store=" + sId; }, 1000);
+                                }
                             });
                         } else {
                             alert("الرقم السري خطأ!");
@@ -788,26 +823,27 @@
             });
         }
 
-        function selectPlan(planId, price) { tempCategory = document.getElementById('newStoreCategory').value; selectedPlan = planId; selectedPrice = price; document.getElementById('selectedPlanPrice').innerText = price + " ج.م"; document.getElementById('authStep2').style.display = 'none'; document.getElementById('authStep3').style.display = 'block'; }
-        function cancelPayment() { document.getElementById('authStep3').style.display = 'none'; document.getElementById('authStep2').style.display = 'block'; document.getElementById('receiptInput').value = ''; document.getElementById('receiptImagePreview').style.display = 'none'; receiptBase64 = ""; }
-
-        function previewReceipt(event) {
-            const file = event.target.files[0]; if(!file) return; const reader = new FileReader();
-            reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); receiptBase64 = canvas.toDataURL('image/jpeg', 0.6); document.getElementById('receiptImagePreview').src = receiptBase64; document.getElementById('receiptImagePreview').style.display = 'block'; }; img.src = e.target.result; }; reader.readAsDataURL(file);
+        // إداره المنصة (Super Admin)
+        function changeAdminPassword() {
+            let newPass = document.getElementById('newAdminPass').value.trim();
+            if(newPass.length < 6) return alert("يجب أن تتكون كلمة المرور من 6 خانات على الأقل!");
+            let user = firebase.auth().currentUser;
+            if(user && user.email === "admin@bola-stores.com") {
+                user.updatePassword(newPass).then(() => {
+                    showToast("تم تغيير الباسورد بنجاح! 🔒");
+                    document.getElementById('newAdminPass').value = '';
+                }).catch(error => {
+                    alert("يرجى تسجيل الخروج والدخول مرة أخرى أولاً لتأكيد هويتك، ثم حاول تغيير الباسورد.");
+                });
+            }
         }
-
-        function submitSubscription() {
-            if(!receiptBase64) return alert("الرجاء إرفاق الإيصال!");
-            const btn = document.getElementById('submitSubBtn'); btn.innerText = "جاري الإرسال... ⏳"; btn.disabled = true;
-            const storeId = "store_" + Date.now();
-            let fakeEmail = tempPhone + "@bola-stores.com";
-
-            firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass).catch(e=>console.log(e)).finally(() => {
-                db.collection("platform_merchants").doc(storeId).set({ phone: tempPhone, password: tempPass, storeType: tempCategory, plan: selectedPlan, pricePaid: selectedPrice, receipt: receiptBase64, status: 'pending', createdAt: new Date() }).then(() => { document.getElementById('authStep3').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; }).catch(err => { alert("حدث خطأ."); btn.innerText = "تأكيد واشتراك 🚀"; btn.disabled = false; });
+        
+        function adminLogout() {
+            firebase.auth().signOut().then(() => {
+                window.location.href = window.location.pathname;
             });
         }
 
-        // إداره المنصة (Super Admin)
         function createManualStore() {
             const name = document.getElementById('manualStoreName').value; const rawP = document.getElementById('manualStorePhone').value.trim(); const pass = document.getElementById('manualStorePass').value; const type = document.getElementById('manualStoreCategory').value;
             if(!name || !rawP || !pass) return alert("أكمل البيانات"); const phone = "20" + rawP; const storeId = "store_" + Date.now(); let expiry = getExpiryTimestamp('1_month');
