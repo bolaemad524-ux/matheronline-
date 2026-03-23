@@ -85,7 +85,6 @@
         .cart-icon-btn { background: var(--primary); color: white; border: none; padding: 0 15px; height: 40px; border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2); }
         .cart-badge { background: white; color: var(--primary); padding: 2px 6px; border-radius: 10px; font-size: 12px; transition: 0.3s; }
 
-        /* تأثير الإضافة للعربة */
         .cart-glow { background-color: #e63946 !important; box-shadow: 0 0 15px rgba(230, 57, 70, 0.8) !important; animation: pulse-red 0.8s infinite alternate !important; }
         .cart-glow .cart-badge { color: #e63946 !important; }
         @keyframes pulse-red {
@@ -140,7 +139,7 @@
         
         .floating-action-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
         
-        .toast { position: fixed; bottom: 20px; right: -300px; background-color: var(--text-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: right 0.4s ease; z-index: 3000; font-weight: bold; font-size: 14px;}
+        .toast { position: fixed; bottom: 20px; right: -300px; background-color: var(--text-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: right 0.4s ease; z-index: 2001; font-weight: bold; font-size: 14px;}
         .toast.show { right: 20px; }
         
         .details-modal-img { width: 100%; height: 250px; object-fit: contain; border-radius: 10px; margin-bottom: 15px; background: white; padding: 10px; border: 1px solid var(--border-color); }
@@ -151,7 +150,7 @@
         .saas-admin-container { max-width: 800px; margin: 50px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
 
         /* 📱 لوحة تحكم التاجر (App Dashboard) 📱 */
-        #merchantDashboardApp { background-color: var(--light-bg); min-height: 100vh; padding-bottom: 80px; max-width: 600px; margin: 0 auto; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        #merchantDashboardApp { background-color: var(--light-bg); min-height: 100vh; padding-bottom: 80px; max-width: 600px; margin: 0 auto; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; }
         
         .dash-header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); }
         .dash-header h1 { font-family: 'Changa', sans-serif; color: var(--primary); font-size: 22px; margin: 0; font-weight: 800; }
@@ -159,8 +158,8 @@
         .dash-header-icons i { cursor: pointer; transition: 0.2s; }
         .dash-header-icons i:hover { color: var(--primary); }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; background: white; border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; height: 65px; z-index: 2000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #a1aab2; font-size: 11px; cursor: pointer; flex: 1; height: 100%; transition: 0.3s; font-weight: 700; }
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; background: white; border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; height: 65px; z-index: 2000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); transition: 0.3s; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #a1aab2; font-size: 11px; cursor: pointer; flex: 1; height: 100%; transition: 0.3s; font-weight: 700; position: relative; }
         .nav-item.active { color: var(--primary); }
         .nav-item i { font-size: 22px; margin-bottom: 5px; }
         .nav-fab-container { position: relative; width: 70px; height: 100%; display: flex; justify-content: center; }
@@ -188,15 +187,25 @@
         .image-upload-box { border: 2px dashed var(--primary); padding: 30px; text-align: center; border-radius: 12px; background: #f0f6ff; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
         .image-upload-box:hover { background: #e2edff; }
 
-        /* تنسيقات جولة الترحيب (Onboarding Tour) */
-        .tour-step { display: none; animation: fadeIn 0.4s; }
-        .tour-step.active { display: block; }
+        /* 🎯 نظام الجولة التعريفية (Onboarding Tour) 🎯 */
+        .tour-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 4000; display: none; backdrop-filter: blur(2px); transition: 0.3s; }
+        
+        .tour-tooltip { position: fixed; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; z-index: 4001; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.4); text-align: center; transition: 0.3s; left: 50%; transform: translateX(-50%); border: 2px solid var(--primary); }
+        
+        .tour-pointer { position: fixed; font-size: 35px; color: var(--primary); z-index: 4005; animation: bounce-arrow 1s infinite alternate; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: none; transition: 0.3s ease-in-out; pointer-events: none;}
+        @keyframes bounce-arrow { from { margin-top: 0; } to { margin-top: -15px; } }
+        
         .tour-dots { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
         .tour-dot { width: 10px; height: 10px; background: #ddd; border-radius: 50%; transition: 0.3s; }
-        .tour-dot.active { background: var(--primary); width: 20px; border-radius: 5px; }
-        .tour-btns { display: flex; gap: 10px; justify-content: center; }
-        .tour-btn-next { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 16px; font-family: 'Tajawal'; }
-        .tour-btn-skip { background: var(--light-bg); color: var(--text-gray); border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 16px; font-family: 'Tajawal'; }
+        .tour-dot.active { background: var(--primary); width: 25px; border-radius: 5px; }
+        
+        .tour-btns { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+        .tour-btn-next { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 15px; font-family: 'Tajawal'; }
+        .tour-btn-skip { background: transparent; color: var(--text-gray); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; font-family: 'Tajawal'; text-decoration: underline; }
+
+        /* تأثير الإضاءة على العنصر المستهدف */
+        .tour-focus { position: relative; z-index: 4002 !important; background: #e2edff !important; border-radius: 10px; transform: scale(1.1); box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+        .nav-fab.tour-focus { background: white !important; color: var(--primary) !important; border: 4px solid var(--primary); box-shadow: 0 0 20px rgba(13, 110, 253, 0.8); }
     </style>
 </head>
 <body>
@@ -309,12 +318,11 @@
                 <i class="fa-solid fa-share-nodes" onclick="shareStoreLink()" title="مشاركة المتجر"></i>
                 <i class="fa-regular fa-eye" onclick="previewAsCustomer()" title="معاينة المتجر"></i>
             </div>
-            <h1>Bola</h1>
+            <h1>BOLA</h1>
         </div>
 
         <div class="dash-content" id="merchantDashContent">
             <div id="dash-home" class="dash-view" style="display:block;">
-                
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid var(--border-color);">
                     <div>
                         <h2 style="font-size: 14px; color: var(--text-gray); margin-bottom: 5px;">صباح الخير،</h2>
@@ -324,7 +332,6 @@
                         عرض كود المتجر <i class="fa-solid fa-qrcode"></i>
                     </button>
                 </div>
-                
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                     <div class="dash-card" style="text-align:center; padding:20px 15px; margin-bottom:0;">
                         <i class="fa-solid fa-users" style="font-size:24px; color:#4caf50; margin-bottom:10px;"></i>
@@ -342,7 +349,6 @@
                         <span style="font-size:14px; color:var(--text-dark); font-weight:bold;">إجمالي الطلبات المؤكدة</span>
                     </div>
                 </div>
-                
                 <div style="margin-top:15px;" class="dash-card">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
@@ -362,7 +368,6 @@
             <div id="dash-add" class="dash-view">
                 <h3 style="margin-bottom:15px; color:var(--text-dark);">إضافة منتج جديد</h3>
                 <div class="dash-card admin-form" style="padding: 20px;">
-                    
                     <div class="image-upload-box" onclick="document.getElementById('newProductImage').click()">
                         <i class="fa-solid fa-camera" id="cameraIcon" style="font-size: 35px; color: var(--primary); margin-bottom: 10px;"></i>
                         <p id="uploadText" style="margin:0; font-weight:bold; color:var(--primary);">إضافة صورة المنتج</p>
@@ -404,26 +409,21 @@
 
             <div id="dash-settings" class="dash-view admin-form">
                 <h3 style="margin-bottom:15px; color:var(--text-dark);">إعدادات الحساب</h3>
-                
                 <div class="dash-card">
                     <h3 style="font-size:15px; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-id-card"></i> بيانات المتجر الأساسية</h3>
                     <input type="text" id="adminStoreName" placeholder="اسم المتجر">
                     <input type="text" id="adminStoreAddress" placeholder="وصف سريع للمتجر">
-                    
                     <label style="font-weight:bold; font-size:13px; color:var(--text-gray); margin-bottom:5px; display:block; text-align:right;">رقم استقبال الطلبات (واتساب):</label>
                     <div class="phone-input-wrapper" style="margin-bottom: 15px; background:var(--light-bg);">
                         <span style="background: white;">+20</span>
                         <input type="tel" id="adminPhone" placeholder="10xxxxxxxx" style="background:var(--light-bg);" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.startsWith('0')) this.value = this.value.substring(1);">
                     </div>
-                    
                     <input type="url" id="adminFacebook" placeholder="رابط فيسبوك">
                     <input type="url" id="adminInstagram" placeholder="رابط انستجرام">
-                    
                     <label style="font-weight:bold; font-size:13px; color:var(--text-gray); margin-bottom:5px; display:block;">لوجو المتجر:</label>
                     <input type="file" id="adminStoreLogo" accept="image/*" style="padding:10px; background:white;">
                     <button onclick="saveStoreSettings()" class="btn-save" style="margin-bottom:0;">حفظ التعديلات 💾</button>
                 </div>
-
                 <div class="dash-card">
                     <h3 style="font-size:15px; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-layer-group"></i> إدارة الأقسام</h3>
                     <div style="display:flex; gap:10px; margin-bottom:15px;">
@@ -436,42 +436,39 @@
 
             <div id="dash-more" class="dash-view">
                 <h3 style="margin-bottom:15px; color:var(--text-dark);">المزيد من الخيارات</h3>
-                
                 <div class="dash-card" style="text-align:center;">
                     <h3 style="font-size:15px; color:var(--text-dark); margin-bottom:15px;"><i class="fa-solid fa-database"></i> النسخ الاحتياطي</h3>
                     <button onclick="exportStoreProducts()" style="background-color: var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; margin-bottom: 15px; cursor:pointer;"><i class="fa-solid fa-download"></i> حفظ نسخة من المنتجات</button>
-                    
                     <div style="border-top: 1px dashed #ddd; padding-top: 15px;">
                         <label style="font-size: 13px; color: var(--text-dark); display: block; margin-bottom: 8px; font-weight: bold;">استعادة المنتجات من ملف سابق:</label>
                         <input type="file" id="backupFileInput" accept=".json" onchange="importStoreProducts(event)" style="border: 1px solid #ddd; padding:10px; width:100%; border-radius:8px; background:var(--light-bg);">
                     </div>
                 </div>
-                
                 <button onclick="merchantLogout()" style="background:#e63946; color:white; border:none; padding:15px; width:100%; border-radius:10px; font-weight:bold; cursor:pointer; font-size:16px; margin-top:10px;"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج</button>
             </div>
         </div>
 
         <div class="bottom-nav" id="dashBottomNav">
-            <div class="nav-item active" onclick="switchDashView('dash-home', this)">
+            <div id="nav-home" class="nav-item active" onclick="switchDashView('dash-home', this)">
                 <i class="fa-solid fa-house"></i>
                 <span>الرئيسية</span>
             </div>
-            <div class="nav-item" onclick="switchDashView('dash-products', this)">
+            <div id="nav-products" class="nav-item" onclick="switchDashView('dash-products', this)">
                 <i class="fa-solid fa-box"></i>
                 <span>المنتجات</span>
             </div>
             
             <div class="nav-fab-container">
-                <div class="nav-fab" onclick="switchDashView('dash-add', this)">
+                <div id="nav-add" class="nav-fab" onclick="switchDashView('dash-add', this)">
                     <i class="fa-solid fa-plus"></i>
                 </div>
             </div>
 
-            <div class="nav-item" onclick="switchDashView('dash-settings', this)">
+            <div id="nav-settings" class="nav-item" onclick="switchDashView('dash-settings', this)">
                 <i class="fa-solid fa-gear"></i>
                 <span>الإعدادات</span>
             </div>
-            <div class="nav-item" onclick="switchDashView('dash-more', this)">
+            <div id="nav-more" class="nav-item" onclick="switchDashView('dash-more', this)">
                 <i class="fa-solid fa-bars"></i>
                 <span>المزيد</span>
             </div>
@@ -624,60 +621,18 @@
         </div>
     </div>
 
-    <div id="onboardingModal" class="modal" style="z-index: 9999;">
-        <div class="modal-content" style="text-align: center; border-radius: 20px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-            
-            <div id="tour-step-1" class="tour-step active">
-                <i class="fa-solid fa-store" style="font-size: 60px; color: var(--primary); margin-bottom: 20px;"></i>
-                <h2 style="color: var(--primary); font-family: 'Changa', sans-serif; margin-bottom: 10px;">مرحباً بك في BOLA EMAD! 🎉</h2>
-                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">منصتك المتكاملة لإدارة متجرك الإلكتروني بسهولة. دعنا نأخذك في جولة سريعة للتعرف على مميزات لوحة التحكم السحرية الخاصة بك.</p>
-            </div>
-
-            <div id="tour-step-2" class="tour-step">
-                <i class="fa-solid fa-house" style="font-size: 50px; color: var(--secondary); margin-bottom: 20px;"></i>
-                <h2 style="color: var(--text-dark); font-family: 'Changa', sans-serif; margin-bottom: 10px;">الرئيسية</h2>
-                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">من هنا يمكنك متابعة عدد زوار متجرك، وإجمالي الطلبات المؤكدة، بالإضافة لنسخ ومشاركة رابط الـ QR Code لمتجرك مع العملاء بسهولة.</p>
-            </div>
-
-            <div id="tour-step-3" class="tour-step">
-                <i class="fa-solid fa-box" style="font-size: 50px; color: var(--primary); margin-bottom: 20px;"></i>
-                <h2 style="color: var(--text-dark); font-family: 'Changa', sans-serif; margin-bottom: 10px;">المنتجات</h2>
-                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">قسم المنتجات يتيح لك رؤية جميع المنتجات التي قمت برفعها. يمكنك تعديل ترتيبها، تمييزها كـ "عرض خاص"، أو حذفها بضغطة زر.</p>
-            </div>
-
-            <div id="tour-step-4" class="tour-step">
-                <i class="fa-solid fa-plus-circle" style="font-size: 50px; color: #4caf50; margin-bottom: 20px;"></i>
-                <h2 style="color: var(--text-dark); font-family: 'Changa', sans-serif; margin-bottom: 10px;">إضافة منتج (+)</h2>
-                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">الزر العائم في منتصف الشاشة هو الأهم! من خلاله يمكنك رفع صور منتجاتك، كتابة أسعارها وتفاصيلها، وإضافتها للمتجر في ثوانٍ معدودة.</p>
-            </div>
-
-            <div id="tour-step-5" class="tour-step">
-                <i class="fa-solid fa-gear" style="font-size: 50px; color: var(--text-dark); margin-bottom: 20px;"></i>
-                <h2 style="color: var(--text-dark); font-family: 'Changa', sans-serif; margin-bottom: 10px;">الإعدادات</h2>
-                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">هنا يمكنك تغيير اسم متجرك، رفع اللوجو الخاص بك، إضافة أرقام الواتساب لاستقبال الطلبات، وإنشاء أقسام لترتيب منتجاتك.</p>
-            </div>
-
-            <div id="tour-step-6" class="tour-step">
-                <i class="fa-solid fa-rocket" style="font-size: 60px; color: var(--primary); margin-bottom: 20px;"></i>
-                <h2 style="color: var(--primary); font-family: 'Changa', sans-serif; margin-bottom: 10px;">أنت جاهز الآن! 🚀</h2>
-                <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">لوحة التحكم بين يديك الآن. ابدأ في رفع منتجاتك وشارك الرابط مع عملائك لتتلقى طلباتك مباشرة على الواتساب. نتمنى لك مبيعات ضخمة!</p>
-            </div>
-
-            <div class="tour-dots">
-                <div class="tour-dot active" id="tour-dot-1"></div>
-                <div class="tour-dot" id="tour-dot-2"></div>
-                <div class="tour-dot" id="tour-dot-3"></div>
-                <div class="tour-dot" id="tour-dot-4"></div>
-                <div class="tour-dot" id="tour-dot-5"></div>
-                <div class="tour-dot" id="tour-dot-6"></div>
-            </div>
-
-            <div class="tour-btns">
-                <button class="tour-btn-skip" onclick="skipTour()">تخطي</button>
-                <button id="tourNextBtn" class="tour-btn-next" onclick="nextTourStep()">التالي</button>
-            </div>
+    <div id="tourOverlay" class="tour-overlay"></div>
+    <div id="tourTooltip" class="tour-tooltip">
+        <h2 id="tourTitle" style="color:var(--primary); font-family:'Changa'; margin-bottom:10px; font-size:22px;">...</h2>
+        <p id="tourText" style="color:var(--text-gray); font-size:15px; line-height:1.6; margin-bottom:15px;">...</p>
+        <div id="tourDotsContainer" class="tour-dots"></div>
+        <div class="tour-btns">
+            <button onclick="skipTour()" class="tour-btn-skip">تخطي</button>
+            <button onclick="nextTourStep()" class="tour-btn-next" id="tourNextBtn">التالي</button>
         </div>
     </div>
+    <i class="fa-solid fa-hand-point-down tour-pointer" id="tourPointer"></i>
+
 
     <script>
         const firebaseConfig = {
@@ -861,30 +816,76 @@
         function previewRenewReceipt(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); renewReceiptBase64 = canvas.toDataURL('image/jpeg', 0.6); document.getElementById('renewReceiptImg').src = renewReceiptBase64; document.getElementById('renewReceiptImg').style.display = 'block'; }; img.src = e.target.result; }; reader.readAsDataURL(file); }
         function submitRenewal(storeId) { if(!renewReceiptBase64) return alert("يرجى إرفاق صورة الإيصال!"); document.getElementById('submitRenewBtn').innerText = "جاري الإرسال..."; db.collection("platform_merchants").doc(storeId).update({ renewalStatus: 'pending', renewalPlan: renewPlanSelected, renewalPrice: renewPrice, renewalReceipt: renewReceiptBase64 }).then(() => { showToast("تم إرسال طلب التجديد!"); setTimeout(()=>{location.reload();}, 1500); }).catch(e => { alert("حدث خطأ"); document.getElementById('submitRenewBtn').innerText = "تأكيد التجديد"; }); }
 
-        // دوال الجولة الترحيبية للتاجر الجديد
-        let currentTourStep = 1;
-        const totalTourSteps = 6;
+        // 🎯 نظام الجولة التعريفية (Interactive Onboarding Tour)
+        const tourSteps = [
+            { target: null, title: "مرحباً بك في المنصة! 🎉", text: "منصتك المتكاملة لإدارة متجرك الإلكتروني بسهولة. دعنا نأخذك في جولة سريعة للتعرف على مميزات لوحة التحكم السحرية الخاصة بك." },
+            { target: "nav-home", title: "الرئيسية", text: "من هنا يمكنك متابعة عدد زوار متجرك، وإجمالي الطلبات المؤكدة، بالإضافة لنسخ ومشاركة رابط الـ QR Code لمتجرك مع العملاء بسهولة." },
+            { target: "nav-products", title: "المنتجات", text: "قسم المنتجات يتيح لك رؤية جميع المنتجات التي قمت برفعها. يمكنك تعديل ترتيبها، تمييزها كـ 'عرض خاص'، أو حذفها بضغطة زر." },
+            { target: "nav-add", title: "إضافة منتج (+)", text: "الزر العائم في منتصف الشاشة هو الأهم! من خلاله يمكنك رفع صور منتجاتك، كتابة أسعارها وتفاصيلها، وإضافتها للمتجر في ثوانٍ معدودة." },
+            { target: "nav-settings", title: "الإعدادات", text: "هنا يمكنك تغيير اسم متجرك، رفع اللوجو الخاص بك، إضافة أرقام الواتساب لاستقبال الطلبات، وإنشاء أقسام لترتيب منتجاتك." },
+            { target: null, title: "أنت جاهز الآن! 🚀", text: "لوحة التحكم بين يديك الآن. ابدأ في رفع منتجاتك وشارك الرابط مع عملائك لتتلقى طلباتك مباشرة على الواتساب. نتمنى لك مبيعات ضخمة!" }
+        ];
+
+        let currentTourStep = 0;
 
         function startTour() {
-            document.getElementById('onboardingModal').style.display = 'block';
-            showTourStep(1);
+            document.getElementById('tourOverlay').style.display = 'block';
+            document.getElementById('tourTooltip').style.display = 'block';
+            showTourStep(0);
         }
 
-        function showTourStep(step) {
-            document.querySelectorAll('.tour-step').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.tour-dot').forEach(el => el.classList.remove('active'));
-            document.getElementById('tour-step-' + step).style.display = 'block';
-            document.getElementById('tour-dot-' + step).classList.add('active');
+        function showTourStep(index) {
+            // إزالة التأثيرات القديمة
+            document.querySelectorAll('.tour-focus').forEach(el => el.classList.remove('tour-focus'));
+            document.getElementById('dashBottomNav').style.zIndex = '2000';
             
-            if (step === totalTourSteps) {
-                document.getElementById('tourNextBtn').innerText = 'ابدأ الآن 🚀';
+            const step = tourSteps[index];
+            document.getElementById('tourTitle').innerText = step.title;
+            document.getElementById('tourText').innerText = step.text;
+            
+            // تحديث النقاط (Dots)
+            let dotsHtml = '';
+            for(let i=0; i<tourSteps.length; i++) {
+                dotsHtml += `<div class="tour-dot ${i === index ? 'active' : ''}"></div>`;
+            }
+            document.getElementById('tourDotsContainer').innerHTML = dotsHtml;
+            
+            document.getElementById('tourNextBtn').innerText = index === tourSteps.length - 1 ? "ابدأ الآن 🚀" : "التالي";
+
+            const tooltip = document.getElementById('tourTooltip');
+            const pointer = document.getElementById('tourPointer');
+
+            if(step.target) {
+                // رفع شريط التنقل فوق الضلمة
+                document.getElementById('dashBottomNav').style.zIndex = '4001';
+                
+                const targetEl = document.getElementById(step.target);
+                targetEl.classList.add('tour-focus');
+                
+                const targetRect = targetEl.getBoundingClientRect();
+                
+                // وضع النافذة فوق الشريط الملاحي
+                tooltip.style.top = 'auto';
+                tooltip.style.bottom = '120px';
+                tooltip.style.transform = 'translateX(-50%)';
+                
+                // إظهار وضبط مكان السهم (Pointer) عشان يشاور بالظبط على الأيقونة
+                pointer.style.display = 'block';
+                pointer.style.top = 'auto';
+                pointer.style.left = (targetRect.left + (targetRect.width / 2) - 17) + 'px'; // 17 هي نص عرض الأيقونة تقريباً
+                pointer.style.bottom = '75px'; // فوق الأيقونة مباشرة
+                
             } else {
-                document.getElementById('tourNextBtn').innerText = 'التالي';
+                // في حالة شاشة البداية أو النهاية (في نص الشاشة)
+                tooltip.style.bottom = 'auto';
+                tooltip.style.top = '50%';
+                tooltip.style.transform = 'translate(-50%, -50%)';
+                pointer.style.display = 'none';
             }
         }
 
         function nextTourStep() {
-            if (currentTourStep < totalTourSteps) {
+            if(currentTourStep < tourSteps.length - 1) {
                 currentTourStep++;
                 showTourStep(currentTourStep);
             } else {
@@ -894,7 +895,11 @@
 
         function finishTour() {
             localStorage.setItem('tourCompleted_' + currentStoreId, 'true');
-            document.getElementById('onboardingModal').style.display = 'none';
+            document.getElementById('tourOverlay').style.display = 'none';
+            document.getElementById('tourTooltip').style.display = 'none';
+            document.getElementById('tourPointer').style.display = 'none';
+            document.querySelectorAll('.tour-focus').forEach(el => el.classList.remove('tour-focus'));
+            document.getElementById('dashBottomNav').style.zIndex = '2000';
             showToast("تم الانتهاء من الجولة! مرحباً بك.");
         }
         
