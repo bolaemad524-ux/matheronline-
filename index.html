@@ -71,7 +71,7 @@
         .payment-number:hover i { color: var(--primary); }
 
         /* المتجر */
-        .store-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; padding-bottom: 80px; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        .store-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; padding-bottom: 80px; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; }
         .store-header { background-color: white; position: sticky; top: 0; z-index: 100; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .store-identity { display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .store-identity img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); display: none; }
@@ -85,6 +85,7 @@
         .cart-icon-btn { background: var(--primary); color: white; border: none; padding: 0 15px; height: 40px; border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2); }
         .cart-badge { background: white; color: var(--primary); padding: 2px 6px; border-radius: 10px; font-size: 12px; transition: 0.3s; }
 
+        /* تأثير الإضافة للعربة */
         .cart-glow { background-color: #e63946 !important; box-shadow: 0 0 15px rgba(230, 57, 70, 0.8) !important; animation: pulse-red 0.8s infinite alternate !important; }
         .cart-glow .cart-badge { color: #e63946 !important; }
         @keyframes pulse-red {
@@ -104,7 +105,7 @@
 
         .pharmacy-banner { display: none; background: #e8f5e9; color: #2a9d8f; padding: 15px; text-align: center; border-radius: 12px; margin: 0 15px 15px; border: 1px dashed #2a9d8f; cursor: pointer; transition: 0.3s; }
         
-        .categories-nav { display: flex; gap: 10px; overflow-x: auto; padding: 0 15px 15px; scrollbar-width: none; border-bottom: 1px solid var(--border-color); }
+        .categories-nav { display: flex; gap: 10px; overflow-x: auto; padding: 0 15px 15px; scrollbar-width: none; border-bottom: 1px solid var(--border-color); position: relative; }
         .categories-nav::-webkit-scrollbar { display: none; }
         .cat-btn { background: white; color: var(--text-dark); border: 1px solid var(--border-color); padding: 8px 20px; border-radius: 50px; font-size: 14px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: 0.2s; }
         .cat-btn.active { background: var(--text-dark); color: white; border-color: var(--text-dark); }
@@ -139,7 +140,7 @@
         
         .floating-action-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
         
-        .toast { position: fixed; bottom: 20px; right: -300px; background-color: var(--text-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: right 0.4s ease; z-index: 2001; font-weight: bold; font-size: 14px;}
+        .toast { position: fixed; bottom: 20px; right: -300px; background-color: var(--text-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: right 0.4s ease; z-index: 3000; font-weight: bold; font-size: 14px;}
         .toast.show { right: 20px; }
         
         .details-modal-img { width: 100%; height: 250px; object-fit: contain; border-radius: 10px; margin-bottom: 15px; background: white; padding: 10px; border: 1px solid var(--border-color); }
@@ -187,7 +188,7 @@
         .image-upload-box { border: 2px dashed var(--primary); padding: 30px; text-align: center; border-radius: 12px; background: #f0f6ff; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
         .image-upload-box:hover { background: #e2edff; }
 
-        /* 🎯 نظام الجولة التعريفية (Onboarding Tour) 🎯 */
+        /* 🎯 نظام الجولة التعريفية (Onboarding Tour) للتاجر والعميل 🎯 */
         .tour-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 4000; display: none; backdrop-filter: blur(2px); transition: 0.3s; }
         
         .tour-tooltip { position: fixed; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; z-index: 4001; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.4); text-align: center; transition: 0.3s; left: 50%; transform: translateX(-50%); border: 2px solid var(--primary); }
@@ -203,9 +204,9 @@
         .tour-btn-next { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 15px; font-family: 'Tajawal'; }
         .tour-btn-skip { background: transparent; color: var(--text-gray); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; font-family: 'Tajawal'; text-decoration: underline; }
 
-        /* تأثير الإضاءة على العنصر المستهدف */
-        .tour-focus { position: relative; z-index: 4002 !important; background: #e2edff !important; border-radius: 10px; transform: scale(1.1); box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+        .tour-focus { position: relative; z-index: 4002 !important; background: #e2edff !important; border-radius: 10px; transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.5); }
         .nav-fab.tour-focus { background: white !important; color: var(--primary) !important; border: 4px solid var(--primary); box-shadow: 0 0 20px rgba(13, 110, 253, 0.8); }
+        .cart-icon-btn.tour-focus { background: white !important; color: var(--primary) !important; border: 2px solid var(--primary); transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -478,7 +479,7 @@
 
     <div id="storeApp">
         <div class="store-container" id="mainStoreContainer">
-            <header class="store-header">
+            <header class="store-header" id="customerHeader">
                 <div class="store-identity">
                     <img id="headerLogoImg" src="">
                     <i class="fa-solid fa-store default-icon" id="headerLogoIcon"></i>
@@ -817,7 +818,7 @@
         function submitRenewal(storeId) { if(!renewReceiptBase64) return alert("يرجى إرفاق صورة الإيصال!"); document.getElementById('submitRenewBtn').innerText = "جاري الإرسال..."; db.collection("platform_merchants").doc(storeId).update({ renewalStatus: 'pending', renewalPlan: renewPlanSelected, renewalPrice: renewPrice, renewalReceipt: renewReceiptBase64 }).then(() => { showToast("تم إرسال طلب التجديد!"); setTimeout(()=>{location.reload();}, 1500); }).catch(e => { alert("حدث خطأ"); document.getElementById('submitRenewBtn').innerText = "تأكيد التجديد"; }); }
 
         // 🎯 نظام الجولة التعريفية (Interactive Onboarding Tour)
-        const tourSteps = [
+        const adminTourSteps = [
             { target: null, title: "مرحباً بك في المنصة! 🎉", text: "منصتك المتكاملة لإدارة متجرك الإلكتروني بسهولة. دعنا نأخذك في جولة سريعة للتعرف على مميزات لوحة التحكم السحرية الخاصة بك." },
             { target: "nav-home", title: "الرئيسية", text: "من هنا يمكنك متابعة عدد زوار متجرك، وإجمالي الطلبات المؤكدة، بالإضافة لنسخ ومشاركة رابط الـ QR Code لمتجرك مع العملاء بسهولة." },
             { target: "nav-products", title: "المنتجات", text: "قسم المنتجات يتيح لك رؤية جميع المنتجات التي قمت برفعها. يمكنك تعديل ترتيبها، تمييزها كـ 'عرض خاص'، أو حذفها بضغطة زر." },
@@ -826,66 +827,95 @@
             { target: null, title: "أنت جاهز الآن! 🚀", text: "لوحة التحكم بين يديك الآن. ابدأ في رفع منتجاتك وشارك الرابط مع عملائك لتتلقى طلباتك مباشرة على الواتساب. نتمنى لك مبيعات ضخمة!" }
         ];
 
-        let currentTourStep = 0;
+        const customerTourSteps = [
+            { target: null, title: "مرحباً بك في متجرنا! 🎉", text: "يسعدنا وجودك معنا! دعنا نأخذك في جولة سريعة لتعرف كيف تجد منتجاتك المفضلة وتطلبها بسهولة." },
+            { target: "categories-nav-container", title: "تصفح الأقسام 🗂️", text: "من هذا الشريط، يمكنك التنقل بين الأقسام المختلفة للوصول السريع للمنتجات التي تبحث عنها." },
+            { target: "mainCartBtn", title: "سلة المشتريات 🛒", text: "عندما يعجبك منتج، اضغط على زر (أضف للعربة). وبعد الانتهاء، اضغط على هذه الأيقونة لمراجعة طلبك وإرساله إلينا لتأكيده." },
+            { target: null, title: "تسوق ممتع! 🎁", text: "أنت الآن جاهز. ابدأ التسوق ولا تتردد في مراسلتنا لأي استفسار." }
+        ];
 
-        function startTour() {
+        let currentTourStep = 0;
+        let isCustomerTourMode = false;
+
+        function startTour(isCustomer = false) {
+            isCustomerTourMode = isCustomer;
+            currentTourStep = 0;
             document.getElementById('tourOverlay').style.display = 'block';
             document.getElementById('tourTooltip').style.display = 'block';
             showTourStep(0);
         }
 
         function showTourStep(index) {
-            // إزالة التأثيرات القديمة
             document.querySelectorAll('.tour-focus').forEach(el => el.classList.remove('tour-focus'));
             document.getElementById('dashBottomNav').style.zIndex = '2000';
+            document.getElementById('customerHeader').style.zIndex = '100';
             
-            const step = tourSteps[index];
+            let steps = isCustomerTourMode ? customerTourSteps : adminTourSteps;
+            const step = steps[index];
+            
             document.getElementById('tourTitle').innerText = step.title;
             document.getElementById('tourText').innerText = step.text;
             
-            // تحديث النقاط (Dots)
             let dotsHtml = '';
-            for(let i=0; i<tourSteps.length; i++) {
+            for(let i=0; i<steps.length; i++) {
                 dotsHtml += `<div class="tour-dot ${i === index ? 'active' : ''}"></div>`;
             }
             document.getElementById('tourDotsContainer').innerHTML = dotsHtml;
             
-            document.getElementById('tourNextBtn').innerText = index === tourSteps.length - 1 ? "ابدأ الآن 🚀" : "التالي";
+            document.getElementById('tourNextBtn').innerText = index === steps.length - 1 ? (isCustomerTourMode ? "ابدأ التسوق 🛒" : "ابدأ الآن 🚀") : "التالي";
 
             const tooltip = document.getElementById('tourTooltip');
             const pointer = document.getElementById('tourPointer');
 
             if(step.target) {
-                // رفع شريط التنقل فوق الضلمة
-                document.getElementById('dashBottomNav').style.zIndex = '4001';
-                
                 const targetEl = document.getElementById(step.target);
                 targetEl.classList.add('tour-focus');
                 
                 const targetRect = targetEl.getBoundingClientRect();
-                
-                // وضع النافذة فوق الشريط الملاحي
-                tooltip.style.top = 'auto';
-                tooltip.style.bottom = '120px';
-                tooltip.style.transform = 'translateX(-50%)';
-                
-                // إظهار وضبط مكان السهم (Pointer) عشان يشاور بالظبط على الأيقونة
-                pointer.style.display = 'block';
-                pointer.style.top = 'auto';
-                pointer.style.left = (targetRect.left + (targetRect.width / 2) - 17) + 'px'; // 17 هي نص عرض الأيقونة تقريباً
-                pointer.style.bottom = '75px'; // فوق الأيقونة مباشرة
-                
+
+                if(!isCustomerTourMode && step.target.startsWith('nav-')) {
+                    document.getElementById('dashBottomNav').style.zIndex = '4001';
+                    tooltip.style.top = 'auto';
+                    tooltip.style.bottom = '120px';
+                    tooltip.style.transform = 'translateX(-50%)';
+                    pointer.style.display = 'block';
+                    pointer.style.top = 'auto';
+                    pointer.style.left = (targetRect.left + (targetRect.width / 2) - 17) + 'px';
+                    pointer.style.bottom = '75px';
+                    pointer.style.transform = 'none';
+                } else if (isCustomerTourMode) {
+                    pointer.style.display = 'block';
+                    if(step.target === 'mainCartBtn') {
+                        document.getElementById('customerHeader').style.zIndex = '4001';
+                        tooltip.style.bottom = 'auto';
+                        tooltip.style.top = '120px';
+                        tooltip.style.transform = 'translateX(-50%)';
+                        pointer.style.top = (targetRect.bottom + 10) + 'px';
+                        pointer.style.bottom = 'auto';
+                        pointer.style.left = (targetRect.left + (targetRect.width / 2) - 17) + 'px';
+                        pointer.style.transform = 'rotate(180deg)'; 
+                    } else if (step.target === 'categories-nav-container') {
+                        tooltip.style.bottom = 'auto';
+                        tooltip.style.top = (targetRect.bottom + 70) + 'px';
+                        tooltip.style.transform = 'translateX(-50%)';
+                        pointer.style.top = (targetRect.bottom + 5) + 'px';
+                        pointer.style.bottom = 'auto';
+                        pointer.style.left = '50%';
+                        pointer.style.transform = 'rotate(180deg)'; 
+                    }
+                }
             } else {
-                // في حالة شاشة البداية أو النهاية (في نص الشاشة)
                 tooltip.style.bottom = 'auto';
                 tooltip.style.top = '50%';
                 tooltip.style.transform = 'translate(-50%, -50%)';
                 pointer.style.display = 'none';
+                pointer.style.transform = 'none';
             }
         }
 
         function nextTourStep() {
-            if(currentTourStep < tourSteps.length - 1) {
+            let steps = isCustomerTourMode ? customerTourSteps : adminTourSteps;
+            if(currentTourStep < steps.length - 1) {
                 currentTourStep++;
                 showTourStep(currentTourStep);
             } else {
@@ -894,13 +924,19 @@
         }
 
         function finishTour() {
-            localStorage.setItem('tourCompleted_' + currentStoreId, 'true');
+            if(isCustomerTourMode) {
+                localStorage.setItem('customerTourCompleted_' + currentStoreId, 'true');
+            } else {
+                localStorage.setItem('tourCompleted_' + currentStoreId, 'true');
+            }
             document.getElementById('tourOverlay').style.display = 'none';
             document.getElementById('tourTooltip').style.display = 'none';
             document.getElementById('tourPointer').style.display = 'none';
             document.querySelectorAll('.tour-focus').forEach(el => el.classList.remove('tour-focus'));
             document.getElementById('dashBottomNav').style.zIndex = '2000';
-            showToast("تم الانتهاء من الجولة! مرحباً بك.");
+            document.getElementById('customerHeader').style.zIndex = '100';
+            document.getElementById('tourPointer').style.transform = 'none';
+            if(!isCustomerTourMode) showToast("تم الانتهاء من الجولة! مرحباً بك.");
         }
         
         function skipTour() {
@@ -1030,9 +1066,9 @@
                         }
                     }
 
-                    // إطلاق الجولة التعريفية للتاجر الجديد
+                    // إطلاق الجولة التعريفية للتاجر
                     if(isLoggedAsAdmin && !localStorage.getItem('tourCompleted_' + storeId)) {
-                        setTimeout(startTour, 500);
+                        setTimeout(() => startTour(false), 500);
                     }
                 }
             });
@@ -1042,12 +1078,13 @@
                     storeData = doc.data(); applyStoreTheme(storeData.storeType || 'general');
                     
                     let storeNameDisplay = storeData.name || "متجري";
+                    let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
                     
                     // واجهة العميل
                     document.getElementById('headerStoreName').innerText = storeNameDisplay; 
                     document.getElementById('headerStoreAddress').innerText = storeData.address || ""; 
                     
-                    // واجهة التاجر (تحديث البيانات فقط إذا لم يكن الحساب موقوفاً)
+                    // واجهة التاجر 
                     if(document.getElementById('dashGreetingName')) {
                         document.getElementById('dashGreetingName').innerText = storeNameDisplay;
                         document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
@@ -1073,6 +1110,12 @@
 
                     updateSocialLinks();
                     renderCategoriesUI();
+                    
+                    // إطلاق الجولة التعريفية للعميل
+                    if (!isLoggedAsAdmin && !localStorage.getItem('customerTourCompleted_' + storeId)) {
+                        setTimeout(() => startTour(true), 1000);
+                    }
+
                 } else { 
                     if(!document.getElementById('mainStoreContainer').innerHTML.includes('موقوف') && !document.getElementById('mainStoreContainer').innerHTML.includes('انتهت')) {
                         document.getElementById('storeApp').innerHTML = "<h2 style='text-align:center; margin-top:100px;'>هذا المتجر غير موجود</h2>"; 
