@@ -733,6 +733,22 @@
             return Date.now() + (days * 24 * 60 * 60 * 1000);
         }
 
+        // دالة لضمان أن الباسورد دائما 6 حروف فأكثر للـ Firebase Auth
+        function getSafeAuthPass(pass) {
+            let p = String(pass);
+            if (p.length >= 6) return p;
+            return p + "bola12"; // حماية سرية
+        }
+
+        // دالة للتحقق من أمان الجلسة قبل أي تعديل
+        function ensureAuthAndExecute() {
+            if (!firebase.auth().currentUser) {
+                alert("لقد انتهت الجلسة لأسباب أمنية (أو الرقم السري يحتاج للتحديث). يرجى تسجيل الخروج من الزر بالأسفل والدخول مجدداً لتفعيل الحماية.");
+                return false;
+            }
+            return true;
+        }
+
         function loadPlatformContact() {
             db.collection("settings").doc("platform_info").onSnapshot(doc => {
                 if(doc.exists) {
@@ -765,9 +781,7 @@
 
         function copyPaymentNumber() {
             const number = document.getElementById('thePaymentNumber').innerText;
-            navigator.clipboard.writeText(number).then(() => {
-                showToast("تم نسخ الرقم بنجاح!");
-            });
+            navigator.clipboard.writeText(number).then(() => showToast("تم نسخ الرقم بنجاح!"));
         }
 
         // مسار الإدارة
@@ -775,7 +789,8 @@
             document.getElementById('loginApp').style.display = 'none'; 
             let pass = prompt("الرجاء إدخال كلمة مرور الإدارة:");
             if (pass) {
-                firebase.auth().signInWithEmailAndPassword("admin@bola-stores.com", pass)
+                let adminAuthPass = getSafeAuthPass(pass);
+                firebase.auth().signInWithEmailAndPassword("admin@bola-stores.com", adminAuthPass)
                 .then(() => {
                     document.getElementById('storeApp').style.display = 'none';
                     document.getElementById('superAdminApp').style.display = 'block';
@@ -783,7 +798,7 @@
                 })
                 .catch((error) => {
                     if (pass === "941997") {
-                        firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass)
+                        firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", adminAuthPass)
                         .then(() => {
                             document.getElementById('storeApp').style.display = 'none';
                             document.getElementById('superAdminApp').style.display = 'block';
@@ -816,7 +831,6 @@
                 document.getElementById('storeApp').style.display = 'block';
                 let d = new Date();
                 let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
-                
                 db.collection("stores").doc(currentStoreId).update({ 
                     visitors: firebase.firestore.FieldValue.increment(1),
                     [`dailyVisits.${todayStr}`]: firebase.firestore.FieldValue.increment(1)
@@ -837,12 +851,15 @@
             tempPhone = "20" + rawPhone;
             let fakeEmail = tempPhone + "@bola-stores.com";
             
+            // حماية الباسوردات الضعيفة للـ Auth
+            let authPass = getSafeAuthPass(tempPass);
+            
             const btn = document.querySelector('#authStep1 .main-btn');
             let originalText = btn.innerText;
             btn.innerText = "جاري التحقق... ⏳";
             btn.disabled = true;
 
-            firebase.auth().signInWithEmailAndPassword(fakeEmail, tempPass)
+            firebase.auth().signInWithEmailAndPassword(fakeEmail, authPass)
             .then((userCredential) => {
                 db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
                     if(!snap.empty) processLoginSuccess(snap.docs[0]);
@@ -858,12 +875,15 @@
                     } else {
                         let mData = snap.docs[0].data();
                         if (mData.password === tempPass) {
-                            firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass)
+                            // الترقية الصامتة بنجاح
+                            firebase.auth().createUserWithEmailAndPassword(fakeEmail, authPass)
                             .then(() => {
                                 processLoginSuccess(snap.docs[0]);
                             })
                             .catch(err => {
-                                processLoginSuccess(snap.docs[0]); 
+                                alert("عفواً، لا يمكن تأمين حسابك حالياً. تواصل مع الإدارة. " + err.message);
+                                btn.innerText = originalText;
+                                btn.disabled = false;
                             });
                         } else {
                             alert("الرقم السري غير صحيح!");
@@ -903,8 +923,9 @@
             const storeId = "store_" + Date.now();
             let expiry = Date.now() + (3 * 24 * 60 * 60 * 1000); 
             let fakeEmail = tempPhone + "@bola-stores.com";
+            let authPass = getSafeAuthPass(tempPass);
             
-            firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass).catch(e=>console.log(e)).finally(() => {
+            firebase.auth().createUserWithEmailAndPassword(fakeEmail, authPass).catch(e=>console.log(e)).finally(() => {
                 db.collection("platform_merchants").doc(storeId).set({
                     phone: tempPhone, password: tempPass, storeType: tempCategory, plan: 'trial', status: 'active', expiryDate: expiry, createdAt: new Date()
                 }).then(() => {
@@ -935,8 +956,9 @@
             const btn = document.getElementById('submitSubBtn'); btn.innerText = "جاري الإرسال... ⏳"; btn.disabled = true;
             const storeId = "store_" + Date.now();
             let fakeEmail = tempPhone + "@bola-stores.com";
+            let authPass = getSafeAuthPass(tempPass);
 
-            firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass).catch(e=>console.log(e)).finally(() => {
+            firebase.auth().createUserWithEmailAndPassword(fakeEmail, authPass).catch(e=>console.log(e)).finally(() => {
                 db.collection("platform_merchants").doc(storeId).set({ phone: tempPhone, password: tempPass, storeType: tempCategory, plan: selectedPlan, pricePaid: selectedPrice, receipt: receiptBase64, status: 'pending', createdAt: new Date() }).then(() => { document.getElementById('authStep3').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; }).catch(err => { alert("حدث خطأ."); btn.innerText = "تأكيد واشتراك 🚀"; btn.disabled = false; });
             });
         }
@@ -1052,7 +1074,7 @@
             openModal('notificationsModal');
         }
 
-        // 🎯 استيراد من تاجر (مع تخطي حماية CORS) 🎯
+        // استيراد من تاجر (مع تخطي حماية CORS)
         async function importFromTajer(event) {
             let key = document.getElementById('tajerApiKeyInput').value.trim();
             if(!key) return alert("الرجاء إدخال مفتاح API أولاً.");
@@ -1063,34 +1085,25 @@
             btn.disabled = true;
             
             try {
-                // استخدام بروكسي وسيط مجاني لتخطي حماية CORS
                 const proxyUrl = 'https://api.allorigins.win/get?url=';
                 const targetUrl = encodeURIComponent('https://api.taager.com/api/products');
                 
                 let response = await fetch(proxyUrl + targetUrl, {
                     method: 'GET',
-                    headers: {
-                        'Authorization': 'Bearer ' + key
-                    }
+                    headers: { 'Authorization': 'Bearer ' + key }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`خطأ في الاتصال بالبروكسي: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`خطأ في الاتصال بالبروكسي: ${response.status}`);
 
                 let proxyData = await response.json();
                 
                 let result;
-                try {
-                    result = JSON.parse(proxyData.contents);
-                } catch(e) {
-                    throw new Error("البيانات المسترجعة ليست بصيغة JSON صحيحة. ربما رفضت منصة تاجر المفتاح.");
-                }
+                try { result = JSON.parse(proxyData.contents); } catch(e) { throw new Error("البيانات المسترجعة غير صحيحة."); }
 
                 let products = result.data || result.products || []; 
 
                 if (!Array.isArray(products) || products.length === 0) {
-                    alert("تم الاتصال ولكن لم يتم العثور على منتجات في حسابك، أو أن المفتاح غير صالح للاستخدام من خارج منصتهم.");
+                    alert("لم يتم العثور على منتجات، تأكد من المفتاح.");
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     return;
@@ -1107,28 +1120,18 @@
                     let price = parseFloat(prod.price) || 0; 
 
                     await db.collection("stores").doc(currentStoreId).collection("products").doc(productId).set({
-                        name: prod.name || "منتج تاجر",
-                        price: price,
-                        category: catName,
-                        description: prod.description || "تم الاستيراد من تاجر",
-                        image: prod.image_url || prod.image || "https://via.placeholder.com/150",
-                        isMeter: false,
-                        sortOrder: Date.now() + count,
-                        isDealOfDay: false
+                        name: prod.name || "منتج تاجر", price: price, category: catName, description: prod.description || "تم الاستيراد من تاجر", image: prod.image_url || prod.image || "https://via.placeholder.com/150", isMeter: false, sortOrder: Date.now() + count, isDealOfDay: false
                     });
                     count++;
                 }
 
-                await db.collection("stores").doc(currentStoreId).update({
-                    categories: Array.from(newCategories)
-                });
-
+                await db.collection("stores").doc(currentStoreId).update({ categories: Array.from(newCategories) });
                 showToast(`تم استيراد ${count} منتج بنجاح! 🚀`);
                 document.getElementById('tajerApiKeyInput').value = '';
 
             } catch (error) {
                 console.error(error);
-                alert("للأسف، منصة تاجر تمنع تماماً سحب المنتجات بهذه الطريقة حتى مع استخدام وسيط (Proxy). يجب استخدام إضافة رسمية أو ربط عبر سيرفرات خاصة (Backend).");
+                alert("منصة تاجر تمنع سحب المنتجات من المتصفح مباشرة. التفاصيل: " + error.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -1319,172 +1322,6 @@
             }
         }
 
-        // تحميل بيانات المتجر
-        function loadStoreData(storeId) {
-            db.collection("platform_merchants").doc(storeId).onSnapshot((merchantDoc) => {
-                if(merchantDoc.exists) {
-                    let mData = merchantDoc.data();
-                    let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
-                    
-                    if(mData.status === 'suspended') {
-                        document.getElementById('mainStoreContainer').innerHTML = "<div style='text-align:center; padding: 100px 20px;'><i class='fa-solid fa-store-slash' style='font-size:70px; color:#e63946; margin-bottom:20px;'></i><h2 style='color:#e63946; font-family: Changa, sans-serif;'>هذا المتجر موقوف حالياً</h2><p style='color:var(--text-gray); font-size:18px; margin-top:10px;'>يرجى التواصل مع الإدارة لمزيد من التفاصيل.</p></div>";
-                        return;
-                    }
-                    
-                    if(mData.expiryDate) {
-                        let remainingDays = Math.ceil((mData.expiryDate - Date.now()) / (1000 * 60 * 60 * 24));
-                        
-                        // إضافة شريط التجربة المجانية إذا كان المتجر في فترة التجربة
-                        let dashHome = document.getElementById('dash-home');
-                        if (isLoggedAsAdmin && remainingDays > 0) {
-                            let existingBanner = document.getElementById('expiryWarningBanner');
-                            if(existingBanner) existingBanner.remove();
-
-                            if (mData.plan === 'trial') {
-                                let banner = document.createElement('div');
-                                banner.id = 'expiryWarningBanner';
-                                banner.style.cssText = "background: linear-gradient(to right, #fb8500, #ffb703); color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 14px; position: relative; z-index: 99; display:flex; justify-content:center; align-items:center; gap:8px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(251, 133, 0, 0.2);";
-                                banner.innerHTML = `<i class="fa-solid fa-gift" style="font-size:18px;"></i> أنت في الفترة التجريبية! متبقي ${remainingDays} يوم.`;
-                                dashHome.insertBefore(banner, dashHome.firstChild);
-                            }
-                        }
-
-                        if(remainingDays <= 0) {
-                            if (isLoggedAsAdmin) {
-                                let renewalHtml = `
-                                    <div style='text-align:center; padding: 40px 20px; max-width: 500px; margin: 0 auto;'>
-                                        <i class='fa-solid fa-clock-rotate-left' style='font-size:60px; color:#fb8500; margin-bottom:15px;'></i>
-                                        <h2 style='color:#fb8500; font-family: Changa, sans-serif;'>انتهت الفترة التجريبية / الباقة</h2>
-                                        <p style='color:var(--text-gray); font-size:15px; margin-bottom:25px;'>نتمنى أن تكون تجربتك رائعة! اختر باقة الآن لتفعيل متجرك واستقبال الطلبات مجدداً.</p>
-                                        
-                                        <div id="renewalPlans">
-                                            <div class="plan-card" onclick="showRenewalPayment('1_month', 250)"><span>اشتراك شهر</span><span class="plan-price">250 ج</span></div>
-                                            <div class="plan-card" onclick="showRenewalPayment('2_months', 425)"><span>اشتراك شهرين</span><span class="plan-price">425 ج</span></div>
-                                            <div class="plan-card" onclick="showRenewalPayment('3_months', 650)"><span>اشتراك 3 شهور</span><span class="plan-price">650 ج</span></div>
-                                        </div>
-
-                                        <div id="renewalPaymentBox" style="display:none; text-align:right;">
-                                            <h3 style="text-align:center; margin-bottom:15px; color:var(--primary);">إتمام الدفع</h3>
-                                            <div class="payment-methods-logos" style="justify-content: center; display: flex; gap: 15px; margin-bottom: 15px;">
-                                                <img src="https://www.aljawalat.com/blog/wp-content/uploads/2022/04/unnamed-1280x720.jpg" class="payment-logo instapay-logo" style="width:60px; height:60px; border-radius:10px;">
-                                                <img src="https://png.pngtree.com/thumb_back/fh260/background/20220821/pngtree-wallet-icon-ecommerce-money-account-photo-image_19623402.jpg" class="payment-logo wallet-logo" style="width:60px; height:60px; border-radius:10px;">
-                                            </div>
-                                            <div class="payment-number-box" style="padding:20px; background: linear-gradient(135deg, #f0f6ff 0%, #e2edff 100%); border: 2px dashed var(--primary); border-radius: 15px; text-align:center;">
-                                                <span class="payment-amount" style="font-size:18px; font-weight:bold; display:block; margin-bottom:10px;">مبلغ التجديد: <span id="renewPriceTxt" style="color:#e63946; font-size:24px; font-weight:900;"></span></span>
-                                                <div class="payment-number" onclick="copyPaymentNumber()" style="font-size:28px; font-weight:900; color:var(--primary); cursor:pointer;">
-                                                    <span id="thePaymentNumber">01285957035</span> <i class="fa-regular fa-copy"></i>
-                                                </div>
-                                            </div>
-                                            <label style="font-weight:bold; display:block; margin-bottom:8px;">أرفق صورة الإيصال (سكرين شوت):</label>
-                                            <input type="file" id="renewReceiptInput" accept="image/*" onchange="previewRenewReceipt(event)" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px; background:white;">
-                                            <img id="renewReceiptImg" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:10px; border:2px dashed #ccc;">
-                                            
-                                            <button id="submitRenewBtn" onclick="submitRenewal('${storeId}')" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer;">تأكيد التجديد</button>
-                                            <button onclick="cancelRenewal()" style="background:none; color:var(--text-gray); width:100%; padding:10px; border:none; cursor:pointer; font-weight:bold; margin-top:5px;">إلغاء والرجوع</button>
-                                        </div>
-                                    </div>`;
-
-                                if(mData.renewalStatus === 'pending') {
-                                    renewalHtml = `<div style='text-align:center; padding: 100px 20px;'><i class='fa-solid fa-hourglass-half' style='font-size:70px; color:var(--primary); margin-bottom:20px;'></i><h2 style='color:var(--primary); font-family: Changa, sans-serif;'>طلب التجديد قيد المراجعة</h2><p style='color:var(--text-gray); font-size:16px; margin-top:10px;'>تم استلام الإيصال وجاري تفعيل متجرك.</p></div>`;
-                                }
-
-                                if (document.getElementById('merchantDashboardApp')) {
-                                    document.getElementById('merchantDashContent').innerHTML = renewalHtml;
-                                    document.getElementById('dashBottomNav').style.display = 'none';
-                                }
-                            } else {
-                                document.getElementById('mainStoreContainer').innerHTML = "<div style='text-align:center; padding: 100px 20px;'><i class='fa-solid fa-store-slash' style='font-size:70px; color:#fb8500; margin-bottom:20px;'></i><h2 style='color:#fb8500; font-family: Changa, sans-serif;'>هذا المتجر مغلق مؤقتاً</h2><p style='color:var(--text-gray); font-size:18px; margin-top:10px;'>نعتذر، المتجر مغلق حالياً للصيانة أو لتجديد الباقة.</p></div>";
-                            }
-                            return;
-                        }
-                    }
-
-                    // إطلاق الجولة التعريفية للتاجر
-                    if(isLoggedAsAdmin && !localStorage.getItem('tourCompleted_' + storeId)) {
-                        setTimeout(() => startTour(false), 500);
-                    }
-                }
-            });
-
-            db.collection("stores").doc(storeId).onSnapshot((doc) => {
-                if (doc.exists) {
-                    storeData = doc.data(); applyStoreTheme(storeData.storeType || 'general');
-                    
-                    let storeNameDisplay = storeData.name || "متجري";
-                    let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
-                    
-                    // واجهة العميل
-                    document.getElementById('headerStoreName').innerText = storeNameDisplay; 
-                    document.getElementById('headerStoreAddress').innerText = storeData.address || ""; 
-                    
-                    // واجهة التاجر (تحديث البيانات والإشعارات اليومية)
-                    if(document.getElementById('dashGreetingName')) {
-                        document.getElementById('dashGreetingName').innerText = storeNameDisplay;
-                        document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
-                        document.getElementById('stat-visitors').innerText = storeData.visitors || 0;
-                        document.getElementById('stat-orders').innerText = storeData.ordersCount || 0;
-                        
-                        // إشعار الزيارات اليومية وتفعيل الجرس
-                        let d = new Date();
-                        let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
-                        let todayVisits = storeData.dailyVisits && storeData.dailyVisits[todayStr] ? storeData.dailyVisits[todayStr] : 0;
-                        
-                        let bellBadge = document.getElementById('bellBadge');
-                        if(bellBadge) {
-                            let viewedVisits = parseInt(sessionStorage.getItem('viewedVisits_' + storeId + '_' + todayStr) || '0');
-                            let newVisits = todayVisits - viewedVisits;
-                            
-                            if(newVisits > 0) {
-                                bellBadge.innerText = newVisits;
-                                bellBadge.style.display = 'flex';
-                            } else {
-                                bellBadge.style.display = 'none';
-                            }
-                        }
-                    }
-                    
-                    if(storeData.logo) { 
-                        document.getElementById('headerLogoImg').src = storeData.logo; document.getElementById('headerLogoImg').style.display = 'block'; document.getElementById('headerLogoIcon').style.display = 'none'; 
-                    }
-
-                    let p = storeData.phone || ""; if (p.startsWith("20") && p.length > 10) p = p.substring(2);
-                    
-                    if(document.getElementById('adminStoreName')){
-                        document.getElementById('adminStoreName').value = storeData.name || ""; document.getElementById('adminStoreAddress').value = storeData.address || ""; document.getElementById('adminPhone').value = p; document.getElementById('adminFacebook').value = storeData.facebook || ""; document.getElementById('adminInstagram').value = storeData.instagram || "";
-                    }
-                    
-                    const storeFullLink = window.location.origin + window.location.pathname + "?store=" + storeId;
-                    if(document.getElementById('storeLinkDisplay')){
-                        document.getElementById('storeLinkDisplay').innerText = storeFullLink.substring(0, 30) + "...";
-                        document.getElementById('storeLinkDisplay').href = storeFullLink;
-                    }
-
-                    updateSocialLinks();
-                    renderCategoriesUI();
-                    
-                    // إطلاق الجولة التعريفية للعميل
-                    if (!isLoggedAsAdmin && !localStorage.getItem('customerTourCompleted_' + storeId)) {
-                        setTimeout(() => startTour(true), 1000);
-                    }
-
-                } else { 
-                    if(!document.getElementById('mainStoreContainer').innerHTML.includes('موقوف') && !document.getElementById('mainStoreContainer').innerHTML.includes('انتهت')) {
-                        document.getElementById('storeApp').innerHTML = "<h2 style='text-align:center; margin-top:100px;'>هذا المتجر غير موجود</h2>"; 
-                    }
-                }
-            });
-
-            db.collection("stores").doc(storeId).collection("products").onSnapshot((snapshot) => {
-                storeProducts = []; snapshot.forEach(doc => { let pData = doc.data(); if(pData.sortOrder === undefined) pData.sortOrder = Date.now(); storeProducts.push({ id: doc.id, ...pData }); });
-                storeProducts.sort((a, b) => a.sortOrder - b.sortOrder); 
-                
-                if(document.getElementById('stat-products')){
-                    document.getElementById('stat-products').innerText = storeProducts.length;
-                }
-                filterProducts();
-            });
-        }
-
         function updateSocialLinks() {
             const container = document.getElementById('socialLinksContainer'); container.style.flexDirection = 'column'; container.style.gap = '15px'; let html = "";
             const btnStyle = "display: flex; align-items: center; justify-content: center; gap: 12px; color: white; text-decoration: none; padding: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%;";
@@ -1496,6 +1333,7 @@
         }
 
         function saveStoreSettings() {
+            if(!ensureAuthAndExecute()) return;
             let pVal = document.getElementById('adminPhone').value.trim(); let finalP = pVal ? "20" + pVal : "";
             const updates = { name: document.getElementById('adminStoreName').value, address: document.getElementById('adminStoreAddress').value, phone: finalP, facebook: document.getElementById('adminFacebook').value, instagram: document.getElementById('adminInstagram').value };
             const logoFile = document.getElementById('adminStoreLogo').files[0];
@@ -1522,10 +1360,18 @@
         }
 
         function setCategory(cat, btnElement) { currentCategory = cat; document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active')); if(btnElement) btnElement.classList.add('active'); document.getElementById('activeCategoryTitle').innerText = cat; filterProducts(); }
-        function addNewCategory() { const newCat = document.getElementById('newCategoryInput').value.trim(); if (!newCat || (storeData.categories && storeData.categories.includes(newCat))) return; storeData.categories.push(newCat); db.collection("stores").doc(currentStoreId).update({ categories: storeData.categories }).then(() => { document.getElementById('newCategoryInput').value = ''; showToast("تم إضافة القسم"); }); }
-        function deleteCategory(catName) { if(confirm("مسح القسم؟")) { storeData.categories = storeData.categories.filter(c => c !== catName); db.collection("stores").doc(currentStoreId).update({ categories: storeData.categories }); currentCategory = 'الكل'; } }
+        
+        function addNewCategory() { 
+            if(!ensureAuthAndExecute()) return;
+            const newCat = document.getElementById('newCategoryInput').value.trim(); if (!newCat || (storeData.categories && storeData.categories.includes(newCat))) return; storeData.categories.push(newCat); db.collection("stores").doc(currentStoreId).update({ categories: storeData.categories }).then(() => { document.getElementById('newCategoryInput').value = ''; showToast("تم إضافة القسم"); }); 
+        }
+        
+        function deleteCategory(catName) { 
+            if(!ensureAuthAndExecute()) return;
+            if(confirm("مسح القسم؟")) { storeData.categories = storeData.categories.filter(c => c !== catName); db.collection("stores").doc(currentStoreId).update({ categories: storeData.categories }); currentCategory = 'الكل'; } 
+        }
 
-        // 🎯 دوال عرض المنتجات معدلة للحماية من مشاكل الأسماء 🎯
+        // 🎯 دوال تعديل المنتجات 🎯
         function renderProducts(productsToRender) {
             const dealContainer = document.getElementById('deal-container'); const gridContainer = document.getElementById('products-container'); const adminList = document.getElementById('admin-products-list');
             if(dealContainer) dealContainer.innerHTML = ''; if(gridContainer) gridContainer.innerHTML = ''; if(adminList) adminList.innerHTML = '';
@@ -1538,7 +1384,6 @@
 
                 if (dealProduct && dealContainer) { 
                     const priceDisplay = dealProduct.isMeter ? `${dealProduct.price} ج.م/متر` : `${dealProduct.price} ج.م`; 
-                    // حماية اسم المنتج من الأقواس
                     const safeName = dealProduct.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">عرض خاص</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${dealProduct.name}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Tajawal';" onclick="addToCart('${dealProduct.id}', '${safeName}', ${dealProduct.price}, ${dealProduct.isMeter || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button></div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
                 }
@@ -1546,7 +1391,6 @@
                 let html = "";
                 regularProducts.forEach((product) => { 
                     const priceDisplay = product.isMeter ? `${product.price} ج.م / م` : `${product.price} ج.م`; 
-                    // حماية اسم المنتج من الأقواس
                     const safeName = product.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     html += `
                         <div class="product-card">
@@ -1565,7 +1409,6 @@
                 if(gridContainer) gridContainer.innerHTML = html;
             }
 
-            // عرض منتجات لوحة الإدارة بناءً على كل المنتجات مش المتفلترة بس
             if(adminList) {
                 let adminHtml = '';
                 if(storeProducts.length === 0) {
@@ -1595,47 +1438,45 @@
         }
 
         function filterProducts() { const searchTerm = document.getElementById('searchInput').value.toLowerCase(); const filtered = storeProducts.filter(p => { const matchCat = currentCategory === 'الكل' || p.category === currentCategory; const matchSearch = p.name.toLowerCase().includes(searchTerm); return matchCat && matchSearch; }); renderProducts(filtered); }
-        function toggleDealOfDay(id) { const product = storeProducts.find(p => p.id === id); const isCurrentlyDeal = product.isDealOfDay || false; storeProducts.forEach(p => { if (p.isDealOfDay) db.collection("stores").doc(currentStoreId).collection("products").doc(p.id).update({ isDealOfDay: false }); }); if (!isCurrentlyDeal) { db.collection("stores").doc(currentStoreId).collection("products").doc(id).update({ isDealOfDay: true }); showToast("تم التعيين كعرض! 🔥"); } else { showToast("تم إزالة العرض."); } }
         
-        // تعديل دوال التحريك والحذف لتكون أكثر استقراراً
+        function toggleDealOfDay(id) { 
+            if(!ensureAuthAndExecute()) return;
+            const product = storeProducts.find(p => p.id === id); const isCurrentlyDeal = product.isDealOfDay || false; storeProducts.forEach(p => { if (p.isDealOfDay) db.collection("stores").doc(currentStoreId).collection("products").doc(p.id).update({ isDealOfDay: false }); }); if (!isCurrentlyDeal) { db.collection("stores").doc(currentStoreId).collection("products").doc(id).update({ isDealOfDay: true }).then(()=>showToast("تم التعيين كعرض! 🔥")).catch(e => alert("خطأ: " + e.message)); } else { showToast("تم إزالة العرض."); } 
+        }
+        
         function moveProductUp(id) { 
+            if(!ensureAuthAndExecute()) return;
             const index = storeProducts.findIndex(p => p.id === id); 
             if (index > 0) { 
-                let curr = storeProducts[index];
-                let prev = storeProducts[index - 1];
-                let temp = curr.sortOrder;
-                curr.sortOrder = prev.sortOrder;
-                prev.sortOrder = temp;
+                let curr = storeProducts[index]; let prev = storeProducts[index - 1]; let temp = curr.sortOrder; curr.sortOrder = prev.sortOrder; prev.sortOrder = temp;
                 if(curr.sortOrder === prev.sortOrder) { curr.sortOrder -= 1; }
-                db.collection("stores").doc(currentStoreId).collection("products").doc(curr.id).update({ sortOrder: curr.sortOrder }); 
+                db.collection("stores").doc(currentStoreId).collection("products").doc(curr.id).update({ sortOrder: curr.sortOrder }).catch(e => alert(e.message)); 
                 db.collection("stores").doc(currentStoreId).collection("products").doc(prev.id).update({ sortOrder: prev.sortOrder }); 
             } 
         }
         
         function moveProductDown(id) { 
+            if(!ensureAuthAndExecute()) return;
             const index = storeProducts.findIndex(p => p.id === id); 
             if (index > -1 && index < storeProducts.length - 1) { 
-                let curr = storeProducts[index];
-                let next = storeProducts[index + 1];
-                let temp = curr.sortOrder;
-                curr.sortOrder = next.sortOrder;
-                next.sortOrder = temp;
+                let curr = storeProducts[index]; let next = storeProducts[index + 1]; let temp = curr.sortOrder; curr.sortOrder = next.sortOrder; next.sortOrder = temp;
                 if(curr.sortOrder === next.sortOrder) { curr.sortOrder += 1; }
-                db.collection("stores").doc(currentStoreId).collection("products").doc(curr.id).update({ sortOrder: curr.sortOrder }); 
+                db.collection("stores").doc(currentStoreId).collection("products").doc(curr.id).update({ sortOrder: curr.sortOrder }).catch(e => alert(e.message)); 
                 db.collection("stores").doc(currentStoreId).collection("products").doc(next.id).update({ sortOrder: next.sortOrder }); 
             } 
         }
 
         function deleteProduct(id) { 
+            if(!ensureAuthAndExecute()) return;
             if(confirm("هل أنت متأكد من مسح هذا المنتج نهائياً؟")) {
                 db.collection("stores").doc(currentStoreId).collection("products").doc(id).delete()
                 .then(() => showToast("تم مسح المنتج 🗑️"))
-                .catch(e => { console.error(e); alert("حدث خطأ أثناء الحذف!"); });
+                .catch(e => { console.error(e); alert("حدث خطأ أثناء الحذف: " + e.message); });
             } 
         }
 
-        // 🎯 دالة تعديل السعر 🎯
         window.editProductPrice = function(id, currentPrice) {
+            if(!ensureAuthAndExecute()) return;
             let newPrice = prompt("أدخل السعر الجديد للمنتج:", currentPrice);
             if (newPrice !== null && newPrice.trim() !== "") {
                 let parsedPrice = parseFloat(newPrice);
@@ -1646,7 +1487,7 @@
                         showToast("تم تحديث السعر بنجاح 💸");
                     }).catch(e => {
                         console.error(e);
-                        alert("حدث خطأ أثناء تعديل السعر!");
+                        alert("حدث خطأ أثناء تعديل السعر: " + e.message);
                     });
                 } else {
                     alert("الرجاء إدخال رقم صحيح للسعر!");
@@ -1669,6 +1510,7 @@
         }
 
         function addNewProduct() {
+            if(!ensureAuthAndExecute()) return;
             const name = document.getElementById('newProductName').value; 
             const price = document.getElementById('newProductPrice').value; 
             let category = document.getElementById('newProductCategory').value; 
@@ -1688,20 +1530,20 @@
                 document.getElementById('newProductName').value = ''; document.getElementById('newProductPrice').value = ''; document.getElementById('newProductDesc').value = ''; document.getElementById('newProductImage').value = ''; document.getElementById('newProductIsMeter').checked = false; 
                 document.getElementById('newProductImagePreview').style.display = 'none'; document.getElementById('newProductImagePreview').src = ''; document.getElementById('cameraIcon').style.display = 'block'; document.getElementById('uploadText').style.display = 'block';
                 btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> إضافة المنتج'; btn.disabled = false; showToast("تم الرفع!"); switchDashView('dash-products', document.querySelectorAll('.nav-item')[1]); 
-            }); }; img.src = e.target.result; }; reader.readAsDataURL(imageFile);
+            }).catch(e => { alert("حدث خطأ أثناء الرفع: " + e.message); btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> إضافة المنتج'; btn.disabled = false; }); }; img.src = e.target.result; }; reader.readAsDataURL(imageFile);
         }
 
         function showProductDetails(id) {
             const product = storeProducts.find(p => p.id === id); if(!product) return;
             document.getElementById('detailsImg').src = product.image; document.getElementById('detailsName').innerText = product.name; document.getElementById('detailsPrice').innerText = product.isMeter ? `${product.price} ج.م / متر` : `${product.price} ج.م`; document.getElementById('detailsDesc').innerText = product.description || "لا توجد تفاصيل إضافية.";
-            
             const safeName = product.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
             document.getElementById('detailsAddToCart').onclick = function() { addToCart(product.id, safeName, product.price, product.isMeter || false); closeModal('productDetailsModal'); }; openModal('productDetailsModal');
         }
 
-        function exportStoreProducts() { if(storeProducts.length === 0) return alert("لا توجد منتجات لحفظها."); const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storeProducts)); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", `store_backup_${currentStoreId}.json`); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); showToast("تم التحميل! 📥"); }
+        function exportStoreProducts() { if(!ensureAuthAndExecute()) return; if(storeProducts.length === 0) return alert("لا توجد منتجات لحفظها."); const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storeProducts)); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", `store_backup_${currentStoreId}.json`); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); showToast("تم التحميل! 📥"); }
         
         function importStoreProducts(event) {
+            if(!ensureAuthAndExecute()) return;
             const file = event.target.files[0]; if (!file) return; if (!confirm("هل أنت متأكد من استعادة المنتجات من هذا الملف؟")) return;
             const reader = new FileReader();
             reader.onload = function(e) {
