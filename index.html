@@ -138,7 +138,7 @@
         .modal-content { background-color: white; width: 95%; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 25px; position: relative; }
         .close-btn { position: absolute; top: 15px; left: 15px; font-size: 20px; cursor: pointer; color: var(--text-gray); background: var(--light-bg); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; }
         
-        .floating-action-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
+        .floating-action-btn { fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
         
         .toast { position: fixed; bottom: 20px; right: -300px; background-color: var(--text-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: right 0.4s ease; z-index: 3000; font-weight: bold; font-size: 14px;}
         .toast.show { right: 20px; }
@@ -389,6 +389,7 @@
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                     <div class="dash-card" style="text-align:center; padding:20px 15px; margin-bottom:0; position: relative;">
+                        <div id="todayVisitsBadge" style="position: absolute; top: -10px; right: -10px; background: #e63946; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; display: none; animation: pulse-red 1s infinite alternate; box-shadow: 0 4px 10px rgba(230,57,70,0.4);">0</div>
                         <i class="fa-solid fa-users" style="font-size:24px; color:#4caf50; margin-bottom:10px;"></i>
                         <h3 id="stat-visitors" style="margin:0; font-size:22px; color:var(--text-dark);">0</h3>
                         <span style="font-size:12px; color:var(--text-gray); font-weight:bold;">إجمالي زوار متجرك</span>
@@ -769,7 +770,7 @@
             });
         }
 
-        // مسار الإدارة
+        // مسار الإدارة المحمي بالـ Auth
         if (isSuperAdmin) {
             document.getElementById('loginApp').style.display = 'none'; 
             let pass = prompt("الرجاء إدخال كلمة مرور الإدارة:");
@@ -826,7 +827,7 @@
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
         }
 
-        // كوبري الدخول
+        // كوبري تسجيل دخول التجار
         function checkMerchantLogin() {
             let rawPhone = document.getElementById('loginPhone').value.trim();
             tempPass = document.getElementById('loginPass').value.trim();
@@ -983,7 +984,7 @@
         function createManualStore() {
             const name = document.getElementById('manualStoreName').value; const rawP = document.getElementById('manualStorePhone').value.trim(); const pass = document.getElementById('manualStorePass').value; const type = document.getElementById('manualStoreCategory').value;
             if(!name || !rawP || !pass) return alert("أكمل البيانات"); const phone = "20" + rawP; const storeId = "store_" + Date.now(); let expiry = getExpiryTimestamp('1_month');
-            db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: type, visitors: 0, ordersCount: 0 }).then(() => { alert("تم الإنشاء!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }); });
+            db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: type, visitors: 0, ordersCount: 0, dailyVisits: {} }).then(() => { alert("تم الإنشاء!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }); });
         }
 
         function viewAdminReceipt(imgBase64) { document.getElementById('adminReceiptDisplay').src = imgBase64; openModal('adminReceiptModal'); }
@@ -1051,22 +1052,78 @@
             openModal('notificationsModal');
         }
 
-        // استيراد من تاجر (محاكاة)
-        function importFromTajer(event) {
+        // استيراد من تاجر (حقيقي)
+        async function importFromTajer(event) {
             let key = document.getElementById('tajerApiKeyInput').value.trim();
             if(!key) return alert("الرجاء إدخال مفتاح API أولاً.");
             
             let btn = event.target;
             let originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الاتصال بمنصة تاجر...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الاتصال وسحب المنتجات...';
             btn.disabled = true;
             
-            setTimeout(() => {
+            try {
+                // محاولة الاتصال الحقيقي بـ API تاجر
+                let response = await fetch('https://api.taager.com/api/products', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + key,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`خطأ في الاتصال: ${response.status}`);
+                }
+
+                let result = await response.json();
+                let products = result.data || result.products || []; 
+
+                if (!Array.isArray(products) || products.length === 0) {
+                    alert("تم الاتصال ولكن لم يتم العثور على منتجات، أو صيغة البيانات غير متوافقة.");
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                let count = 0;
+                let newCategories = new Set(storeData.categories || ['الكل']);
+
+                for (let prod of products) {
+                    let catName = prod.category || 'منتجات تاجر';
+                    newCategories.add(catName);
+
+                    let productId = "tj_" + (prod.id || Date.now() + count); 
+                    let price = parseFloat(prod.price) || 0; 
+
+                    await db.collection("stores").doc(currentStoreId).collection("products").doc(productId).set({
+                        name: prod.name || "منتج تاجر",
+                        price: price,
+                        category: catName,
+                        description: prod.description || "تم الاستيراد من تاجر",
+                        image: prod.image_url || prod.image || "https://via.placeholder.com/150",
+                        isMeter: false,
+                        sortOrder: Date.now() + count,
+                        isDealOfDay: false
+                    });
+                    count++;
+                }
+
+                await db.collection("stores").doc(currentStoreId).update({
+                    categories: Array.from(newCategories)
+                });
+
+                showToast(`تم استيراد ${count} منتج بنجاح! 🚀`);
+                document.getElementById('tajerApiKeyInput').value = '';
+
+            } catch (error) {
+                console.error(error);
+                alert("فشل الاستيراد! منصة تاجر قد تمنع الاتصال المباشر (CORS) أو المفتاح غير صالح. التفاصيل: " + error.message);
+            } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-                document.getElementById('tajerApiKeyInput').value = '';
-                showToast("تم الاتصال! سيتم سحب المنتجات في الخلفية قريباً ☁️");
-            }, 2500);
+            }
         }
 
         // 🎯 نظام الجولة التعريفية (Interactive Onboarding Tour)
@@ -1314,7 +1371,7 @@
                                             <input type="file" id="renewReceiptInput" accept="image/*" onchange="previewRenewReceipt(event)" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px; background:white;">
                                             <img id="renewReceiptImg" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:10px; border:2px dashed #ccc;">
                                             
-                                            <button id="submitRenewBtn" onclick="submitRenewal('${storeId}')" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer;">تأكيد التجديد</button>
+                                            <button id="submitRenewBtn" onclick="submitRenewal('${storeId}')" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">تأكيد التجديد</button>
                                             <button onclick="cancelRenewal()" style="background:none; color:var(--text-gray); width:100%; padding:10px; border:none; cursor:pointer; font-weight:bold; margin-top:5px;">إلغاء والرجوع</button>
                                         </div>
                                     </div>`;
@@ -1607,7 +1664,7 @@
             }); 
             msg += `\n*الإجمالي: ${total} ج.م*`; 
             
-            // إضافة روابط التواصل المخصصة
+            // إضافة روابط التواصل المخصصة بناءً على رغبتك السابقة
             msg += `\n\nللتواصل السريع:\nواتساب: https://wa.me/201285957035`;
             
             window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
