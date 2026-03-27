@@ -138,7 +138,7 @@
         .modal-content { background-color: white; width: 95%; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 25px; position: relative; }
         .close-btn { position: absolute; top: 15px; left: 15px; font-size: 20px; cursor: pointer; color: var(--text-gray); background: var(--light-bg); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; }
         
-        .floating-action-btn { fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
+        .floating-action-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
         
         .toast { position: fixed; bottom: 20px; right: -300px; background-color: var(--text-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: right 0.4s ease; z-index: 3000; font-weight: bold; font-size: 14px;}
         .toast.show { right: 20px; }
@@ -155,7 +155,7 @@
         
         .dash-header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); }
         .dash-header h1 { font-family: 'Changa', sans-serif; color: var(--primary); font-size: 22px; margin: 0; font-weight: 800; }
-        .dash-header-icons { display: flex; gap: 15px; font-size: 20px; color: var(--text-gray); }
+        .dash-header-icons { display: flex; gap: 15px; font-size: 20px; color: var(--text-gray); align-items: center; }
         .dash-header-icons i { cursor: pointer; transition: 0.2s; }
         .dash-header-icons i:hover { color: var(--primary); }
 
@@ -188,7 +188,7 @@
         .image-upload-box { border: 2px dashed var(--primary); padding: 30px; text-align: center; border-radius: 12px; background: #f0f6ff; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
         .image-upload-box:hover { background: #e2edff; }
 
-        /* 🎯 نظام الجولة التعريفية (Onboarding Tour) للتاجر والعميل 🎯 */
+        /* 🎯 نظام الجولة التعريفية (Onboarding Tour) 🎯 */
         .tour-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 4000; display: none; backdrop-filter: blur(2px); transition: 0.3s; }
         
         .tour-tooltip { position: fixed; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; z-index: 4001; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.4); text-align: center; transition: 0.3s; left: 50%; transform: translateX(-50%); border: 2px solid var(--primary); }
@@ -249,7 +249,7 @@
                 <div id="authStep2" style="display: none; text-align: right;">
                     <h2 style="text-align: center;">تأسيس المتجر 🎯</h2>
                     <label style="font-weight:bold; color:var(--primary); margin-bottom:5px; display:block;">مجال متجرك؟</label>
-                    <select id="newStoreCategory">
+                    <select id="newStoreCategory" style="margin-bottom:20px;">
                         <option value="general">متجر عام متنوع</option>
                         <option value="pharmacy">صيدلية / أدوية</option>
                         <option value="electronics">أدوات كهربائية وإلكترونيات</option>
@@ -258,10 +258,52 @@
                         <option value="restaurant">مطعم / كافيه / حلويات</option>
                     </select>
                     
-                    <button id="startTrialBtn" onclick="startFreeTrial()" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); transition: 0.3s;">
-                        ابدأ تجربتك المجانية (3 أيام) 🚀
-                    </button>
+                    <label style="font-weight:bold; color:var(--primary); margin-bottom:10px; display:block;">اختر خطة الاشتراك:</label>
+                    
+                    <div class="plan-card" onclick="startFreeTrial()" style="border-color: #4caf50; background: #e8f5e9;">
+                        <span style="color: #2e7d32; font-weight: 900; font-size: 16px;"><i class="fa-solid fa-gift"></i> تجربة مجانية (3 أيام)</span>
+                        <span class="plan-price" style="color: #2e7d32; font-size: 18px;">مجاناً</span>
+                    </div>
+                    
+                    <div class="plan-card" onclick="selectPlan('1_month', 250)"><span>اشتراك شهر</span><span class="plan-price">250 ج</span></div>
+                    <div class="plan-card" onclick="selectPlan('2_months', 425)"><span>اشتراك شهرين</span><span class="plan-price">425 ج</span></div>
+                    <div class="plan-card" onclick="selectPlan('3_months', 650)"><span>اشتراك 3 شهور</span><span class="plan-price">650 ج</span></div>
+                    
                     <button onclick="goBackToStep1()" style="background:var(--light-bg); color:var(--text-dark); border:1px solid var(--border-color); width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 10px;">رجوع</button>
+                </div>
+
+                <div id="authStep3" style="display: none; text-align: right;">
+                    <h2 style="text-align: center; color:var(--primary); margin-bottom: 20px;">إتمام الدفع 💸</h2>
+                    
+                    <p style="text-align: center; font-size: 16px; font-weight: bold; color: var(--text-gray); margin-bottom: 15px;">
+                        يمكنك التحويل عبر إنستاباي أو المحافظ الإلكترونية
+                    </p>
+                    
+                    <div class="payment-methods-logos">
+                        <img src="https://www.aljawalat.com/blog/wp-content/uploads/2022/04/unnamed-1280x720.jpg" class="payment-logo instapay-logo" alt="InstaPay">
+                        <img src="https://png.pngtree.com/thumb_back/fh260/background/20220821/pngtree-wallet-icon-ecommerce-money-account-photo-image_19623402.jpg" class="payment-logo wallet-logo" alt="محفظة إلكترونية">
+                    </div>
+
+                    <div class="payment-number-box">
+                        <span class="payment-amount">قم بتحويل مبلغ <span id="selectedPlanPrice" style="color:#e63946; font-size:24px; font-weight:900;"></span></span>
+                        <div class="payment-number" onclick="copyPaymentNumber()" title="اضغط لنسخ الرقم">
+                            <span id="thePaymentNumber">01285957035</span>
+                            <i class="fa-regular fa-copy"></i>
+                        </div>
+                    </div>
+
+                    <label style="font-weight:bold; display:block; margin-bottom:8px;">أرفق صورة الإيصال (سكرين شوت):</label>
+                    <input type="file" id="receiptInput" accept="image/*" onchange="previewReceipt(event)">
+                    <img id="receiptImagePreview" class="receipt-preview">
+                    
+                    <button onclick="submitSubscription()" class="main-btn" id="submitSubBtn">تأكيد الدفع واشتراك</button>
+                    <button onclick="cancelPayment()" style="background:transparent; color:var(--text-gray); border:none; width:100%; padding:10px; font-weight:bold; cursor:pointer; margin-top: 10px;">إلغاء والرجوع</button>
+                </div>
+
+                <div id="authStep4" style="display: none;">
+                    <i class="fa-solid fa-clock-rotate-left" style="font-size: 70px; color: var(--primary); margin-bottom: 25px;"></i>
+                    <h2 style="color: var(--primary);">طلبك قيد المراجعة ⏳</h2>
+                    <p style="color:var(--text-gray); font-size:16px;">تم استلام طلبك بنجاح. سيتم مراجعة الدفع وتفعيل متجرك قريباً.</p>
                 </div>
             </div>
         </div>
@@ -324,6 +366,10 @@
     <div id="merchantDashboardApp">
         <div class="dash-header">
             <div class="dash-header-icons">
+                <div style="position: relative; cursor: pointer;" onclick="showNotifications()">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="bellBadge" style="position: absolute; top: -5px; right: -5px; background: #e63946; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: none; justify-content: center; align-items: center; font-weight: bold; box-shadow: 0 2px 5px rgba(230,57,70,0.5);">0</span>
+                </div>
                 <i class="fa-solid fa-share-nodes" onclick="shareStoreLink()" title="مشاركة المتجر"></i>
                 <i class="fa-regular fa-eye" onclick="previewAsCustomer()" title="معاينة المتجر"></i>
             </div>
@@ -343,7 +389,6 @@
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                     <div class="dash-card" style="text-align:center; padding:20px 15px; margin-bottom:0; position: relative;">
-                        <div id="todayVisitsBadge" style="position: absolute; top: -10px; right: -10px; background: #e63946; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; display: none; animation: pulse-red 1s infinite alternate; box-shadow: 0 4px 10px rgba(230,57,70,0.4);">0</div>
                         <i class="fa-solid fa-users" style="font-size:24px; color:#4caf50; margin-bottom:10px;"></i>
                         <h3 id="stat-visitors" style="margin:0; font-size:22px; color:var(--text-dark);">0</h3>
                         <span style="font-size:12px; color:var(--text-gray); font-weight:bold;">إجمالي زوار متجرك</span>
@@ -446,9 +491,19 @@
 
             <div id="dash-more" class="dash-view">
                 <h3 style="margin-bottom:15px; color:var(--text-dark);">المزيد من الخيارات</h3>
+                
+                <div class="dash-card" style="text-align:center;">
+                    <h3 style="font-size:15px; color:var(--text-dark); margin-bottom:15px;"><i class="fa-solid fa-link"></i> ربط بمنتجات منصة تاجر</h3>
+                    <p style="font-size:13px; color:var(--text-gray); margin-bottom:15px; line-height: 1.5;">أدخل مفتاح الـ API الخاص بحسابك في منصة تاجر لاستيراد جميع المنتجات تلقائياً إلى متجرك.</p>
+                    
+                    <input type="text" id="tajerApiKeyInput" placeholder="أدخل مفتاح API منصة تاجر هنا..." style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:15px; text-align:left; direction:ltr; font-family: monospace;">
+                    
+                    <button onclick="importFromTajer(event)" style="background-color: var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer; font-size: 15px;"><i class="fa-solid fa-cloud-arrow-down"></i> استيراد المنتجات</button>
+                </div>
+                
                 <div class="dash-card" style="text-align:center;">
                     <h3 style="font-size:15px; color:var(--text-dark); margin-bottom:15px;"><i class="fa-solid fa-database"></i> النسخ الاحتياطي</h3>
-                    <button onclick="exportStoreProducts()" style="background-color: var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; margin-bottom: 15px; cursor:pointer;"><i class="fa-solid fa-download"></i> حفظ نسخة من المنتجات</button>
+                    <button onclick="exportStoreProducts()" style="background-color: #212529; color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; margin-bottom: 15px; cursor:pointer;"><i class="fa-solid fa-download"></i> حفظ نسخة من المنتجات</button>
                     <div style="border-top: 1px dashed #ddd; padding-top: 15px;">
                         <label style="font-size: 13px; color: var(--text-dark); display: block; margin-bottom: 8px; font-weight: bold;">استعادة المنتجات من ملف سابق:</label>
                         <input type="file" id="backupFileInput" accept=".json" onchange="importStoreProducts(event)" style="border: 1px solid #ddd; padding:10px; width:100%; border-radius:8px; background:var(--light-bg);">
@@ -484,7 +539,6 @@
             </div>
         </div>
     </div>
-
 
     <div id="storeApp">
         <div class="store-container" id="mainStoreContainer">
@@ -598,6 +652,16 @@
         </div>
     </div>
 
+    <div id="notificationsModal" class="modal">
+        <div class="modal-content" style="text-align: center; max-width: 400px;">
+            <span class="close-btn" onclick="closeModal('notificationsModal')"><i class="fa-solid fa-xmark"></i></span>
+            <h2 style="color:var(--primary); margin-bottom:20px;"><i class="fa-regular fa-bell"></i> الإشعارات</h2>
+            <div id="notificationsContent" style="background: #f0f6ff; padding: 20px; border-radius: 10px; border: 1px solid var(--primary); font-weight: bold; color: var(--text-dark); font-size: 16px; line-height: 1.6;">
+                لا توجد إشعارات جديدة حالياً.
+            </div>
+        </div>
+    </div>
+
     <div id="qrModal" class="modal">
         <div class="modal-content" style="text-align: center; border-radius: 20px; padding: 30px 20px; max-width: 400px;">
             <span class="close-btn" onclick="closeModal('qrModal')"><i class="fa-solid fa-xmark"></i></span>
@@ -705,7 +769,7 @@
             });
         }
 
-        // 🎯 مسار الإدارة المحمي بالـ Auth
+        // مسار الإدارة
         if (isSuperAdmin) {
             document.getElementById('loginApp').style.display = 'none'; 
             let pass = prompt("الرجاء إدخال كلمة مرور الإدارة:");
@@ -748,7 +812,6 @@
                 document.getElementById('storeApp').style.display = 'none';
                 document.getElementById('merchantDashboardApp').style.display = 'block';
             } else {
-                // تسجيل الزيارة (الإجمالية واليومية)
                 document.getElementById('storeApp').style.display = 'block';
                 let d = new Date();
                 let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
@@ -763,7 +826,7 @@
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
         }
 
-        // 🎯 كوبري تسجيل دخول التجار
+        // كوبري الدخول
         function checkMerchantLogin() {
             let rawPhone = document.getElementById('loginPhone').value.trim();
             tempPass = document.getElementById('loginPass').value.trim();
@@ -834,7 +897,7 @@
         function startFreeTrial() {
             tempCategory = document.getElementById('newStoreCategory').value;
             const btn = document.getElementById('startTrialBtn');
-            btn.innerText = "جاري إنشاء المتجر... ⏳"; btn.disabled = true;
+            if(btn) { btn.innerText = "جاري إنشاء المتجر... ⏳"; btn.disabled = true; }
             
             const storeId = "store_" + Date.now();
             let expiry = Date.now() + (3 * 24 * 60 * 60 * 1000); 
@@ -852,7 +915,8 @@
                     showToast("تم إنشاء المتجر بنجاح! 🎉");
                     setTimeout(() => { window.location.href = window.location.pathname + "?store=" + storeId; }, 1000);
                 }).catch(err => {
-                    alert("حدث خطأ في إنشاء المتجر."); btn.innerText = "ابدأ تجربتك المجانية (3 أيام) 🚀"; btn.disabled = false;
+                    alert("حدث خطأ في إنشاء المتجر."); 
+                    if(btn) { btn.innerText = "ابدأ تجربتك المجانية (3 أيام) 🚀"; btn.disabled = false; }
                 });
             });
         }
@@ -966,6 +1030,44 @@
         function cancelRenewal() { document.getElementById('renewalPlans').style.display = 'block'; document.getElementById('renewalPaymentBox').style.display = 'none'; renewReceiptBase64 = ""; document.getElementById('renewReceiptInput').value = ""; document.getElementById('renewReceiptImg').style.display = 'none'; }
         function previewRenewReceipt(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); renewReceiptBase64 = canvas.toDataURL('image/jpeg', 0.6); document.getElementById('renewReceiptImg').src = renewReceiptBase64; document.getElementById('renewReceiptImg').style.display = 'block'; }; img.src = e.target.result; }; reader.readAsDataURL(file); }
         function submitRenewal(storeId) { if(!renewReceiptBase64) return alert("يرجى إرفاق صورة الإيصال!"); document.getElementById('submitRenewBtn').innerText = "جاري الإرسال..."; db.collection("platform_merchants").doc(storeId).update({ renewalStatus: 'pending', renewalPlan: renewPlanSelected, renewalPrice: renewPrice, renewalReceipt: renewReceiptBase64 }).then(() => { showToast("تم إرسال طلب التجديد!"); setTimeout(()=>{location.reload();}, 1500); }).catch(e => { alert("حدث خطأ"); document.getElementById('submitRenewBtn').innerText = "تأكيد التجديد"; }); }
+
+        // إشعارات الجرس
+        function showNotifications() {
+            let d = new Date();
+            let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+            let todayVisits = storeData.dailyVisits && storeData.dailyVisits[todayStr] ? storeData.dailyVisits[todayStr] : 0;
+            
+            let contentDiv = document.getElementById('notificationsContent');
+            if (todayVisits > 0) {
+                contentDiv.innerHTML = `🚀 أخبار رائعة!<br>قام <span style="color:#e63946; font-size:22px;">${todayVisits}</span> عملاء بزيارة متجرك اليوم.`;
+                
+                // حفظ إن التاجر شاف الإشعارات عشان الجرس يطفي
+                sessionStorage.setItem('viewedVisits_' + currentStoreId + '_' + todayStr, todayVisits);
+                let badge = document.getElementById('bellBadge');
+                if(badge) badge.style.display = 'none';
+            } else {
+                contentDiv.innerHTML = 'لا توجد إشعارات جديدة حالياً.';
+            }
+            openModal('notificationsModal');
+        }
+
+        // استيراد من تاجر (محاكاة)
+        function importFromTajer(event) {
+            let key = document.getElementById('tajerApiKeyInput').value.trim();
+            if(!key) return alert("الرجاء إدخال مفتاح API أولاً.");
+            
+            let btn = event.target;
+            let originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الاتصال بمنصة تاجر...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                document.getElementById('tajerApiKeyInput').value = '';
+                showToast("تم الاتصال! سيتم سحب المنتجات في الخلفية قريباً ☁️");
+            }, 2500);
+        }
 
         // 🎯 نظام الجولة التعريفية (Interactive Onboarding Tour)
         const adminTourSteps = [
@@ -1257,26 +1359,21 @@
                         document.getElementById('stat-visitors').innerText = storeData.visitors || 0;
                         document.getElementById('stat-orders').innerText = storeData.ordersCount || 0;
                         
-                        // إشعار الزيارات اليومية
+                        // إشعار الزيارات اليومية وتفعيل الجرس
                         let d = new Date();
                         let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
                         let todayVisits = storeData.dailyVisits && storeData.dailyVisits[todayStr] ? storeData.dailyVisits[todayStr] : 0;
                         
-                        let badge = document.getElementById('todayVisitsBadge');
-                        if(badge) {
-                            if(todayVisits > 0) {
-                                badge.innerText = '+' + todayVisits;
-                                badge.style.display = 'flex';
-                                
-                                let lastNotified = sessionStorage.getItem('notifiedVisits_' + storeId + '_' + todayStr);
-                                if(lastNotified != todayVisits) {
-                                    setTimeout(() => {
-                                        showToast(`🚀 أخبار رائعة! ${todayVisits} عملاء زاروا متجرك اليوم`);
-                                    }, 2500);
-                                    sessionStorage.setItem('notifiedVisits_' + storeId + '_' + todayStr, todayVisits);
-                                }
+                        let bellBadge = document.getElementById('bellBadge');
+                        if(bellBadge) {
+                            let viewedVisits = parseInt(sessionStorage.getItem('viewedVisits_' + storeId + '_' + todayStr) || '0');
+                            let newVisits = todayVisits - viewedVisits;
+                            
+                            if(newVisits > 0) {
+                                bellBadge.innerText = newVisits;
+                                bellBadge.style.display = 'flex';
                             } else {
-                                badge.style.display = 'none';
+                                bellBadge.style.display = 'none';
                             }
                         }
                     }
