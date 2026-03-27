@@ -138,7 +138,7 @@
         .modal-content { background-color: white; width: 95%; max-width: 600px; margin: 50px auto; border-radius: 15px; padding: 25px; position: relative; }
         .close-btn { position: absolute; top: 15px; left: 15px; font-size: 20px; cursor: pointer; color: var(--text-gray); background: var(--light-bg); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; }
         
-        .floating-action-btn { fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
+        .floating-action-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
         
         .toast { position: fixed; bottom: 20px; right: -300px; background-color: var(--text-dark); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: right 0.4s ease; z-index: 3000; font-weight: bold; font-size: 14px;}
         .toast.show { right: 20px; }
@@ -770,7 +770,7 @@
             });
         }
 
-        // مسار الإدارة المحمي بالـ Auth
+        // مسار الإدارة
         if (isSuperAdmin) {
             document.getElementById('loginApp').style.display = 'none'; 
             let pass = prompt("الرجاء إدخال كلمة مرور الإدارة:");
@@ -827,7 +827,7 @@
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
         }
 
-        // كوبري تسجيل دخول التجار
+        // كوبري الدخول
         function checkMerchantLogin() {
             let rawPhone = document.getElementById('loginPhone').value.trim();
             tempPass = document.getElementById('loginPass').value.trim();
@@ -1052,7 +1052,7 @@
             openModal('notificationsModal');
         }
 
-        // استيراد من تاجر (حقيقي)
+        // 🎯 استيراد من تاجر (مع تخطي حماية CORS) 🎯
         async function importFromTajer(event) {
             let key = document.getElementById('tajerApiKeyInput').value.trim();
             if(!key) return alert("الرجاء إدخال مفتاح API أولاً.");
@@ -1063,25 +1063,34 @@
             btn.disabled = true;
             
             try {
-                // محاولة الاتصال الحقيقي بـ API تاجر
-                let response = await fetch('https://api.taager.com/api/products', {
+                // استخدام بروكسي وسيط مجاني لتخطي حماية CORS
+                const proxyUrl = 'https://api.allorigins.win/get?url=';
+                const targetUrl = encodeURIComponent('https://api.taager.com/api/products');
+                
+                let response = await fetch(proxyUrl + targetUrl, {
                     method: 'GET',
                     headers: {
-                        'Authorization': 'Bearer ' + key,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Authorization': 'Bearer ' + key
                     }
                 });
 
                 if (!response.ok) {
-                    throw new Error(`خطأ في الاتصال: ${response.status}`);
+                    throw new Error(`خطأ في الاتصال بالبروكسي: ${response.status}`);
                 }
 
-                let result = await response.json();
+                let proxyData = await response.json();
+                
+                let result;
+                try {
+                    result = JSON.parse(proxyData.contents);
+                } catch(e) {
+                    throw new Error("البيانات المسترجعة ليست بصيغة JSON صحيحة. ربما رفضت منصة تاجر المفتاح.");
+                }
+
                 let products = result.data || result.products || []; 
 
                 if (!Array.isArray(products) || products.length === 0) {
-                    alert("تم الاتصال ولكن لم يتم العثور على منتجات، أو صيغة البيانات غير متوافقة.");
+                    alert("تم الاتصال ولكن لم يتم العثور على منتجات في حسابك، أو أن المفتاح غير صالح للاستخدام من خارج منصتهم.");
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     return;
@@ -1119,7 +1128,7 @@
 
             } catch (error) {
                 console.error(error);
-                alert("فشل الاستيراد! منصة تاجر قد تمنع الاتصال المباشر (CORS) أو المفتاح غير صالح. التفاصيل: " + error.message);
+                alert("للأسف، منصة تاجر تمنع تماماً سحب المنتجات بهذه الطريقة حتى مع استخدام وسيط (Proxy). يجب استخدام إضافة رسمية أو ربط عبر سيرفرات خاصة (Backend).");
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -1664,7 +1673,7 @@
             }); 
             msg += `\n*الإجمالي: ${total} ج.م*`; 
             
-            // إضافة روابط التواصل المخصصة بناءً على رغبتك السابقة
+            // إضافة روابط التواصل المخصصة
             msg += `\n\nللتواصل السريع:\nواتساب: https://wa.me/201285957035`;
             
             window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
