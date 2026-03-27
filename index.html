@@ -1319,7 +1319,6 @@
             }
         }
 
-
         // تحميل بيانات المتجر
         function loadStoreData(storeId) {
             db.collection("platform_merchants").doc(storeId).onSnapshot((merchantDoc) => {
@@ -1380,7 +1379,7 @@
                                             <input type="file" id="renewReceiptInput" accept="image/*" onchange="previewRenewReceipt(event)" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px; background:white;">
                                             <img id="renewReceiptImg" style="width:100%; max-height:200px; object-fit:contain; display:none; margin-bottom:10px; border-radius:10px; border:2px dashed #ccc;">
                                             
-                                            <button id="submitRenewBtn" onclick="submitRenewal('${storeId}')" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">تأكيد التجديد</button>
+                                            <button id="submitRenewBtn" onclick="submitRenewal('${storeId}')" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer;">تأكيد التجديد</button>
                                             <button onclick="cancelRenewal()" style="background:none; color:var(--text-gray); width:100%; padding:10px; border:none; cursor:pointer; font-weight:bold; margin-top:5px;">إلغاء والرجوع</button>
                                         </div>
                                     </div>`;
@@ -1526,44 +1525,134 @@
         function addNewCategory() { const newCat = document.getElementById('newCategoryInput').value.trim(); if (!newCat || (storeData.categories && storeData.categories.includes(newCat))) return; storeData.categories.push(newCat); db.collection("stores").doc(currentStoreId).update({ categories: storeData.categories }).then(() => { document.getElementById('newCategoryInput').value = ''; showToast("تم إضافة القسم"); }); }
         function deleteCategory(catName) { if(confirm("مسح القسم؟")) { storeData.categories = storeData.categories.filter(c => c !== catName); db.collection("stores").doc(currentStoreId).update({ categories: storeData.categories }); currentCategory = 'الكل'; } }
 
+        // 🎯 دوال عرض المنتجات معدلة للحماية من مشاكل الأسماء 🎯
         function renderProducts(productsToRender) {
             const dealContainer = document.getElementById('deal-container'); const gridContainer = document.getElementById('products-container'); const adminList = document.getElementById('admin-products-list');
             if(dealContainer) dealContainer.innerHTML = ''; if(gridContainer) gridContainer.innerHTML = ''; if(adminList) adminList.innerHTML = '';
-            if (productsToRender.length === 0) { if(gridContainer) gridContainer.innerHTML = '<div class="no-results">لا توجد منتجات حالياً.</div>'; return; }
-            const dealProduct = productsToRender.find(p => p.isDealOfDay); const regularProducts = productsToRender.filter(p => !p.isDealOfDay);
+            
+            if (productsToRender.length === 0) { 
+                if(gridContainer) gridContainer.innerHTML = '<div class="no-results">لا توجد منتجات حالياً.</div>'; 
+            } else {
+                const dealProduct = productsToRender.find(p => p.isDealOfDay); 
+                const regularProducts = productsToRender.filter(p => !p.isDealOfDay);
 
-            if (dealProduct && dealContainer) { 
-                const priceDisplay = dealProduct.isMeter ? `${dealProduct.price} ج.م/متر` : `${dealProduct.price} ج.م`; 
-                dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">عرض خاص</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${dealProduct.name}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Tajawal';" onclick="addToCart('${dealProduct.id}', '${dealProduct.name}', ${dealProduct.price}, ${dealProduct.isMeter || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button></div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
+                if (dealProduct && dealContainer) { 
+                    const priceDisplay = dealProduct.isMeter ? `${dealProduct.price} ج.م/متر` : `${dealProduct.price} ج.م`; 
+                    // حماية اسم المنتج من الأقواس
+                    const safeName = dealProduct.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">عرض خاص</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${dealProduct.name}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Tajawal';" onclick="addToCart('${dealProduct.id}', '${safeName}', ${dealProduct.price}, ${dealProduct.isMeter || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button></div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
+                }
+
+                let html = "";
+                regularProducts.forEach((product) => { 
+                    const priceDisplay = product.isMeter ? `${product.price} ج.م / م` : `${product.price} ج.م`; 
+                    // حماية اسم المنتج من الأقواس
+                    const safeName = product.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    html += `
+                        <div class="product-card">
+                            <div class="details-badge" onclick="showProductDetails('${product.id}')">التفاصيل</div>
+                            <img src="${product.image}" class="product-img">
+                            <div class="product-info">
+                                <span class="product-cat">${product.category}</span>
+                                <h3 class="product-title">${product.name}</h3>
+                                <div class="product-action-row">
+                                    <button class="cart-circle-btn" onclick="addToCart('${product.id}', '${safeName}', ${product.price}, ${product.isMeter || false})"><i class="fa-solid fa-cart-shopping"></i></button>
+                                    <div class="product-price">${priceDisplay}</div>
+                                </div>
+                            </div>
+                        </div>`; 
+                });
+                if(gridContainer) gridContainer.innerHTML = html;
             }
 
-            regularProducts.forEach((product) => { 
-                const priceDisplay = product.isMeter ? `${product.price} ج.م / م` : `${product.price} ج.م`; 
-                if(gridContainer) gridContainer.innerHTML += `
-                    <div class="product-card">
-                        <div class="details-badge" onclick="showProductDetails('${product.id}')">التفاصيل</div>
-                        <img src="${product.image}" class="product-img">
-                        <div class="product-info">
-                            <span class="product-cat">${product.category}</span>
-                            <h3 class="product-title">${product.name}</h3>
-                            <div class="product-action-row">
-                                <button class="cart-circle-btn" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, ${product.isMeter || false})"><i class="fa-solid fa-cart-shopping"></i></button>
-                                <div class="product-price">${priceDisplay}</div>
+            // عرض منتجات لوحة الإدارة بناءً على كل المنتجات مش المتفلترة بس
+            if(adminList) {
+                let adminHtml = '';
+                if(storeProducts.length === 0) {
+                    adminHtml = '<div class="no-results">لا توجد منتجات مضافة بعد.</div>';
+                } else {
+                    storeProducts.forEach((product) => { 
+                        const priceDisplay = product.isMeter ? `${product.price} ج/م` : `${product.price} ج`; 
+                        const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);'; 
+                        
+                        adminHtml += `<div class="admin-product-item">
+                            <div style="flex-grow:1; text-align:right;">
+                                <span style="font-weight:bold; font-size:14px;">${product.name}</span> <br> 
+                                <span style="color:var(--secondary); font-weight:bold; font-size:13px;">${priceDisplay}</span>
                             </div>
-                        </div>
-                    </div>`; 
-            });
-
-            productsToRender.forEach((product) => { 
-                const priceDisplay = product.isMeter ? `${product.price} ج/م` : `${product.price} ج`; const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);'; 
-                if(adminList) adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:8px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`; 
-            });
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="تمييز كعرض"><i class="fa-solid fa-star"></i></button>
+                                <button class="icon-btn" style="color:#007185;" onclick="editProductPrice('${product.id}', ${product.price})" title="تعديل السعر"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button class="icon-btn" onclick="moveProductUp('${product.id}')" title="تحريك لأعلى"><i class="fa-solid fa-arrow-up"></i></button>
+                                <button class="icon-btn" onclick="moveProductDown('${product.id}')" title="تحريك لأسفل"><i class="fa-solid fa-arrow-down"></i></button>
+                                <button class="delete-btn" onclick="deleteProduct('${product.id}')" title="حذف المنتج"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>`; 
+                    });
+                }
+                adminList.innerHTML = adminHtml;
+            }
         }
 
         function filterProducts() { const searchTerm = document.getElementById('searchInput').value.toLowerCase(); const filtered = storeProducts.filter(p => { const matchCat = currentCategory === 'الكل' || p.category === currentCategory; const matchSearch = p.name.toLowerCase().includes(searchTerm); return matchCat && matchSearch; }); renderProducts(filtered); }
         function toggleDealOfDay(id) { const product = storeProducts.find(p => p.id === id); const isCurrentlyDeal = product.isDealOfDay || false; storeProducts.forEach(p => { if (p.isDealOfDay) db.collection("stores").doc(currentStoreId).collection("products").doc(p.id).update({ isDealOfDay: false }); }); if (!isCurrentlyDeal) { db.collection("stores").doc(currentStoreId).collection("products").doc(id).update({ isDealOfDay: true }); showToast("تم التعيين كعرض! 🔥"); } else { showToast("تم إزالة العرض."); } }
-        function moveProductUp(id) { const index = storeProducts.findIndex(p => p.id === id); if (index > 0) { let currentOrder = storeProducts[index].sortOrder; let prevOrder = storeProducts[index - 1].sortOrder; if (currentOrder === prevOrder) prevOrder -= 10; db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index].id).update({ sortOrder: prevOrder }); db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index - 1].id).update({ sortOrder: currentOrder }); } }
-        function moveProductDown(id) { const index = storeProducts.findIndex(p => p.id === id); if (index < storeProducts.length - 1) { let currentOrder = storeProducts[index].sortOrder; let nextOrder = storeProducts[index + 1].sortOrder; if (currentOrder === nextOrder) nextOrder += 10; db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index].id).update({ sortOrder: nextOrder }); db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index + 1].id).update({ sortOrder: currentOrder }); } }
+        
+        // تعديل دوال التحريك والحذف لتكون أكثر استقراراً
+        function moveProductUp(id) { 
+            const index = storeProducts.findIndex(p => p.id === id); 
+            if (index > 0) { 
+                let curr = storeProducts[index];
+                let prev = storeProducts[index - 1];
+                let temp = curr.sortOrder;
+                curr.sortOrder = prev.sortOrder;
+                prev.sortOrder = temp;
+                if(curr.sortOrder === prev.sortOrder) { curr.sortOrder -= 1; }
+                db.collection("stores").doc(currentStoreId).collection("products").doc(curr.id).update({ sortOrder: curr.sortOrder }); 
+                db.collection("stores").doc(currentStoreId).collection("products").doc(prev.id).update({ sortOrder: prev.sortOrder }); 
+            } 
+        }
+        
+        function moveProductDown(id) { 
+            const index = storeProducts.findIndex(p => p.id === id); 
+            if (index > -1 && index < storeProducts.length - 1) { 
+                let curr = storeProducts[index];
+                let next = storeProducts[index + 1];
+                let temp = curr.sortOrder;
+                curr.sortOrder = next.sortOrder;
+                next.sortOrder = temp;
+                if(curr.sortOrder === next.sortOrder) { curr.sortOrder += 1; }
+                db.collection("stores").doc(currentStoreId).collection("products").doc(curr.id).update({ sortOrder: curr.sortOrder }); 
+                db.collection("stores").doc(currentStoreId).collection("products").doc(next.id).update({ sortOrder: next.sortOrder }); 
+            } 
+        }
+
+        function deleteProduct(id) { 
+            if(confirm("هل أنت متأكد من مسح هذا المنتج نهائياً؟")) {
+                db.collection("stores").doc(currentStoreId).collection("products").doc(id).delete()
+                .then(() => showToast("تم مسح المنتج 🗑️"))
+                .catch(e => { console.error(e); alert("حدث خطأ أثناء الحذف!"); });
+            } 
+        }
+
+        // 🎯 دالة تعديل السعر 🎯
+        window.editProductPrice = function(id, currentPrice) {
+            let newPrice = prompt("أدخل السعر الجديد للمنتج:", currentPrice);
+            if (newPrice !== null && newPrice.trim() !== "") {
+                let parsedPrice = parseFloat(newPrice);
+                if(!isNaN(parsedPrice) && parsedPrice >= 0) {
+                    db.collection("stores").doc(currentStoreId).collection("products").doc(id).update({
+                        price: parsedPrice
+                    }).then(() => {
+                        showToast("تم تحديث السعر بنجاح 💸");
+                    }).catch(e => {
+                        console.error(e);
+                        alert("حدث خطأ أثناء تعديل السعر!");
+                    });
+                } else {
+                    alert("الرجاء إدخال رقم صحيح للسعر!");
+                }
+            }
+        };
 
         function previewNewProductImage(event) {
             const file = event.target.files[0];
@@ -1601,12 +1690,13 @@
                 btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> إضافة المنتج'; btn.disabled = false; showToast("تم الرفع!"); switchDashView('dash-products', document.querySelectorAll('.nav-item')[1]); 
             }); }; img.src = e.target.result; }; reader.readAsDataURL(imageFile);
         }
-        function deleteProduct(id) { if(confirm("مسح المنتج؟")) db.collection("stores").doc(currentStoreId).collection("products").doc(id).delete(); }
 
         function showProductDetails(id) {
             const product = storeProducts.find(p => p.id === id); if(!product) return;
             document.getElementById('detailsImg').src = product.image; document.getElementById('detailsName').innerText = product.name; document.getElementById('detailsPrice').innerText = product.isMeter ? `${product.price} ج.م / متر` : `${product.price} ج.م`; document.getElementById('detailsDesc').innerText = product.description || "لا توجد تفاصيل إضافية.";
-            document.getElementById('detailsAddToCart').onclick = function() { addToCart(product.id, product.name, product.price, product.isMeter || false); closeModal('productDetailsModal'); }; openModal('productDetailsModal');
+            
+            const safeName = product.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            document.getElementById('detailsAddToCart').onclick = function() { addToCart(product.id, safeName, product.price, product.isMeter || false); closeModal('productDetailsModal'); }; openModal('productDetailsModal');
         }
 
         function exportStoreProducts() { if(storeProducts.length === 0) return alert("لا توجد منتجات لحفظها."); const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storeProducts)); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", `store_backup_${currentStoreId}.json`); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); showToast("تم التحميل! 📥"); }
@@ -1673,7 +1763,6 @@
             }); 
             msg += `\n*الإجمالي: ${total} ج.م*`; 
             
-            // إضافة روابط التواصل المخصصة
             msg += `\n\nللتواصل السريع:\nواتساب: https://wa.me/201285957035`;
             
             window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
