@@ -1276,14 +1276,6 @@
                             if(todayVisits > 0) {
                                 badge.innerText = '+' + todayVisits;
                                 badge.style.display = 'flex';
-                                
-                                let lastNotified = sessionStorage.getItem('notifiedVisits_' + storeId + '_' + todayStr);
-                                if(lastNotified != todayVisits) {
-                                    setTimeout(() => {
-                                        showToast(`🚀 أخبار رائعة! ${todayVisits} عملاء زاروا متجرك اليوم`);
-                                    }, 2500);
-                                    sessionStorage.setItem('notifiedVisits_' + storeId + '_' + todayStr, todayVisits);
-                                }
                             } else {
                                 badge.style.display = 'none';
                             }
@@ -1622,9 +1614,6 @@
                 msg += `${i + 1}- ${item.name} (${qtyDesc}) بـ ${itemTotal} ج.م\n`; 
             }); 
             msg += `\n*الإجمالي: ${total} ج.م*`; 
-            
-            // إضافة روابط التواصل المخصصة
-            msg += `\n\nللتواصل السريع:\nواتساب: https://wa.me/201285957035`;
             
             window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
         }
