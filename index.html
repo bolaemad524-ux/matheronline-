@@ -106,7 +106,7 @@
         .search-box i { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 15px; }
         .search-contact-btn { background: var(--primary); color: white; border: none; padding: 12px 16px; border-radius: 50px; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
-        .hero-banner { margin: 8px 15px 16px; border-radius: 18px; overflow: hidden; position: relative; background: linear-gradient(135deg, #0d6efd 0%, #023047 100%); color: white; padding: 22px 20px; min-height: 140px; display: flex; align-items: center; }
+        .hero-banner { margin: 8px 15px 16px; border-radius: 18px; overflow: hidden; position: relative; background: linear-gradient(135deg, #0d6efd 0%, #023047 100%); color: white; padding: 18px 16px; min-height: 140px; display: flex; align-items: center; gap: 12px; flex-direction: row-reverse; }
         .hero-banner h2 { font-family: 'Changa', sans-serif; font-size: 22px; font-weight: 800; margin: 0 0 6px; line-height: 1.3; }
         .hero-banner p { font-size: 13px; opacity: 0.9; margin: 0 0 14px; }
         .hero-banner .hero-btn { background: white; color: var(--primary); border: none; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 13px; cursor: pointer; }
@@ -527,7 +527,8 @@
             </div>
 
             <div class="hero-banner" id="storeHeroBanner">
-                <div>
+                <img id="heroLogo" src="" alt="logo" style="display:none; width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.7); box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-left: 15px; flex-shrink: 0;">
+                <div style="flex: 1;">
                     <h2 id="heroTitle">أهلاً بك في متجرنا</h2>
                     <p id="heroSubtitle">اكتشف منتجاتنا المميزة واطلب بسهولة</p>
                     <button class="hero-btn" onclick="document.getElementById('products-container').scrollIntoView({behavior:'smooth'})">تسوق الآن</button>
@@ -1322,8 +1323,13 @@
                     // واجهة العميل
                     document.getElementById('headerStoreName').innerText = storeNameDisplay;
                     if (document.getElementById('heroTitle')) {
-                        document.getElementById('heroTitle').innerText = storeNameDisplay;
-                        document.getElementById('heroSubtitle').innerText = storeData.address || 'اكتشف منتجاتنا المميزة واطلب بسهولة';
+                        // hero text is set by applyStoreTheme, keep name if needed
+                    }
+                    if (storeData.logo && document.getElementById('heroLogo')) {
+                        document.getElementById('heroLogo').src = storeData.logo;
+                        document.getElementById('heroLogo').style.display = 'block';
+                    } else if (document.getElementById('heroLogo')) {
+                        document.getElementById('heroLogo').style.display = 'none';
                     } 
                     
                     // واجهة التاجر (تحديث البيانات والإشعارات اليومية)
