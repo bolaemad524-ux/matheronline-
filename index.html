@@ -668,6 +668,10 @@
         let storeProducts = []; let cart = []; let total = 0; let currentCategory = 'الكل';
         let editingProductId = null;
 
+        function generateShortId() {
+            return Math.random().toString(36).substring(2, 8);
+        }
+
         function getExpiryTimestamp(plan) {
             let days = 30; if (plan === '2_months') days = 60; if (plan === '3_months') days = 90;
             return Date.now() + (days * 24 * 60 * 60 * 1000);
@@ -841,7 +845,7 @@
             const btn = document.getElementById('startTrialBtn');
             btn.innerText = "جاري إنشاء المتجر... ⏳"; btn.disabled = true;
             
-            const storeId = "store_" + Date.now();
+            const storeId = generateShortId();
             let expiry = Date.now() + (3 * 24 * 60 * 60 * 1000); 
             let fakeEmail = tempPhone + "@bola-stores.com";
             
@@ -873,7 +877,7 @@
         function submitSubscription() {
             if(!receiptBase64) return alert("الرجاء إرفاق الإيصال!");
             const btn = document.getElementById('submitSubBtn'); btn.innerText = "جاري الإرسال... ⏳"; btn.disabled = true;
-            const storeId = "store_" + Date.now();
+            const storeId = generateShortId();
             let fakeEmail = tempPhone + "@bola-stores.com";
 
             firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass).catch(e=>console.log(e)).finally(() => {
@@ -923,7 +927,7 @@
 
         function createManualStore() {
             const name = document.getElementById('manualStoreName').value; const rawP = document.getElementById('manualStorePhone').value.trim(); const pass = document.getElementById('manualStorePass').value; const type = document.getElementById('manualStoreCategory').value;
-            if(!name || !rawP || !pass) return alert("أكمل البيانات"); const phone = "20" + rawP; const storeId = "store_" + Date.now(); let expiry = getExpiryTimestamp('1_month');
+            if(!name || !rawP || !pass) return alert("أكمل البيانات"); const phone = "20" + rawP; const storeId = generateShortId(); let expiry = getExpiryTimestamp('1_month');
             db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: type, visitors: 0, ordersCount: 0 }).then(() => { alert("تم الإنشاء!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }); });
         }
 
@@ -1403,7 +1407,27 @@
         }
 
         function filterProducts() { const searchTerm = document.getElementById('searchInput').value.toLowerCase(); const filtered = storeProducts.filter(p => { const matchCat = currentCategory === 'الكل' || p.category === currentCategory; const matchSearch = p.name.toLowerCase().includes(searchTerm); return matchCat && matchSearch; }); renderProducts(filtered); }
-        function toggleDealOfDay(id) { const product = storeProducts.find(p => p.id === id); const isCurrentlyDeal = product.isDealOfDay || false; storeProducts.forEach(p => { if (p.isDealOfDay) db.collection("stores").doc(currentStoreId).collection("products").doc(p.id).update({ isDealOfDay: false }); }); if (!isCurrentlyDeal) { db.collection("stores").doc(currentStoreId).collection("products").doc(id).update({ isDealOfDay: true }); showToast("تم التعيين كعرض! 🔥"); } else { showToast("تم إزالة العرض."); } }
+        function toggleDealOfDay(id) { 
+            const product = storeProducts.find(p => p.id === id); 
+            if (!product) return;
+            const isCurrentlyDeal = product.isDealOfDay || false; 
+            
+            // إزالة العرض من أي منتج آخر
+            const promises = storeProducts.filter(p => p.isDealOfDay && p.id !== id).map(p => 
+                db.collection("stores").doc(currentStoreId).collection("products").doc(p.id).set({ isDealOfDay: false }, { merge: true })
+            );
+            
+            Promise.all(promises).then(() => {
+                if (!isCurrentlyDeal) { 
+                    db.collection("stores").doc(currentStoreId).collection("products").doc(id).set({ isDealOfDay: true }, { merge: true })
+                    .then(() => showToast("تم التعيين كعرض مميز! 🔥"))
+                    .catch(e => alert("خطأ: " + e.message));
+                } else { 
+                    db.collection("stores").doc(currentStoreId).collection("products").doc(id).set({ isDealOfDay: false }, { merge: true })
+                    .then(() => showToast("تم إزالة العرض."));
+                }
+            });
+        }
         function moveProductUp(id) { const index = storeProducts.findIndex(p => p.id === id); if (index > 0) { let currentOrder = storeProducts[index].sortOrder; let prevOrder = storeProducts[index - 1].sortOrder; if (currentOrder === prevOrder) prevOrder -= 10; db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index].id).update({ sortOrder: prevOrder }); db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index - 1].id).update({ sortOrder: currentOrder }); } }
         function moveProductDown(id) { const index = storeProducts.findIndex(p => p.id === id); if (index < storeProducts.length - 1) { let currentOrder = storeProducts[index].sortOrder; let nextOrder = storeProducts[index + 1].sortOrder; if (currentOrder === nextOrder) nextOrder += 10; db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index].id).update({ sortOrder: nextOrder }); db.collection("stores").doc(currentStoreId).collection("products").doc(storeProducts[index + 1].id).update({ sortOrder: currentOrder }); } }
 
@@ -1476,20 +1500,25 @@
             const saveProduct = (imageData) => {
                 const data = { 
                     name: name, 
-                    price: parseFloat(price), 
+                    price: Number(price), 
                     category: category, 
-                    description: desc, 
-                    isMeter: isMeter
+                    description: desc || "", 
+                    isMeter: !!isMeter
                 };
                 if (imageData) data.image = imageData;
 
                 if (editingProductId) {
-                    db.collection("stores").doc(currentStoreId).collection("products").doc(editingProductId).update(data).then(() => {
+                    db.collection("stores").doc(currentStoreId).collection("products").doc(editingProductId).set(data, { merge: true }).then(() => {
                         resetProductForm();
                         btn.disabled = false;
                         showToast("تم تحديث المنتج ✅");
                         switchDashView('dash-products', document.querySelectorAll('.nav-item')[1]);
-                    }).catch(e => { alert("خطأ في التحديث"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> تحديث المنتج'; });
+                    }).catch(e => { 
+                        console.error(e);
+                        alert("خطأ في التحديث: " + (e.message || e)); 
+                        btn.disabled = false; 
+                        btn.innerHTML = '<i class="fa-solid fa-check"></i> تحديث المنتج'; 
+                    });
                 } else {
                     data.sortOrder = Date.now();
                     data.isDealOfDay = false;
@@ -1499,7 +1528,7 @@
                         btn.disabled = false;
                         showToast("تم إضافة المنتج!");
                         switchDashView('dash-products', document.querySelectorAll('.nav-item')[1]);
-                    }).catch(e => { alert("خطأ في الإضافة"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> إضافة المنتج'; });
+                    }).catch(e => { alert("خطأ في الإضافة: " + (e.message || e)); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> إضافة المنتج'; });
                 }
             };
 
