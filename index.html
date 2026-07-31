@@ -408,6 +408,11 @@
                     </div>
 
                     <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <input type="number" id="newProductStock" placeholder="الكمية المتوفرة في المخزن" min="0">
+                    </div>
+
+                    <div class="input-icon-wrapper">
                         <i class="fa-solid fa-list"></i>
                         <select id="newProductCategory">
                             <option value="الكل">بدون قسم محدد (الكل)</option>
@@ -458,6 +463,26 @@
 
             <div id="dash-more" class="dash-view">
                 <h3 style="margin-bottom:15px; color:var(--text-dark);">المزيد من الخيارات</h3>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+                    <button onclick="switchDashView('dash-sales', null)" class="dash-card" style="text-align:center; padding:20px; cursor:pointer; border:2px solid var(--primary);">
+                        <i class="fa-solid fa-cash-register" style="font-size:28px; color:var(--primary); margin-bottom:8px;"></i>
+                        <div style="font-weight:800; color:var(--text-dark);">البيع</div>
+                    </button>
+                    <button onclick="switchDashView('dash-orders', null)" class="dash-card" style="text-align:center; padding:20px; cursor:pointer; border:2px solid #25D366;">
+                        <i class="fa-solid fa-receipt" style="font-size:28px; color:#25D366; margin-bottom:8px;"></i>
+                        <div style="font-weight:800; color:var(--text-dark);">الطلبات</div>
+                    </button>
+                    <button onclick="switchDashView('dash-inventory', null)" class="dash-card" style="text-align:center; padding:20px; cursor:pointer; border:2px solid #fb8500;">
+                        <i class="fa-solid fa-boxes-stacked" style="font-size:28px; color:#fb8500; margin-bottom:8px;"></i>
+                        <div style="font-weight:800; color:var(--text-dark);">المخزن</div>
+                    </button>
+                    <button onclick="switchDashView('dash-accounts', null)" class="dash-card" style="text-align:center; padding:20px; cursor:pointer; border:2px solid #e63946;">
+                        <i class="fa-solid fa-calculator" style="font-size:28px; color:#e63946; margin-bottom:8px;"></i>
+                        <div style="font-weight:800; color:var(--text-dark);">الحسابات</div>
+                    </button>
+                </div>
+
                 <div class="dash-card" style="text-align:center;">
                     <h3 style="font-size:15px; color:var(--text-dark); margin-bottom:15px;"><i class="fa-solid fa-database"></i> النسخ الاحتياطي</h3>
                     <button onclick="exportStoreProducts()" style="background-color: var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; margin-bottom: 15px; cursor:pointer;"><i class="fa-solid fa-download"></i> حفظ نسخة من المنتجات</button>
@@ -467,6 +492,80 @@
                     </div>
                 </div>
                 <button onclick="merchantLogout()" style="background:#e63946; color:white; border:none; padding:15px; width:100%; border-radius:10px; font-weight:bold; cursor:pointer; font-size:16px; margin-top:10px;"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج</button>
+            </div>
+
+            <!-- قسم البيع -->
+            <div id="dash-sales" class="dash-view">
+                <h3 style="margin-bottom:15px; color:var(--text-dark);"><i class="fa-solid fa-cash-register"></i> البيع وإنشاء فاتورة</h3>
+                <div class="dash-card">
+                    <input type="text" id="saleCustomerName" placeholder="اسم العميل" style="margin-bottom:12px;">
+                    <div id="saleProductsList" style="max-height:250px; overflow-y:auto; margin-bottom:15px;"></div>
+                    <div style="display:flex; gap:10px; margin-bottom:12px;">
+                        <input type="number" id="salePaidAmount" placeholder="المبلغ المدفوع" style="flex:1;">
+                        <button onclick="createSaleInvoice()" class="btn-save" style="width:auto; padding:12px 20px; margin:0;">إنشاء فاتورة</button>
+                    </div>
+                    <div id="saleInvoicePreview" style="display:none; background:#f8f9fa; padding:15px; border-radius:12px; border:1px solid #ddd;"></div>
+                </div>
+            </div>
+
+            <!-- قسم الطلبات -->
+            <div id="dash-orders" class="dash-view">
+                <h3 style="margin-bottom:15px; color:var(--text-dark);"><i class="fa-solid fa-receipt"></i> الطلبات والفواتير</h3>
+                <div style="display:flex; gap:8px; margin-bottom:15px;">
+                    <button onclick="loadOrders(false)" class="cat-btn active" id="ordersAllBtn">الكل</button>
+                    <button onclick="loadOrders(true)" class="cat-btn" id="ordersRemainingBtn"><i class="fa-solid fa-exclamation-circle"></i> عليهم باقي</button>
+                </div>
+                <div id="ordersList"></div>
+            </div>
+
+            <!-- قسم المخزن -->
+            <div id="dash-inventory" class="dash-view">
+                <h3 style="margin-bottom:15px; color:var(--text-dark);"><i class="fa-solid fa-boxes-stacked"></i> المخزن والكميات</h3>
+                <div id="inventoryList"></div>
+            </div>
+
+            <!-- قسم الحسابات -->
+            <div id="dash-accounts" class="dash-view">
+                <h3 style="margin-bottom:15px; color:var(--text-dark);"><i class="fa-solid fa-calculator"></i> الحسابات</h3>
+                
+                <div style="display:flex; gap:6px; margin-bottom:15px; overflow-x:auto;">
+                    <button class="cat-btn active" onclick="setAccountsPeriod('today', this)">اليوم</button>
+                    <button class="cat-btn" onclick="setAccountsPeriod('month', this)">الشهر</button>
+                    <button class="cat-btn" onclick="setAccountsPeriod('year', this)">السنة</button>
+                    <button class="cat-btn" onclick="setAccountsPeriod('all', this)">الكل</button>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:15px;">
+                    <div class="dash-card" style="background:#22c55e; color:white; text-align:center; padding:18px;">
+                        <div style="font-size:13px; opacity:0.9;">إجمالي الأرباح (المكسب)</div>
+                        <div id="accProfit" style="font-size:24px; font-weight:900; margin-top:6px;">0 ج.م</div>
+                    </div>
+                    <div class="dash-card" style="background:#0d6efd; color:white; text-align:center; padding:18px;">
+                        <div style="font-size:13px; opacity:0.9;">إجمالي المبيعات</div>
+                        <div id="accSales" style="font-size:24px; font-weight:900; margin-top:6px;">0 ج.م</div>
+                    </div>
+                    <div class="dash-card" style="background:#1e293b; color:white; text-align:center; padding:18px;">
+                        <div style="font-size:13px; opacity:0.9;">صافي الربح</div>
+                        <div id="accNet" style="font-size:24px; font-weight:900; margin-top:6px;">0 ج.م</div>
+                    </div>
+                    <div class="dash-card" style="background:#ef4444; color:white; text-align:center; padding:18px;">
+                        <div style="font-size:13px; opacity:0.9;">المصروفات</div>
+                        <div id="accExpenses" style="font-size:24px; font-weight:900; margin-top:6px;">0 ج.م</div>
+                    </div>
+                </div>
+
+                <button onclick="resetAccounts()" style="background:#ef4444; color:white; border:none; padding:14px; width:100%; border-radius:12px; font-weight:bold; margin-bottom:15px; cursor:pointer;">
+                    <i class="fa-solid fa-trash"></i> تصفير الحساب
+                </button>
+
+                <div class="dash-card">
+                    <h3 style="font-size:15px; margin-bottom:12px; color:var(--text-dark);">تسجيل مصروف جديد</h3>
+                    <input type="text" id="expenseDesc" placeholder="البيان (مثال: كهرباء، نقل)" style="margin-bottom:10px;">
+                    <div style="display:flex; gap:10px;">
+                        <input type="number" id="expenseAmount" placeholder="المبلغ" style="flex:1; margin-bottom:0;">
+                        <button onclick="addExpense()" style="background:#ef4444; color:white; border:none; padding:12px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">إضافة</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1519,6 +1618,7 @@
             editingProductId = id;
             document.getElementById('newProductName').value = product.name || '';
             document.getElementById('newProductPrice').value = product.price || '';
+            document.getElementById('newProductStock').value = product.stock !== undefined ? product.stock : '';
             document.getElementById('newProductCategory').value = product.category || 'الكل';
             document.getElementById('newProductDesc').value = product.description || '';
             document.getElementById('newProductIsMeter').checked = product.isMeter || false;
@@ -1538,6 +1638,7 @@
             editingProductId = null;
             document.getElementById('newProductName').value = '';
             document.getElementById('newProductPrice').value = '';
+            document.getElementById('newProductStock').value = '';
             document.getElementById('newProductDesc').value = '';
             document.getElementById('newProductImage').value = '';
             document.getElementById('newProductIsMeter').checked = false;
@@ -1554,6 +1655,7 @@
             let category = document.getElementById('newProductCategory').value; 
             const desc = document.getElementById('newProductDesc').value; 
             const isMeter = document.getElementById('newProductIsMeter').checked; 
+            const stock = document.getElementById('newProductStock').value;
             const imageFile = document.getElementById('newProductImage').files[0]; 
             const btn = document.getElementById('addProductBtn');
             
@@ -1571,7 +1673,8 @@
                     price: Number(price), 
                     category: category, 
                     description: desc || "", 
-                    isMeter: !!isMeter
+                    isMeter: !!isMeter,
+                    stock: stock !== "" ? Number(stock) : 0
                 };
                 if (imageData) data.image = imageData;
 
@@ -1708,6 +1811,167 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
         window.onclick = function(e) { if (e.target.classList.contains('modal') && e.target.id !== 'onboardingModal') e.target.style.display = "none"; }
+
+        // ===== المخزن =====
+        function renderInventory() {
+            const list = document.getElementById('inventoryList');
+            if (!list) return;
+            list.innerHTML = '';
+            if (storeProducts.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:var(--text-gray);">لا توجد منتجات</p>';
+                return;
+            }
+            storeProducts.forEach(p => {
+                const stock = p.stock !== undefined ? p.stock : 0;
+                const isLow = stock < 5;
+                list.innerHTML += `
+                    <div class="admin-product-item" style="border-right:4px solid ${isLow ? '#ef4444' : '#22c55e'};">
+                        <div>
+                            <strong>${p.name}</strong><br>
+                            <small style="color:${isLow ? '#ef4444' : 'var(--text-gray)'}; font-weight:bold;">
+                                الكمية: ${stock} ${isLow ? '⚠️ قليل' : ''}
+                            </small>
+                        </div>
+                        <input type="number" value="${stock}" min="0" style="width:80px; padding:8px; border:1px solid #ddd; border-radius:8px;" 
+                            onchange="updateStock('${p.id}', this.value)">
+                    </div>`;
+            });
+        }
+
+        function updateStock(id, val) {
+            db.collection("stores").doc(currentStoreId).collection("products").doc(id).update({ stock: Number(val) || 0 })
+            .then(() => showToast("تم تحديث الكمية"));
+        }
+
+        // ===== الحسابات الأساسية =====
+        let accountsPeriod = 'today';
+        function setAccountsPeriod(period, btn) {
+            accountsPeriod = period;
+            document.querySelectorAll('#dash-accounts .cat-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            loadAccounts();
+        }
+
+        function loadAccounts() {
+            // Placeholder - will calculate from orders & expenses later
+            document.getElementById('accSales').innerText = '0 ج.م';
+            document.getElementById('accProfit').innerText = '0 ج.م';
+            document.getElementById('accNet').innerText = '0 ج.م';
+            document.getElementById('accExpenses').innerText = '0 ج.م';
+        }
+
+        function addExpense() {
+            const desc = document.getElementById('expenseDesc').value.trim();
+            const amount = Number(document.getElementById('expenseAmount').value);
+            if (!desc || !amount) return alert("أدخل البيان والمبلغ");
+            db.collection("stores").doc(currentStoreId).collection("expenses").add({
+                desc, amount, date: Date.now(), period: new Date().toISOString().slice(0,10)
+            }).then(() => {
+                document.getElementById('expenseDesc').value = '';
+                document.getElementById('expenseAmount').value = '';
+                showToast("تم تسجيل المصروف");
+                loadAccounts();
+            });
+        }
+
+        function resetAccounts() {
+            if (!confirm("هل أنت متأكد من تصفير كل الحسابات؟")) return;
+            showToast("تم التصفير (قيد التطوير الكامل)");
+        }
+
+        // عند فتح المخزن أو الحسابات
+        const originalSwitch = switchDashView;
+        switchDashView = function(viewId, element) {
+            originalSwitch(viewId, element);
+            if (viewId === 'dash-inventory') renderInventory();
+            if (viewId === 'dash-accounts') loadAccounts();
+            if (viewId === 'dash-sales') renderSaleProducts();
+            if (viewId === 'dash-orders') loadOrders(false);
+        };
+
+        function renderSaleProducts() {
+            const list = document.getElementById('saleProductsList');
+            if (!list) return;
+            list.innerHTML = '';
+            storeProducts.forEach(p => {
+                list.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
+                        <span>${p.name} <small style="color:var(--text-gray);">(${p.price} ج)</small></span>
+                        <input type="number" id="saleQty_${p.id}" min="0" value="0" style="width:70px; padding:6px; border:1px solid #ddd; border-radius:6px;" placeholder="كمية">
+                    </div>`;
+            });
+        }
+
+        function createSaleInvoice() {
+            const customer = document.getElementById('saleCustomerName').value.trim();
+            if (!customer) return alert("أدخل اسم العميل");
+            let items = [];
+            let total = 0;
+            storeProducts.forEach(p => {
+                const qty = Number(document.getElementById('saleQty_' + p.id)?.value || 0);
+                if (qty > 0) {
+                    items.push({ name: p.name, price: p.price, qty, total: p.price * qty });
+                    total += p.price * qty;
+                }
+            });
+            if (items.length === 0) return alert("اختر منتجات");
+            const paid = Number(document.getElementById('salePaidAmount').value) || 0;
+            const remaining = Math.max(0, total - paid);
+
+            // حفظ الفاتورة
+            db.collection("stores").doc(currentStoreId).collection("orders").add({
+                customer, items, total, paid, remaining, date: Date.now(), status: remaining > 0 ? 'partial' : 'paid'
+            }).then(() => {
+                // خصم من المخزن
+                items.forEach(it => {
+                    const prod = storeProducts.find(pp => pp.name === it.name);
+                    if (prod && prod.stock !== undefined) {
+                        db.collection("stores").doc(currentStoreId).collection("products").doc(prod.id).update({
+                            stock: Math.max(0, (prod.stock || 0) - it.qty)
+                        });
+                    }
+                });
+                showToast("تم إنشاء الفاتورة ✅");
+                document.getElementById('saleInvoicePreview').style.display = 'block';
+                document.getElementById('saleInvoicePreview').innerHTML = `
+                    <h3 style="text-align:center; margin-bottom:10px;">فاتورة - ${customer}</h3>
+                    ${items.map(i => `<div style="display:flex;justify-content:space-between;"><span>${i.name} × ${i.qty}</span><span>${i.total} ج</span></div>`).join('')}
+                    <hr>
+                    <div style="display:flex;justify-content:space-between; font-weight:bold;"><span>الإجمالي</span><span>${total} ج.م</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span>المدفوع</span><span>${paid} ج.م</span></div>
+                    <div style="display:flex;justify-content:space-between; color:${remaining>0?'#ef4444':'#22c55e'}; font-weight:bold;"><span>الباقي</span><span>${remaining} ج.م</span></div>
+                    <button onclick="downloadInvoiceImage()" style="margin-top:12px; width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold;">حفظ كصورة</button>
+                `;
+            });
+        }
+
+        function downloadInvoiceImage() {
+            showToast("استخدم لقطة الشاشة حالياً لحفظ الفاتورة");
+        }
+
+        function loadOrders(onlyRemaining) {
+            const list = document.getElementById('ordersList');
+            if (!list) return;
+            list.innerHTML = '<p style="text-align:center;">جاري التحميل...</p>';
+            db.collection("stores").doc(currentStoreId).collection("orders").orderBy("date", "desc").get().then(snap => {
+                list.innerHTML = '';
+                let has = false;
+                snap.forEach(doc => {
+                    const o = doc.data();
+                    if (onlyRemaining && o.remaining <= 0) return;
+                    has = true;
+                    list.innerHTML += `
+                        <div class="dash-card" style="border-right:4px solid ${o.remaining > 0 ? '#ef4444' : '#22c55e'};">
+                            <strong>${o.customer}</strong>
+                            <div style="font-size:13px; color:var(--text-gray); margin:6px 0;">
+                                الإجمالي: ${o.total} | مدفوع: ${o.paid} | باقي: <span style="color:${o.remaining>0?'#ef4444':'#22c55e'}; font-weight:bold;">${o.remaining}</span>
+                            </div>
+                            <small>${new Date(o.date).toLocaleString('ar-EG')}</small>
+                        </div>`;
+                });
+                if (!has) list.innerHTML = '<p style="text-align:center; color:var(--text-gray);">لا توجد طلبات</p>';
+            });
+        }
     </script>
 </body>
 </html>
