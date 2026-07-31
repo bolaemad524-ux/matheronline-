@@ -1260,13 +1260,13 @@
                     document.getElementById('headerStoreAddress').innerText = storeData.address || ""; 
                     
                     // واجهة التاجر (تحديث البيانات والإشعارات اليومية)
-                    if(document.getElementById('dashGreetingName')) {
+                    if(isLoggedAsAdmin && document.getElementById('dashGreetingName')) {
                         document.getElementById('dashGreetingName').innerText = storeNameDisplay;
                         document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
                         document.getElementById('stat-visitors').innerText = storeData.visitors || 0;
                         document.getElementById('stat-orders').innerText = storeData.ordersCount || 0;
                         
-                        // إشعار الزيارات اليومية
+                        // إشعار الزيارات اليومية (للتاجر فقط)
                         let d = new Date();
                         let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
                         let todayVisits = storeData.dailyVisits && storeData.dailyVisits[todayStr] ? storeData.dailyVisits[todayStr] : 0;
