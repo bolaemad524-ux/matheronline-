@@ -1676,58 +1676,81 @@
 
             if (!name || !price) return alert("يرجى إدخال الاسم وسعر البيع"); 
             if (!editingProductId && !imageFile) return alert("يرجى إضافة صورة للمنتج"); 
+            if (!currentStoreId) return alert("خطأ: لم يتم تحديد المتجر");
             
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الحفظ...'; 
             btn.disabled = true;
 
-            const saveProduct = (imageData) => {
-                const data = { 
-                    name: name, 
-                    cost: cost !== "" ? Number(cost) : 0,
-                    price: Number(price), 
-                    category: category, 
-                    description: desc || "", 
-                    isMeter: !!isMeter,
-                    stock: stock !== "" ? Number(stock) : 0
-                };
-                if (imageData) data.image = imageData;
+            const finishBtn = (isEdit) => {
+                btn.disabled = false;
+                btn.innerHTML = isEdit ? '<i class="fa-solid fa-check"></i> تحديث المنتج' : '<i class="fa-solid fa-plus-circle"></i> إضافة المنتج';
+            };
 
-                if (editingProductId) {
-                    db.collection("stores").doc(currentStoreId).collection("products").doc(editingProductId).set(data, { merge: true }).then(() => {
-                        resetProductForm();
-                        btn.disabled = false;
-                        showToast("تم تحديث المنتج ✅");
-                        switchDashView('dash-products', document.querySelectorAll('.nav-item')[1]);
-                    }).catch(e => { 
-                        console.error(e);
-                        alert("خطأ في التحديث: " + (e.message || e)); 
-                        btn.disabled = false; 
-                        btn.innerHTML = '<i class="fa-solid fa-check"></i> تحديث المنتج'; 
-                    });
-                } else {
-                    data.sortOrder = Date.now();
-                    data.isDealOfDay = false;
-                    const productId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
-                    db.collection("stores").doc(currentStoreId).collection("products").doc(productId).set(data).then(() => {
-                        resetProductForm();
-                        btn.disabled = false;
-                        showToast("تم إضافة المنتج!");
-                        switchDashView('dash-products', document.querySelectorAll('.nav-item')[1]);
-                    }).catch(e => { alert("خطأ في الإضافة: " + (e.message || e)); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> إضافة المنتج'; });
+            const saveProduct = (imageData) => {
+                try {
+                    const data = { 
+                        name: name, 
+                        cost: cost !== "" ? Number(cost) : 0,
+                        price: Number(price), 
+                        category: category, 
+                        description: desc || "", 
+                        isMeter: !!isMeter,
+                        stock: stock !== "" ? Number(stock) : 0
+                    };
+                    if (imageData) data.image = imageData;
+
+                    if (editingProductId) {
+                        db.collection("stores").doc(currentStoreId).collection("products").doc(editingProductId).set(data, { merge: true }).then(() => {
+                            resetProductForm();
+                            finishBtn(true);
+                            showToast("تم تحديث المنتج ✅");
+                            switchDashView('dash-products', document.querySelectorAll('.nav-item')[1]);
+                        }).catch(e => { 
+                            console.error(e);
+                            alert("خطأ في التحديث: " + (e.message || e)); 
+                            finishBtn(true);
+                        });
+                    } else {
+                        data.sortOrder = Date.now();
+                        data.isDealOfDay = false;
+                        const productId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+                        db.collection("stores").doc(currentStoreId).collection("products").doc(productId).set(data).then(() => {
+                            resetProductForm();
+                            finishBtn(false);
+                            showToast("تم إضافة المنتج!");
+                            switchDashView('dash-products', document.querySelectorAll('.nav-item')[1]);
+                        }).catch(e => { 
+                            console.error(e);
+                            alert("خطأ في الإضافة: " + (e.message || e)); 
+                            finishBtn(false);
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("خطأ: " + err.message);
+                    finishBtn(!!editingProductId);
                 }
             };
 
             if (imageFile) {
                 const reader = new FileReader();
+                reader.onerror = () => { alert("فشل قراءة الصورة"); finishBtn(!!editingProductId); };
                 reader.onload = function(e) {
                     const img = new Image();
+                    img.onerror = () => { alert("الصورة غير صالحة"); finishBtn(!!editingProductId); };
                     img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const scaleSize = 600 / img.width;
-                        canvas.width = 600;
-                        canvas.height = img.height * scaleSize;
-                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                        saveProduct(canvas.toDataURL('image/jpeg', 0.6));
+                        try {
+                            const canvas = document.createElement('canvas');
+                            const maxW = 600;
+                            const scaleSize = img.width > maxW ? maxW / img.width : 1;
+                            canvas.width = img.width * scaleSize;
+                            canvas.height = img.height * scaleSize;
+                            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                            saveProduct(canvas.toDataURL('image/jpeg', 0.6));
+                        } catch (err) {
+                            alert("خطأ في معالجة الصورة");
+                            finishBtn(!!editingProductId);
+                        }
                     };
                     img.src = e.target.result;
                 };
