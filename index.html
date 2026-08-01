@@ -857,7 +857,10 @@
         }
 
         function getExpiryTimestamp(plan) {
-            let days = 30; if (plan === '2_months') days = 60; if (plan === '3_months') days = 90;
+            let days = 30;
+            if (plan === '2_months') days = 60;
+            if (plan === '3_months') days = 90;
+            if (plan === 'store') days = 90; // فتح المتجر يشمل 3 شهور أولى
             return Date.now() + (days * 24 * 60 * 60 * 1000);
         }
 
@@ -1194,7 +1197,9 @@
                     if (data.status === 'pending' || data.renewalStatus === 'pending') {
                         hasP = true; 
                         let isRenewal = data.renewalStatus === 'pending';
-                        let planName = isRenewal ? (data.renewalPlan === '1_month' ? 'شهر' : (data.renewalPlan === '2_months' ? 'شهرين' : '3 شهور')) : (data.plan === '1_month' ? 'شهر' : (data.plan === '2_months' ? 'شهرين' : '3 شهور'));
+                        let planName = isRenewal 
+                            ? (data.renewalPlan === 'store' ? 'فتح المتجر' : (data.renewalPlan === '3_months' ? 'صيانة 3 شهور' : (data.renewalPlan === '1_month' ? 'شهر' : (data.renewalPlan === '2_months' ? 'شهرين' : data.renewalPlan))))
+                            : (data.plan === 'store' ? 'فتح المتجر' : (data.plan === '3_months' ? 'صيانة 3 شهور' : (data.plan === '1_month' ? 'شهر' : (data.plan === '2_months' ? 'شهرين' : (data.plan === 'trial' ? 'تجريبي' : data.plan))));
                         let theReceipt = isRenewal ? data.renewalReceipt : data.receipt;
                         let actionBtn = isRenewal ? `<button onclick="approveRenewal('${doc.id}', '${data.renewalPlan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل التجديد</button>` : `<button onclick="approveMerchant('${doc.id}', '${data.phone}', '${data.storeType}', '${data.plan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل</button>`;
                         
@@ -1452,9 +1457,8 @@
                                         <p style='color:var(--text-gray); font-size:15px; margin-bottom:25px;'>نتمنى أن تكون تجربتك رائعة! اختر باقة الآن لتفعيل متجرك واستقبال الطلبات مجدداً.</p>
                                         
                                         <div id="renewalPlans">
-                                            <div class="plan-card" onclick="showRenewalPayment('1_month', 250)"><span>اشتراك شهر</span><span class="plan-price">250 ج</span></div>
-                                            <div class="plan-card" onclick="showRenewalPayment('2_months', 425)"><span>اشتراك شهرين</span><span class="plan-price">425 ج</span></div>
-                                            <div class="plan-card" onclick="showRenewalPayment('3_months', 650)"><span>اشتراك 3 شهور</span><span class="plan-price">650 ج</span></div>
+                                            <div class="plan-card" onclick="showRenewalPayment('store', 1200)"><span>فتح المتجر</span><span class="plan-price">1200 ج</span></div>
+                                            <div class="plan-card" onclick="showRenewalPayment('3_months', 135)"><span>صيانة كل 3 شهور</span><span class="plan-price">135 ج</span></div>
                                         </div>
 
                                         <div id="renewalPaymentBox" style="display:none; text-align:right;">
