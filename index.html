@@ -268,7 +268,10 @@
                         <option value="electronics">أدوات كهربائية وإلكترونيات</option>
                         <option value="clothing">ملابس وموضة</option>
                         <option value="fishing">أدوات ومعدات صيد</option>
-                        <option value="restaurant">مطعم / كافيه / حلويات</option>
+                        <option value="restaurant">مطعم / سندوتشات / كافيه</option>
+                        <option value="supermarket">سوبر ماركت / بقالة</option>
+                        <option value="autoparts">قطع غيار سيارات</option>
+                        <option value="gifts">هدايا وإكسسوارات</option>
                     </select>
                     
                     <button id="startTrialBtn" onclick="startFreeTrial()" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); transition: 0.3s;">
@@ -317,10 +320,13 @@
             <select id="manualStoreCategory">
                 <option value="general">متجر عام متنوع</option>
                 <option value="pharmacy">صيدلية</option>
-                <option value="electronics">إلكترونيات</option>
+                <option value="electronics">أدوات كهربائية</option>
                 <option value="clothing">ملابس</option>
                 <option value="fishing">أدوات صيد</option>
-                <option value="restaurant">مطعم</option>
+                <option value="restaurant">مطعم / سندوتشات</option>
+                <option value="supermarket">سوبر ماركت</option>
+                <option value="autoparts">قطع غيار سيارات</option>
+                <option value="gifts">هدايا وإكسسوارات</option>
             </select>
             <button onclick="createManualStore()" class="btn-primary" style="background:var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;">إنشاء المتجر 🚀</button>
         </div>
@@ -874,7 +880,8 @@
             const root = document.documentElement; 
             document.getElementById('pharmacyBanner').style.display = 'none';
             let heroTitle = "أهلاً بك في متجرنا";
-            let heroSub = "اكتشف منتجاتنا المميزة واطلب بسهولة عبر واتساب";
+            let heroSub = "اكتشف منتجاتنا المميزة واطلب بسهولة";
+            let heroBtn = "تسوق الآن";
             
             if (type === 'pharmacy') { 
                 root.style.setProperty('--primary', '#2a9d8f'); 
@@ -884,33 +891,66 @@
                 heroSub = "اطلب أدويتك وروشتتك بسهولة";
             } else if (type === 'electronics') {
                 root.style.setProperty('--primary', '#0d6efd'); 
-                root.style.setProperty('--secondary', '#fb8500');
-                heroTitle = "أحدث الأجهزة ⚡";
-                heroSub = "إلكترونيات وأدوات كهربائية بأسعار مميزة";
+                root.style.setProperty('--secondary', '#f59e0b');
+                heroTitle = "طاقة الجودة تشغل كل بيت ⚡";
+                heroSub = "أسلاك وكابلات - مفاتيح - فيش وبرايز - قواطع وإضاءة LED";
             } else if (type === 'clothing') {
+                root.style.setProperty('--primary', '#1e40af'); 
+                root.style.setProperty('--secondary', '#7c3aed');
+                heroTitle = "إطلالة مميزة كل يوم ❤️";
+                heroSub = "ملابس رجالي - حريمي - أطفال | جودة عالية وخامات مريحة";
+            } else if (type === 'fishing') {
+                root.style.setProperty('--primary', '#0369a1'); 
+                root.style.setProperty('--secondary', '#0ea5e9');
+                heroTitle = "جهز رحلتك واستمتع بالصيد 🎣";
+                heroSub = "أجود أدوات الصيد - جودة عالية - أسعار منافسة";
+            } else if (type === 'restaurant') {
+                root.style.setProperty('--primary', '#92400e'); 
+                root.style.setProperty('--secondary', '#f59e0b');
+                heroTitle = "طازة ولذيذة كل يوم! ❤️";
+                heroSub = "مكونات طازة - خبز يومي - توابل مميزة";
+                heroBtn = "اطلب الآن";
+            } else if (type === 'supermarket') {
+                root.style.setProperty('--primary', '#1d4ed8'); 
+                root.style.setProperty('--secondary', '#16a34a');
+                heroTitle = "كل احتياجاتك اليومية بأفضل الأسعار ❤️";
+                heroSub = "منتجات طازة - جودة عالية - عروض يومية";
+            } else if (type === 'autoparts') {
+                root.style.setProperty('--primary', '#1e3a8a'); 
+                root.style.setProperty('--secondary', '#64748b');
+                heroTitle = "كل قطعة تفرق ❤️";
+                heroSub = "قطع غيار أصلية بجودة عالية لجميع أنواع السيارات";
+            } else if (type === 'gifts') {
                 root.style.setProperty('--primary', '#7c3aed'); 
                 root.style.setProperty('--secondary', '#ec4899');
-                heroTitle = "أحدث الموضة 👗";
-                heroSub = "ملابس وإكسسوارات تناسب ذوقك";
-            } else if (type === 'fishing') {
-                root.style.setProperty('--primary', '#0284c7'); 
-                root.style.setProperty('--secondary', '#0ea5e9');
-                heroTitle = "معدات الصيد 🎣";
-                heroSub = "كل ما تحتاجه لرحلة صيد ناجحة";
-            } else if (type === 'restaurant') {
-                root.style.setProperty('--primary', '#ea580c'); 
-                root.style.setProperty('--secondary', '#f59e0b');
-                heroTitle = "ألذ الأكلات 🍔";
-                heroSub = "اطلب الآن واستمتع بأشهى الوجبات";
+                heroTitle = "هدايا تحكي لحظاتك ❤️";
+                heroSub = "تشكيلة مميزة من الهدايا والإكسسوارات";
             } else {
                 root.style.setProperty('--primary', '#0d6efd'); 
                 root.style.setProperty('--secondary', '#fb8500');
-                heroTitle = "هدايا تحكي لحظاتك ❤️";
-                heroSub = "تشكيلة مميزة من الهدايا والإكسسوارات";
+                heroTitle = "أهلاً بك في متجرنا";
+                heroSub = "اكتشف منتجاتنا المميزة واطلب بسهولة";
             }
             
             if (document.getElementById('heroTitle')) document.getElementById('heroTitle').innerText = heroTitle;
             if (document.getElementById('heroSubtitle')) document.getElementById('heroSubtitle').innerText = heroSub;
+            const heroBtnEl = document.querySelector('.hero-btn');
+            if (heroBtnEl) heroBtnEl.innerText = heroBtn;
+        }
+
+        function getDefaultCategories(type) {
+            const map = {
+                electronics: ['الكل', 'أسلاك وكابلات', 'مفاتيح وفيش', 'قواطع وحماية', 'إنارة وإضاءة', 'أدوات وكماليات'],
+                clothing: ['الكل', 'رجالي', 'حريمي', 'أطفال', 'منتجات جديدة', 'عروض وتخفيضات'],
+                fishing: ['الكل', 'ماكينات صيد', 'خيوط وأدوات', 'طعوم صيد', 'إكسسوارات صيد'],
+                restaurant: ['الكل', 'سندوتشات دجاج', 'سندوتشات لحوم', 'سندوتشات خضار', 'إضافات', 'مشروبات'],
+                supermarket: ['الكل', 'منتجات البقالة', 'أطعمة ومشروبات', 'خضروات وفواكه', 'منظفات وأدوات', 'منتجات أطفال', 'عروض وتخفيضات'],
+                autoparts: ['الكل', 'محركات وأجزاء', 'زيوت وإضافات', 'قطع دفع وعلق', 'فرامل وإطارات'],
+                pharmacy: ['الكل', 'أدوية', 'مستحضرات تجميل', 'فيتامينات', 'مستلزمات طبية'],
+                gifts: ['الكل', 'هدايا وإكسسوارات', 'ميداليات', 'أكواب', 'مجلات'],
+                general: ['الكل']
+            };
+            return map[type] || ['الكل'];
         }
 
         function copyPaymentNumber() {
@@ -1060,7 +1100,7 @@
                     phone: tempPhone, password: tempPass, storeType: tempCategory, plan: 'trial', status: 'active', expiryDate: expiry, createdAt: new Date()
                 }).then(() => {
                     return db.collection("stores").doc(storeId).set({
-                        name: "متجر جديد", address: "وصف المتجر", phone: tempPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: tempCategory, visitors: 0, ordersCount: 0, dailyVisits: {}
+                        name: "متجر جديد", address: "وصف المتجر", phone: tempPhone, facebook: "", instagram: "", logo: null, categories: getDefaultCategories(tempCategory), storeType: tempCategory, visitors: 0, ordersCount: 0, dailyVisits: {}
                     });
                 }).then(() => {
                     sessionStorage.setItem('loggedStoreId', storeId);
@@ -1134,7 +1174,7 @@
         function createManualStore() {
             const name = document.getElementById('manualStoreName').value; const rawP = document.getElementById('manualStorePhone').value.trim(); const pass = document.getElementById('manualStorePass').value; const type = document.getElementById('manualStoreCategory').value;
             if(!name || !rawP || !pass) return alert("أكمل البيانات"); const phone = "20" + rawP; const storeId = generateShortId(); let expiry = getExpiryTimestamp('1_month');
-            db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: type, visitors: 0, ordersCount: 0 }).then(() => { alert("تم الإنشاء!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }); });
+            db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: getDefaultCategories(type), storeType: type, visitors: 0, ordersCount: 0 }).then(() => { alert("تم الإنشاء!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }); });
         }
 
         function viewAdminReceipt(imgBase64) { document.getElementById('adminReceiptDisplay').src = imgBase64; openModal('adminReceiptModal'); }
@@ -1169,7 +1209,7 @@
                 if(!hasP) pList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا توجد طلبات جديدة.</p>'; if(!hasA) aList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا يوجد تجار حالياً.</p>';
             });
         }
-        function approveMerchant(merchantId, merchantPhone, storeType, plan) { if(confirm("تفعيل المتجر؟")) { let expiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ status: 'active', expiryDate: expiry }).then(() => { db.collection("stores").doc(merchantId).set({ name: "متجر جديد", address: "وصف المتجر", phone: merchantPhone, facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: storeType || 'general', visitors: 0, ordersCount: 0 }).then(() => showToast("تم التفعيل 🎉")); }); } }
+        function approveMerchant(merchantId, merchantPhone, storeType, plan) { if(confirm("تفعيل المتجر؟")) { let expiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ status: 'active', expiryDate: expiry }).then(() => { db.collection("stores").doc(merchantId).set({ name: "متجر جديد", address: "وصف المتجر", phone: merchantPhone, facebook: "", instagram: "", logo: null, categories: getDefaultCategories(storeType || 'general'), storeType: storeType || 'general', visitors: 0, ordersCount: 0 }).then(() => showToast("تم التفعيل 🎉")); }); } }
         function approveRenewal(merchantId, plan) { if(confirm("تأكيد التجديد وتفعيل المتجر؟")) { let newExpiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ expiryDate: newExpiry, plan: plan, status: 'active', renewalStatus: firebase.firestore.FieldValue.delete(), renewalPlan: firebase.firestore.FieldValue.delete(), renewalPrice: firebase.firestore.FieldValue.delete(), renewalReceipt: firebase.firestore.FieldValue.delete() }).then(() => { showToast("تم تجديد الباقة بنجاح 🎉"); }); } }
         function toggleStoreStatus(id, newStatus) { if(confirm(newStatus === 'active' ? "تأكيد تفعيل المتجر مرة أخرى؟" : "تأكيد إيقاف المتجر عن العمل؟")) { db.collection("platform_merchants").doc(id).update({ status: newStatus }).then(() => showToast("تم تحديث حالة المتجر!")); } }
         function renewStoreTime(id) { let days = prompt("أدخل عدد الأيام لتجديد الباقة (مثلاً 30 لشهر):", "30"); if(days && !isNaN(days) && parseInt(days) > 0) { db.collection("platform_merchants").doc(id).get().then(docSnap => { let currentExpiry = docSnap.data().expiryDate || Date.now(); if(currentExpiry < Date.now()) currentExpiry = Date.now(); let newExpiry = currentExpiry + (parseInt(days) * 24 * 60 * 60 * 1000); db.collection("platform_merchants").doc(id).update({ expiryDate: newExpiry, status: 'active' }).then(() => showToast("تم تجديد الباقة بنجاح! ⏱️")); }); } }
@@ -1572,7 +1612,18 @@
         }
 
         function getCatIcon(cat) {
-            const map = { 'الكل': 'fa-th', 'صيدلية': 'fa-pills', 'أدوية': 'fa-capsules', 'إلكترونيات': 'fa-plug', 'ملابس': 'fa-shirt', 'صيد': 'fa-fish', 'مطعم': 'fa-utensils', 'هدايا': 'fa-gift', 'أكواب': 'fa-mug-hot', 'ميداليات': 'fa-medal', 'مجلات': 'fa-book' };
+            const map = { 
+                'الكل': 'fa-th', 'صيدلية': 'fa-pills', 'أدوية': 'fa-capsules', 'إلكترونيات': 'fa-plug', 
+                'ملابس': 'fa-shirt', 'رجالي': 'fa-shirt', 'حريمي': 'fa-person-dress', 'أطفال': 'fa-baby',
+                'صيد': 'fa-fish', 'ماكينات': 'fa-compact-disc', 'خيوط': 'fa-link', 'طعوم': 'fa-worm',
+                'مطعم': 'fa-utensils', 'سندوتشات': 'fa-burger', 'مشروبات': 'fa-mug-hot', 'إضافات': 'fa-plus',
+                'هدايا': 'fa-gift', 'أكواب': 'fa-mug-hot', 'ميداليات': 'fa-medal', 'مجلات': 'fa-book',
+                'أسلاك': 'fa-bolt', 'كابلات': 'fa-bolt', 'مفاتيح': 'fa-toggle-on', 'فيش': 'fa-plug',
+                'قواطع': 'fa-sliders', 'إنارة': 'fa-lightbulb', 'إضاءة': 'fa-lightbulb', 'أدوات': 'fa-toolbox',
+                'بقالة': 'fa-basket-shopping', 'خضروات': 'fa-carrot', 'فواكه': 'fa-apple-whole', 'منظفات': 'fa-spray-can',
+                'محركات': 'fa-gears', 'زيوت': 'fa-oil-can', 'فرامل': 'fa-circle-stop', 'عروض': 'fa-tag',
+                'جديد': 'fa-star', 'تخفي': 'fa-percent'
+            };
             for (let k in map) if (cat.includes(k)) return map[k];
             return 'fa-tag';
         }
