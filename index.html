@@ -1006,7 +1006,9 @@
             }
         } else if (currentStoreId) {
             document.getElementById('loginApp').style.display = 'none';
-            let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === currentStoreId;
+            let loggedId = sessionStorage.getItem('loggedStoreId') || localStorage.getItem('loggedStoreId');
+            if (loggedId && !sessionStorage.getItem('loggedStoreId')) sessionStorage.setItem('loggedStoreId', loggedId);
+            let isLoggedAsAdmin = loggedId === currentStoreId;
             
             if(isLoggedAsAdmin) {
                 document.getElementById('storeApp').style.display = 'none';
@@ -1029,53 +1031,55 @@
 
         // 🎯 كوبري تسجيل دخول التجار
         function checkMerchantLogin() {
-            let rawPhone = document.getElementById('loginPhone').value.trim();
+            let rawPhone = document.getElementById('loginPhone').value.trim().replace(/[^0-9]/g, '');
             tempPass = document.getElementById('loginPass').value.trim();
             
-            if(!rawPhone || !tempPass) return alert("أدخل البيانات.");
+            if(!rawPhone || !tempPass) return alert("أدخل رقم الموبايل والباسورد.");
+            if(rawPhone.startsWith('0')) rawPhone = rawPhone.substring(1);
+            if(rawPhone.startsWith('20')) rawPhone = rawPhone.substring(2);
             
             tempPhone = "20" + rawPhone;
             let fakeEmail = tempPhone + "@bola-stores.com";
             
             const btn = document.querySelector('#authStep1 .main-btn');
-            let originalText = btn.innerText;
-            btn.innerText = "جاري التحقق... ⏳";
-            btn.disabled = true;
+            let originalText = btn ? btn.innerText : "دخول";
+            if (btn) { btn.innerText = "جاري التحقق... ⏳"; btn.disabled = true; }
 
-            firebase.auth().signInWithEmailAndPassword(fakeEmail, tempPass)
-            .then((userCredential) => {
-                db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
-                    if(!snap.empty) processLoginSuccess(snap.docs[0]);
+            const resetBtn = () => { if (btn) { btn.innerText = originalText; btn.disabled = false; } };
+
+            // البحث في قاعدة التجار أولاً (أضمن)
+            db.collection("platform_merchants").where("phone", "==", tempPhone).get()
+            .then(snap => {
+                if (snap.empty) {
+                    // تاجر جديد → صفحة التسجيل
+                    document.getElementById('authStep1').style.display = 'none';
+                    document.getElementById('authStep2').style.display = 'block';
+                    resetBtn();
+                    return;
+                }
+
+                const doc = snap.docs[0];
+                const mData = doc.data();
+
+                if (mData.password !== tempPass) {
+                    alert("الرقم السري غير صحيح!");
+                    resetBtn();
+                    return;
+                }
+
+                // الباسورد صح → حاول Auth وبعدين دخول
+                firebase.auth().signInWithEmailAndPassword(fakeEmail, tempPass)
+                .then(() => processLoginSuccess(doc))
+                .catch(() => {
+                    firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass)
+                    .then(() => processLoginSuccess(doc))
+                    .catch(() => processLoginSuccess(doc)); // حتى لو Auth فشل نكمل بالسيشن
                 });
             })
-            .catch(error => {
-                db.collection("platform_merchants").where("phone", "==", tempPhone).get().then(snap => {
-                    if(snap.empty) {
-                        document.getElementById('authStep1').style.display = 'none'; 
-                        document.getElementById('authStep2').style.display = 'block';
-                        btn.innerText = originalText;
-                        btn.disabled = false;
-                    } else {
-                        let mData = snap.docs[0].data();
-                        if (mData.password === tempPass) {
-                            firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass)
-                            .then(() => {
-                                processLoginSuccess(snap.docs[0]);
-                            })
-                            .catch(err => {
-                                processLoginSuccess(snap.docs[0]); 
-                            });
-                        } else {
-                            alert("الرقم السري غير صحيح!");
-                            btn.innerText = originalText;
-                            btn.disabled = false;
-                        }
-                    }
-                }).catch(err => {
-                    alert("حدث خطأ في الاتصال بقاعدة البيانات.");
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                });
+            .catch(err => {
+                console.error(err);
+                alert("حدث خطأ في الاتصال: " + (err.message || "تحقق من الإنترنت"));
+                resetBtn();
             });
         }
 
@@ -1085,12 +1089,22 @@
             
             if (mData.status === 'pending') { 
                 document.getElementById('authStep1').style.display = 'none'; 
-                document.getElementById('authStep4').style.display = 'block'; 
-            } else if (mData.status === 'active' || mData.status === 'suspended') {
-                sessionStorage.setItem('loggedStoreId', sId); 
-                showToast("جاري الدخول...");
-                setTimeout(() => { window.location.href = window.location.pathname + "?store=" + sId; }, 1000);
+                if (document.getElementById('authStep4')) document.getElementById('authStep4').style.display = 'block';
+                else alert("حسابك قيد المراجعة، انتظر التفعيل.");
+                return;
             }
+            
+            if (mData.status === 'active' || mData.status === 'suspended' || !mData.status) {
+                sessionStorage.setItem('loggedStoreId', sId);
+                localStorage.setItem('loggedStoreId', sId); // نسخة احتياطية
+                showToast("جاري الدخول...");
+                setTimeout(() => { 
+                    window.location.href = window.location.pathname + "?store=" + sId; 
+                }, 800);
+                return;
+            }
+
+            alert("حالة الحساب غير معروفة. تواصل مع الإدارة.");
         }
 
         function goBackToStep1() { document.getElementById('authStep2').style.display = 'none'; document.getElementById('authStep1').style.display = 'block'; }
