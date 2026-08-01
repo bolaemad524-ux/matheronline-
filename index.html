@@ -452,6 +452,10 @@
                     <h3 style="font-size:15px; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-id-card"></i> بيانات المتجر الأساسية</h3>
                     <input type="text" id="adminStoreName" placeholder="اسم المتجر">
                     <input type="text" id="adminStoreAddress" placeholder="وصف سريع للمتجر">
+                    <label style="font-weight:bold; font-size:13px; color:var(--text-gray); margin-bottom:5px; display:block;">عنوان المحل بالتفصيل:</label>
+                    <textarea id="adminFullAddress" rows="2" placeholder="مثال: شارع الهرم، أمام محطة المترو، الجيزة - الدور الأرضي"></textarea>
+                    <label style="font-weight:bold; font-size:13px; color:var(--text-gray); margin-bottom:5px; display:block;">رابط اللوكيشن (خرائط جوجل):</label>
+                    <input type="url" id="adminLocationLink" placeholder="https://maps.google.com/... أو https://goo.gl/maps/...">
                     <label style="font-weight:bold; font-size:13px; color:var(--text-gray); margin-bottom:5px; display:block; text-align:right;">رقم استقبال الطلبات (واتساب):</label>
                     <div class="phone-input-wrapper" style="margin-bottom: 15px; background:var(--light-bg);">
                         <span style="background: white;">+20</span>
@@ -1499,6 +1503,8 @@
                     if(document.getElementById('adminStoreName')){
                         document.getElementById('adminStoreName').value = storeData.name || ""; document.getElementById('adminStoreAddress').value = storeData.address || ""; document.getElementById('adminPhone').value = p; document.getElementById('adminFacebook').value = storeData.facebook || ""; document.getElementById('adminInstagram').value = storeData.instagram || ""; if(document.getElementById('adminTiktok')) document.getElementById('adminTiktok').value = storeData.tiktok || "";
                         if(document.getElementById('adminAssistantInfo')) document.getElementById('adminAssistantInfo').value = storeData.assistantInfo || "";
+                        if(document.getElementById('adminFullAddress')) document.getElementById('adminFullAddress').value = storeData.fullAddress || "";
+                        if(document.getElementById('adminLocationLink')) document.getElementById('adminLocationLink').value = storeData.locationLink || "";
                     }
                     
                     const storeFullLink = window.location.origin + window.location.pathname + "?store=" + storeId;
@@ -1536,6 +1542,8 @@
         function updateSocialLinks() {
             const container = document.getElementById('socialLinksContainer'); container.style.flexDirection = 'column'; container.style.gap = '15px'; let html = "";
             const btnStyle = "display: flex; align-items: center; justify-content: center; gap: 12px; color: white; text-decoration: none; padding: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%;";
+            if (storeData.fullAddress) html += `<div style="background:#f8f9fa; padding:12px 15px; border-radius:12px; text-align:right; font-size:14px; color:var(--text-dark); margin-bottom:5px;"><i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> <strong>العنوان:</strong><br>${storeData.fullAddress}</div>`;
+            if (storeData.locationLink) html += `<a href="${storeData.locationLink}" target="_blank" style="${btnStyle} background:#EA4335;"><i class="fa-solid fa-map-location-dot" style="font-size: 24px;"></i> فتح اللوكيشن على الخريطة</a>`;
             if (storeData.facebook) html += `<a href="${storeData.facebook}" target="_blank" style="${btnStyle} background:#1877F2;"><i class="fa-brands fa-facebook-f" style="font-size: 24px;"></i> صفحة فيسبوك</a>`;
             if (storeData.instagram) html += `<a href="${storeData.instagram}" target="_blank" style="${btnStyle} background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);"><i class="fa-brands fa-instagram" style="font-size: 24px;"></i> حساب إنستجرام</a>`;
             if (storeData.tiktok) html += `<a href="${storeData.tiktok}" target="_blank" style="${btnStyle} background:#000000;"><i class="fa-brands fa-tiktok" style="font-size: 24px;"></i> تيك توك</a>`;
@@ -1546,7 +1554,17 @@
 
         function saveStoreSettings() {
             let pVal = document.getElementById('adminPhone').value.trim(); let finalP = pVal ? "20" + pVal : "";
-            const updates = { name: document.getElementById('adminStoreName').value, address: document.getElementById('adminStoreAddress').value, phone: finalP, facebook: document.getElementById('adminFacebook').value, instagram: document.getElementById('adminInstagram').value, tiktok: document.getElementById('adminTiktok') ? document.getElementById('adminTiktok').value : "", assistantInfo: document.getElementById('adminAssistantInfo') ? document.getElementById('adminAssistantInfo').value : "" };
+            const updates = { 
+                name: document.getElementById('adminStoreName').value, 
+                address: document.getElementById('adminStoreAddress').value, 
+                phone: finalP, 
+                facebook: document.getElementById('adminFacebook').value, 
+                instagram: document.getElementById('adminInstagram').value, 
+                tiktok: document.getElementById('adminTiktok') ? document.getElementById('adminTiktok').value : "", 
+                assistantInfo: document.getElementById('adminAssistantInfo') ? document.getElementById('adminAssistantInfo').value : "",
+                fullAddress: document.getElementById('adminFullAddress') ? document.getElementById('adminFullAddress').value : "",
+                locationLink: document.getElementById('adminLocationLink') ? document.getElementById('adminLocationLink').value : ""
+            };
             const logoFile = document.getElementById('adminStoreLogo').files[0];
             if (logoFile) {
                 const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 200 / img.width; canvas.width = 200; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); updates.logo = canvas.toDataURL('image/jpeg', 0.8); db.collection("stores").doc(currentStoreId).update(updates).then(() => showToast("تم الحفظ ☁️")); }; img.src = e.target.result; }; reader.readAsDataURL(logoFile);
