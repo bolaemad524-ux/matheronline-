@@ -277,7 +277,45 @@
                     <button id="startTrialBtn" onclick="startFreeTrial()" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); transition: 0.3s;">
                         ابدأ تجربتك المجانية (3 أيام) 🚀
                     </button>
+
+                    <div style="margin-top:20px; text-align:center; color:var(--text-gray); font-size:13px; font-weight:bold;">أو اختر باقة مباشرة</div>
+                    <div class="plan-card" onclick="selectPlan('1_month', 60)" style="margin-top:12px;">
+                        <span>اشتراك شهري</span>
+                        <span class="plan-price">60 ج</span>
+                    </div>
+                    <div class="plan-card" onclick="selectPlan('3_months', 200)">
+                        <span>اشتراك كل 3 شهور</span>
+                        <span class="plan-price">200 ج</span>
+                    </div>
+                    <div class="plan-card" onclick="selectPlan('1_year', 720)">
+                        <span>اشتراك سنوي</span>
+                        <span class="plan-price">720 ج</span>
+                    </div>
+
                     <button onclick="goBackToStep1()" style="background:var(--light-bg); color:var(--text-dark); border:1px solid var(--border-color); width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 10px;">رجوع</button>
+                </div>
+
+                <div id="authStep3" style="display:none; text-align:right;">
+                    <h2 style="text-align:center; color:var(--primary);">إتمام الدفع 💳</h2>
+                    <p style="text-align:center; margin-bottom:15px;">المبلغ المطلوب: <strong id="selectedPlanPrice" style="color:var(--primary); font-size:22px;">0 ج.م</strong></p>
+                    <div class="payment-number-box">
+                        <span class="payment-amount">حوّل على الرقم ده</span>
+                        <div class="payment-number" onclick="navigator.clipboard.writeText(document.getElementById('payNumberTxt').innerText); showToast('تم نسخ الرقم');">
+                            <span id="payNumberTxt">01000000000</span>
+                            <i class="fa-solid fa-copy"></i>
+                        </div>
+                    </div>
+                    <label style="font-weight:bold; display:block; margin-bottom:8px;">أرفق صورة الإيصال:</label>
+                    <input type="file" id="receiptInput" accept="image/*" onchange="handleReceiptUpload(event)" style="margin-bottom:10px; width:100%;">
+                    <img id="receiptImagePreview" class="receipt-preview" src="">
+                    <button onclick="submitPaidSubscription()" class="main-btn" style="margin-top:10px;">تأكيد واشتراك 🚀</button>
+                    <button onclick="cancelPayment()" style="background:var(--light-bg); color:var(--text-dark); border:1px solid var(--border-color); width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">رجوع</button>
+                </div>
+
+                <div id="authStep4" style="display:none; text-align:center; padding:30px 10px;">
+                    <i class="fa-solid fa-hourglass-half" style="font-size:60px; color:var(--primary); margin-bottom:15px;"></i>
+                    <h2 style="color:var(--primary);">طلبك قيد المراجعة</h2>
+                    <p style="color:var(--text-gray); font-size:15px; margin-top:10px;">تم استلام الإيصال وجاري تفعيل متجرك خلال ساعات قليلة.</p>
                 </div>
             </div>
         </div>
@@ -860,7 +898,8 @@
             let days = 30;
             if (plan === '2_months') days = 60;
             if (plan === '3_months') days = 90;
-            if (plan === 'store') days = 90; // فتح المتجر يشمل 3 شهور أولى
+            if (plan === '1_year') days = 365;
+            if (plan === 'store') days = 90;
             return Date.now() + (days * 24 * 60 * 60 * 1000);
         }
 
@@ -1006,16 +1045,17 @@
             }
         } else if (currentStoreId) {
             document.getElementById('loginApp').style.display = 'none';
-            let loggedId = sessionStorage.getItem('loggedStoreId') || localStorage.getItem('loggedStoreId');
-            if (loggedId && !sessionStorage.getItem('loggedStoreId')) sessionStorage.setItem('loggedStoreId', loggedId);
+            // لوحة التاجر فقط من sessionStorage (مش localStorage) عشان العميل ميشوفهاش
+            let loggedId = sessionStorage.getItem('loggedStoreId');
             let isLoggedAsAdmin = loggedId === currentStoreId;
             
             if(isLoggedAsAdmin) {
                 document.getElementById('storeApp').style.display = 'none';
                 document.getElementById('merchantDashboardApp').style.display = 'block';
             } else {
-                // تسجيل الزيارة (الإجمالية واليومية)
+                // واجهة العميل دائماً لزوار الرابط
                 document.getElementById('storeApp').style.display = 'block';
+                document.getElementById('merchantDashboardApp').style.display = 'none';
                 let d = new Date();
                 let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
                 
@@ -1096,7 +1136,6 @@
             
             if (mData.status === 'active' || mData.status === 'suspended' || !mData.status) {
                 sessionStorage.setItem('loggedStoreId', sId);
-                localStorage.setItem('loggedStoreId', sId); // نسخة احتياطية
                 showToast("جاري الدخول...");
                 setTimeout(() => { 
                     window.location.href = window.location.pathname + "?store=" + sId; 
@@ -1135,24 +1174,49 @@
             });
         }
 
-        function selectPlan(planId, price) { tempCategory = document.getElementById('newStoreCategory').value; selectedPlan = planId; selectedPrice = price; document.getElementById('selectedPlanPrice').innerText = price + " ج.م"; document.getElementById('authStep2').style.display = 'none'; document.getElementById('authStep3').style.display = 'block'; }
+        function selectPlan(planId, price) { 
+            tempCategory = document.getElementById('newStoreCategory').value; 
+            selectedPlan = planId; 
+            selectedPrice = price; 
+            document.getElementById('selectedPlanPrice').innerText = price + " ج.م"; 
+            // رقم التحويل من إعدادات المنصة إن وجد
+            const platNum = document.getElementById('platPhone')?.value || document.getElementById('platWhatsapp')?.value || '';
+            if (document.getElementById('payNumberTxt')) {
+                document.getElementById('payNumberTxt').innerText = platNum ? ('0' + platNum.replace(/^20/,'').replace(/^0/,'')) : '01285957035';
+            }
+            document.getElementById('authStep2').style.display = 'none'; 
+            document.getElementById('authStep3').style.display = 'block'; 
+        }
         function cancelPayment() { document.getElementById('authStep3').style.display = 'none'; document.getElementById('authStep2').style.display = 'block'; document.getElementById('receiptInput').value = ''; document.getElementById('receiptImagePreview').style.display = 'none'; receiptBase64 = ""; }
 
-        function previewReceipt(event) {
+        function handleReceiptUpload(event) {
             const file = event.target.files[0]; if(!file) return; const reader = new FileReader();
             reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); receiptBase64 = canvas.toDataURL('image/jpeg', 0.6); document.getElementById('receiptImagePreview').src = receiptBase64; document.getElementById('receiptImagePreview').style.display = 'block'; }; img.src = e.target.result; }; reader.readAsDataURL(file);
         }
+        function previewReceipt(event) { handleReceiptUpload(event); }
 
-        function submitSubscription() {
+        function submitPaidSubscription() {
             if(!receiptBase64) return alert("الرجاء إرفاق الإيصال!");
-            const btn = document.getElementById('submitSubBtn'); btn.innerText = "جاري الإرسال... ⏳"; btn.disabled = true;
+            const btn = document.querySelector('#authStep3 .main-btn');
+            if (btn) { btn.innerText = "جاري الإرسال... ⏳"; btn.disabled = true; }
             const storeId = generateShortId();
             let fakeEmail = tempPhone + "@bola-stores.com";
 
             firebase.auth().createUserWithEmailAndPassword(fakeEmail, tempPass).catch(e=>console.log(e)).finally(() => {
-                db.collection("platform_merchants").doc(storeId).set({ phone: tempPhone, password: tempPass, storeType: tempCategory, plan: selectedPlan, pricePaid: selectedPrice, receipt: receiptBase64, status: 'pending', createdAt: new Date() }).then(() => { document.getElementById('authStep3').style.display = 'none'; document.getElementById('authStep4').style.display = 'block'; }).catch(err => { alert("حدث خطأ."); btn.innerText = "تأكيد واشتراك 🚀"; btn.disabled = false; });
+                db.collection("platform_merchants").doc(storeId).set({ 
+                    phone: tempPhone, password: tempPass, storeType: tempCategory, 
+                    plan: selectedPlan, pricePaid: selectedPrice, receipt: receiptBase64, 
+                    status: 'pending', createdAt: new Date() 
+                }).then(() => { 
+                    document.getElementById('authStep3').style.display = 'none'; 
+                    document.getElementById('authStep4').style.display = 'block'; 
+                }).catch(err => { 
+                    alert("حدث خطأ: " + (err.message || '')); 
+                    if (btn) { btn.innerText = "تأكيد واشتراك 🚀"; btn.disabled = false; }
+                });
             });
         }
+        function submitSubscription() { submitPaidSubscription(); }
 
         // إداره المنصة (Super Admin)
         function changeAdminPassword(event) {
@@ -1212,20 +1276,9 @@
                         hasP = true; 
                         let isRenewal = data.renewalStatus === 'pending';
                         let planName = 'باقة';
-                        if (isRenewal) {
-                            if (data.renewalPlan === 'store') planName = 'فتح المتجر';
-                            else if (data.renewalPlan === '3_months') planName = 'صيانة 3 شهور';
-                            else if (data.renewalPlan === '1_month') planName = 'شهر';
-                            else if (data.renewalPlan === '2_months') planName = 'شهرين';
-                            else planName = data.renewalPlan || 'باقة';
-                        } else {
-                            if (data.plan === 'store') planName = 'فتح المتجر';
-                            else if (data.plan === '3_months') planName = 'صيانة 3 شهور';
-                            else if (data.plan === '1_month') planName = 'شهر';
-                            else if (data.plan === '2_months') planName = 'شهرين';
-                            else if (data.plan === 'trial') planName = 'تجريبي';
-                            else planName = data.plan || 'باقة';
-                        }
+                        const planLabels = { 'store': 'فتح المتجر', '1_month': 'شهري', '2_months': 'شهرين', '3_months': '3 شهور', '1_year': 'سنوي', 'trial': 'تجريبي' };
+                        if (isRenewal) planName = planLabels[data.renewalPlan] || data.renewalPlan || 'باقة';
+                        else planName = planLabels[data.plan] || data.plan || 'باقة';
                         let theReceipt = isRenewal ? data.renewalReceipt : data.receipt;
                         let actionBtn = isRenewal ? `<button onclick="approveRenewal('${doc.id}', '${data.renewalPlan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل التجديد</button>` : `<button onclick="approveMerchant('${doc.id}', '${data.phone}', '${data.storeType}', '${data.plan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل</button>`;
                         
@@ -1483,8 +1536,9 @@
                                         <p style='color:var(--text-gray); font-size:15px; margin-bottom:25px;'>نتمنى أن تكون تجربتك رائعة! اختر باقة الآن لتفعيل متجرك واستقبال الطلبات مجدداً.</p>
                                         
                                         <div id="renewalPlans">
-                                            <div class="plan-card" onclick="showRenewalPayment('store', 1200)"><span>فتح المتجر</span><span class="plan-price">1200 ج</span></div>
-                                            <div class="plan-card" onclick="showRenewalPayment('3_months', 135)"><span>صيانة كل 3 شهور</span><span class="plan-price">135 ج</span></div>
+                                            <div class="plan-card" onclick="showRenewalPayment('1_month', 60)"><span>اشتراك شهري</span><span class="plan-price">60 ج</span></div>
+                                            <div class="plan-card" onclick="showRenewalPayment('3_months', 200)"><span>اشتراك 3 شهور</span><span class="plan-price">200 ج</span></div>
+                                            <div class="plan-card" onclick="showRenewalPayment('1_year', 720)"><span>اشتراك سنوي</span><span class="plan-price">720 ج</span></div>
                                         </div>
 
                                         <div id="renewalPaymentBox" style="display:none; text-align:right;">
