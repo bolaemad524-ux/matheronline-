@@ -396,7 +396,7 @@
                         <p id="uploadText" style="margin:0; font-weight:bold; color:var(--primary);">إضافة صورة المنتج</p>
                         <img id="newProductImagePreview" style="display:none; width:100%; max-height:150px; object-fit:contain; border-radius:8px; margin-top: 10px;">
                     </div>
-                    <input type="file" id="newProductImage" accept="image/*" style="display:none;" onchange="previewNewProductImage(event)">
+                    <input type="file" id="newProductImage" accept="image/jpeg,image/png,image/webp,image/jpg" style="display:none;" onchange="previewNewProductImage(event)">
 
                     <div class="input-icon-wrapper">
                         <i class="fa-solid fa-tag"></i>
@@ -1732,9 +1732,29 @@
                 }
             };
 
-            if (imageFile) {
+            // نفضل صورة المعاينة (أضمن على الموبايل)
+            const previewImg = document.getElementById('newProductImagePreview');
+            if (previewImg && previewImg.src && previewImg.style.display !== 'none' && previewImg.src.startsWith('data:')) {
+                const img = new Image();
+                img.onload = function() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const maxW = 600;
+                        const scale = img.width > maxW ? maxW / img.width : 1;
+                        canvas.width = Math.round(img.width * scale);
+                        canvas.height = Math.round(img.height * scale);
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                        saveProduct(canvas.toDataURL('image/jpeg', 0.55));
+                    } catch (err) {
+                        alert("خطأ في معالجة الصورة");
+                        finishBtn(!!editingProductId);
+                    }
+                };
+                img.onerror = () => { alert("الصورة غير صالحة"); finishBtn(!!editingProductId); };
+                img.src = previewImg.src;
+            } else if (imageFile) {
                 const reader = new FileReader();
-                reader.onerror = () => { alert("فشل قراءة الصورة"); finishBtn(!!editingProductId); };
+                reader.onerror = () => { alert("فشل قراءة الصورة - جرب صورة JPG أو PNG"); finishBtn(!!editingProductId); };
                 reader.onload = function(e) {
                     const img = new Image();
                     img.onerror = () => { alert("الصورة غير صالحة"); finishBtn(!!editingProductId); };
@@ -1742,11 +1762,11 @@
                         try {
                             const canvas = document.createElement('canvas');
                             const maxW = 600;
-                            const scaleSize = img.width > maxW ? maxW / img.width : 1;
-                            canvas.width = img.width * scaleSize;
-                            canvas.height = img.height * scaleSize;
+                            const scale = img.width > maxW ? maxW / img.width : 1;
+                            canvas.width = Math.round(img.width * scale);
+                            canvas.height = Math.round(img.height * scale);
                             canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                            saveProduct(canvas.toDataURL('image/jpeg', 0.6));
+                            saveProduct(canvas.toDataURL('image/jpeg', 0.55));
                         } catch (err) {
                             alert("خطأ في معالجة الصورة");
                             finishBtn(!!editingProductId);
