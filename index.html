@@ -1316,10 +1316,16 @@
                         let theReceipt = isRenewal ? data.renewalReceipt : data.receipt;
                         let actionBtn = isRenewal ? `<button onclick="approveRenewal('${doc.id}', '${data.renewalPlan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل التجديد</button>` : `<button onclick="approveMerchant('${doc.id}', '${data.phone}', '${data.storeType}', '${data.plan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل</button>`;
                         
+                        let pendWa = (data.phone || '').replace(/[^0-9]/g, '');
+                        if (pendWa && !pendWa.startsWith('20')) pendWa = pendWa.startsWith('0') ? '20'+pendWa.substring(1) : '20'+pendWa;
+                        let pendWaBtn = pendWa ? `<a href="https://wa.me/${pendWa}" target="_blank" style="background:#25D366; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px; font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:4px; margin:5px 0;"><i class="fa-brands fa-whatsapp"></i> واتساب</a>` : '';
                         pList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid ${isRenewal? '#fb8500':'#e63946'}; background: #fff;">
                             <strong>رقم: ${displayPhone} ${isRenewal ? '<span style="color:#fb8500; font-size:11px;">(طلب تجديد)</span>' : ''}</strong>
                             <span style="font-size:13px; color:var(--text-gray);">الباقة: ${planName} | باسورد: ${data.password}</span>
-                            <button onclick="viewAdminReceipt('${theReceipt}')" class="view-receipt-btn" style="background:#007185; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px; margin:5px 0;"><i class="fa-solid fa-receipt"></i> عرض الإيصال</button>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap; margin:5px 0;">
+                                <button onclick="viewAdminReceipt('${theReceipt}')" class="view-receipt-btn" style="background:#007185; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px;"><i class="fa-solid fa-receipt"></i> عرض الإيصال</button>
+                                ${pendWaBtn}
+                            </div>
                             ${actionBtn}
                         </div>`;
                     } else if (data.status === 'active' || data.status === 'suspended') {
@@ -1327,7 +1333,10 @@
                         if(data.expiryDate) { let remainingDays = Math.ceil((data.expiryDate - Date.now()) / (1000 * 60 * 60 * 24)); if(remainingDays > 0) { expiryText = `متبقي ${remainingDays} يوم`; } else { expiryText = "انتهت الباقة"; isExpired = true; } }
                         let statusColor = data.status === 'suspended' ? '#e63946' : (isExpired ? '#fb8500' : '#2a9d8f'); let statusLabel = data.status === 'suspended' ? ' <span style="color:#e63946; font-size:12px;">(موقوف)</span>' : '';
                         let toggleBtn = data.status === 'suspended' ? `<button onclick="toggleStoreStatus('${doc.id}', 'active')" style="background:#2a9d8f; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">▶️ تفعيل</button>` : `<button onclick="toggleStoreStatus('${doc.id}', 'suspended')" style="background:#fb8500; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">⏸️ إيقاف</button>`;
-                        aList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid ${statusColor}; background: #fff;"><strong>متجر: ${displayPhone} ${statusLabel} ${isTrial ? '<span style="color:#0d6efd; font-size:11px;">(تجربة)</span>' : ''}</strong><span style="font-size:12px; color:var(--text-gray); margin-bottom:5px;">باسورد: ${data.password} | الصلاحية: <span style="${isExpired ? 'color:red; font-weight:bold;' : 'color:var(--primary); font-weight:bold;'}">${expiryText}</span></span><div style="display:flex; gap:5px; margin-top:5px; flex-wrap:wrap; width:100%;">${toggleBtn}<button onclick="renewStoreTime('${doc.id}')" style="background:#0d6efd; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🔄 تجديد</button><button onclick="deleteStoreComplete('${doc.id}')" style="background:#e63946; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🗑️ حذف نهائي</button></div><a href="${link}" target="_blank" style="color:var(--text-dark); background:var(--light-bg); padding:5px; border-radius:5px; font-size:12px; margin-top:8px; font-weight:bold; text-decoration:none; display:inline-block; border:1px solid #ddd;">🔗 فتح المتجر</a></div>`;
+                        let waPhone = (data.phone || '').replace(/[^0-9]/g, '');
+                        if (waPhone.startsWith('20')) waPhone = waPhone; else if (waPhone.startsWith('0')) waPhone = '20' + waPhone.substring(1); else if (waPhone) waPhone = '20' + waPhone;
+                        let waBtn = waPhone ? `<a href="https://wa.me/${waPhone}" target="_blank" style="background:#25D366; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i class="fa-brands fa-whatsapp"></i> واتساب</a>` : '';
+                        aList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid ${statusColor}; background: #fff;"><strong>متجر: ${displayPhone} ${statusLabel} ${isTrial ? '<span style="color:#0d6efd; font-size:11px;">(تجربة)</span>' : ''}</strong><span style="font-size:12px; color:var(--text-gray); margin-bottom:5px;">باسورد: ${data.password} | الصلاحية: <span style="${isExpired ? 'color:red; font-weight:bold;' : 'color:var(--primary); font-weight:bold;'}">${expiryText}</span></span><div style="display:flex; gap:5px; margin-top:5px; flex-wrap:wrap; width:100%;">${waBtn}${toggleBtn}<button onclick="renewStoreTime('${doc.id}')" style="background:#0d6efd; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🔄 تجديد</button><button onclick="deleteStoreComplete('${doc.id}')" style="background:#e63946; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🗑️ حذف نهائي</button></div><a href="${link}" target="_blank" style="color:var(--text-dark); background:var(--light-bg); padding:5px; border-radius:5px; font-size:12px; margin-top:8px; font-weight:bold; text-decoration:none; display:inline-block; border:1px solid #ddd;">🔗 فتح المتجر</a></div>`;
                     }
                 });
                 if(!hasP) pList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا توجد طلبات جديدة.</p>'; if(!hasA) aList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا يوجد تجار حالياً.</p>';
@@ -1341,7 +1350,100 @@
 
         // دوال التجديد من داخل لوحة التاجر
         let renewPlanSelected = ""; let renewPrice = 0; let renewReceiptBase64 = "";
-        function showRenewalPayment(plan, price) { renewPlanSelected = plan; renewPrice = price; document.getElementById('renewalPlans').style.display = 'none'; document.getElementById('renewalPaymentBox').style.display = 'block'; document.getElementById('renewPriceTxt').innerText = price + " ج.م"; }
+        function showRenewalPayment(plan, price) { 
+            renewPlanSelected = plan; renewPrice = price; 
+            const plans = document.getElementById('renewalPlans');
+            const box = document.getElementById('renewalPaymentBox');
+            if (plans) plans.style.display = 'none'; 
+            if (box) box.style.display = 'block'; 
+            if (document.getElementById('renewPriceTxt')) document.getElementById('renewPriceTxt').innerText = price + " ج.م"; 
+        }
+
+        function showTrialSubscribePlans() {
+            // عرض مودال الباقات للتاجر في التجربة
+            let modal = document.getElementById('trialPlansModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'trialPlansModal';
+                modal.className = 'modal';
+                modal.style.display = 'flex';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width:420px; text-align:center;">
+                        <span class="close-btn" onclick="closeModal('trialPlansModal')"><i class="fa-solid fa-xmark"></i></span>
+                        <h2 style="color:var(--primary); margin-bottom:8px;">اختر باقتك 🎯</h2>
+                        <p style="color:var(--text-gray); font-size:14px; margin-bottom:18px;">اشترك دلوقتي واستمر في استقبال الطلبات</p>
+                        <div id="trialPlansList">
+                            <div class="plan-card" onclick="startTrialPlanPayment('1_month', 60)"><span>اشتراك شهري</span><span class="plan-price">60 ج</span></div>
+                            <div class="plan-card" onclick="startTrialPlanPayment('3_months', 200)"><span>اشتراك 3 شهور</span><span class="plan-price">200 ج</span></div>
+                            <div class="plan-card" onclick="startTrialPlanPayment('1_year', 720)"><span>اشتراك سنوي</span><span class="plan-price">720 ج</span></div>
+                        </div>
+                        <div id="trialPaymentBox" style="display:none; text-align:right; margin-top:15px;">
+                            <h3 style="text-align:center; color:var(--primary); margin-bottom:12px;">إتمام الدفع</h3>
+                            <div style="background:#f0f6ff; border:2px dashed var(--primary); border-radius:14px; padding:16px; text-align:center; margin-bottom:12px;">
+                                <div style="font-size:15px; margin-bottom:6px;">المبلغ: <strong id="trialPayPrice" style="color:#e63946; font-size:22px;">0 ج.م</strong></div>
+                                <div onclick="navigator.clipboard.writeText('01285957035'); showToast('تم نسخ الرقم');" style="font-size:24px; font-weight:900; color:var(--primary); cursor:pointer;">
+                                    01285957035 <i class="fa-regular fa-copy"></i>
+                                </div>
+                            </div>
+                            <label style="font-weight:bold; display:block; margin-bottom:6px;">أرفق صورة الإيصال:</label>
+                            <input type="file" id="trialReceiptInput" accept="image/*" onchange="previewTrialReceipt(event)" style="width:100%; margin-bottom:8px;">
+                            <img id="trialReceiptImg" style="width:100%; max-height:180px; object-fit:contain; display:none; margin-bottom:8px; border-radius:8px;">
+                            <button id="trialSubmitBtn" onclick="submitTrialSubscription()" style="background:var(--primary); color:white; width:100%; padding:14px; border:none; border-radius:10px; font-weight:bold; font-size:16px; cursor:pointer;">تأكيد الاشتراك</button>
+                            <button onclick="document.getElementById('trialPaymentBox').style.display='none'; document.getElementById('trialPlansList').style.display='block';" style="background:none; border:none; color:var(--text-gray); width:100%; padding:10px; margin-top:6px; cursor:pointer; font-weight:bold;">رجوع للباقات</button>
+                        </div>
+                    </div>`;
+                document.body.appendChild(modal);
+            }
+            document.getElementById('trialPlansList').style.display = 'block';
+            document.getElementById('trialPaymentBox').style.display = 'none';
+            openModal('trialPlansModal');
+        }
+
+        function startTrialPlanPayment(plan, price) {
+            renewPlanSelected = plan; renewPrice = price;
+            document.getElementById('trialPlansList').style.display = 'none';
+            document.getElementById('trialPaymentBox').style.display = 'block';
+            document.getElementById('trialPayPrice').innerText = price + ' ج.م';
+        }
+
+        function previewTrialReceipt(event) {
+            const file = event.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const scale = 600 / img.width;
+                    canvas.width = 600; canvas.height = img.height * scale;
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    renewReceiptBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    document.getElementById('trialReceiptImg').src = renewReceiptBase64;
+                    document.getElementById('trialReceiptImg').style.display = 'block';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function submitTrialSubscription() {
+            if (!renewReceiptBase64) return alert('يرجى إرفاق صورة الإيصال!');
+            if (!currentStoreId) return alert('خطأ في معرف المتجر');
+            const btn = document.getElementById('trialSubmitBtn');
+            btn.innerText = 'جاري الإرسال...'; btn.disabled = true;
+            db.collection('platform_merchants').doc(currentStoreId).update({
+                renewalStatus: 'pending',
+                renewalPlan: renewPlanSelected,
+                renewalPrice: renewPrice,
+                renewalReceipt: renewReceiptBase64
+            }).then(() => {
+                showToast('تم إرسال طلب الاشتراك!');
+                closeModal('trialPlansModal');
+                setTimeout(() => location.reload(), 1200);
+            }).catch(e => {
+                alert('حدث خطأ');
+                btn.innerText = 'تأكيد الاشتراك'; btn.disabled = false;
+            });
+        }
         function cancelRenewal() { document.getElementById('renewalPlans').style.display = 'block'; document.getElementById('renewalPaymentBox').style.display = 'none'; renewReceiptBase64 = ""; document.getElementById('renewReceiptInput').value = ""; document.getElementById('renewReceiptImg').style.display = 'none'; }
         function previewRenewReceipt(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const scaleSize = 600 / img.width; canvas.width = 600; canvas.height = img.height * scaleSize; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); renewReceiptBase64 = canvas.toDataURL('image/jpeg', 0.6); document.getElementById('renewReceiptImg').src = renewReceiptBase64; document.getElementById('renewReceiptImg').style.display = 'block'; }; img.src = e.target.result; }; reader.readAsDataURL(file); }
         function submitRenewal(storeId) { if(!renewReceiptBase64) return alert("يرجى إرفاق صورة الإيصال!"); document.getElementById('submitRenewBtn').innerText = "جاري الإرسال..."; db.collection("platform_merchants").doc(storeId).update({ renewalStatus: 'pending', renewalPlan: renewPlanSelected, renewalPrice: renewPrice, renewalReceipt: renewReceiptBase64 }).then(() => { showToast("تم إرسال طلب التجديد!"); setTimeout(()=>{location.reload();}, 1500); }).catch(e => { alert("حدث خطأ"); document.getElementById('submitRenewBtn').innerText = "تأكيد التجديد"; }); }
@@ -1555,8 +1657,17 @@
                             if (mData.plan === 'trial') {
                                 let banner = document.createElement('div');
                                 banner.id = 'expiryWarningBanner';
-                                banner.style.cssText = "background: linear-gradient(to right, #fb8500, #ffb703); color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 14px; position: relative; z-index: 99; display:flex; justify-content:center; align-items:center; gap:8px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(251, 133, 0, 0.2);";
-                                banner.innerHTML = `<i class="fa-solid fa-gift" style="font-size:18px;"></i> أنت في الفترة التجريبية! متبقي ${remainingDays} يوم.`;
+                                banner.style.cssText = "background: linear-gradient(135deg, #fb8500, #ffb703); color: white; text-align: center; padding: 14px; font-weight: bold; font-size: 14px; position: relative; z-index: 99; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(251, 133, 0, 0.25);";
+                                banner.innerHTML = `
+                                    <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:10px;">
+                                        <i class="fa-solid fa-gift" style="font-size:18px;"></i>
+                                        أنت في الفترة التجريبية! متبقي ${remainingDays} يوم
+                                    </div>
+                                    <div style="font-size:15px; margin-bottom:10px;">هل تريد الاشتراك في باقة؟</div>
+                                    <button onclick="showTrialSubscribePlans()" style="background:white; color:#ea580c; border:none; padding:10px 22px; border-radius:25px; font-weight:900; font-size:14px; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.15);">
+                                        موافق — عرض الباقات
+                                    </button>
+                                `;
                                 dashHome.insertBefore(banner, dashHome.firstChild);
                             }
                         }
