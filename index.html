@@ -430,10 +430,16 @@
                         <textarea id="newProductDesc" rows="3" placeholder="تفاصيل المنتج"></textarea>
                     </div>
 
-                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; background: var(--light-bg); padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; background: var(--light-bg); padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
                         <i class="fa-solid fa-ruler-combined" style="color: var(--primary); font-size: 20px;"></i>
                         <label for="newProductIsMeter" style="margin:0; font-weight:bold; color:var(--text-dark); flex-grow: 1;">المنتج يباع بالمتر</label>
                         <input type="checkbox" id="newProductIsMeter" style="width:22px; height:22px; margin:0; cursor:pointer;">
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; background: var(--light-bg); padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+                        <i class="fa-solid fa-vector-square" style="color: var(--primary); font-size: 20px;"></i>
+                        <label for="newProductIsArea" style="margin:0; font-weight:bold; color:var(--text-dark); flex-grow: 1;">يباع بحاصل ضرب (الطول × العرض)</label>
+                        <input type="checkbox" id="newProductIsArea" style="width:22px; height:22px; margin:0; cursor:pointer;">
                     </div>
 
                     <button id="addProductBtn" onclick="addNewProduct()" class="btn-save" style="margin-bottom:0; padding:15px; font-size:18px;"><i class="fa-solid fa-plus-circle"></i> إضافة المنتج</button>
@@ -1556,12 +1562,12 @@
             const dealProduct = productsToRender.find(p => p.isDealOfDay); const regularProducts = productsToRender.filter(p => !p.isDealOfDay);
 
             if (dealProduct && dealContainer) { 
-                const priceDisplay = dealProduct.isMeter ? `${dealProduct.price} ج.م/متر` : `${dealProduct.price} ج.م`; 
-                dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">عرض خاص</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${dealProduct.name}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Cairo';" onclick="addToCart('${dealProduct.id}', '${dealProduct.name}', ${dealProduct.price}, ${dealProduct.isMeter || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button></div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
+                const priceDisplay = dealProduct.isArea ? `${dealProduct.price} ج.م/م²` : (dealProduct.isMeter ? `${dealProduct.price} ج.م/متر` : `${dealProduct.price} ج.م`); 
+                dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">عرض خاص</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${dealProduct.name}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Cairo';" onclick="addToCart('${dealProduct.id}', '${dealProduct.name}', ${dealProduct.price}, ${dealProduct.isMeter || false}, ${dealProduct.isArea || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button></div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
             }
 
             regularProducts.forEach((product) => { 
-                const priceDisplay = product.isMeter ? `${product.price} ج.م / م` : `${product.price} ج.م`; 
+                const priceDisplay = product.isArea ? `${product.price} ج.م / م²` : (product.isMeter ? `${product.price} ج.م / م` : `${product.price} ج.م`); 
                 if(gridContainer) gridContainer.innerHTML += `
                     <div class="product-card">
                         <div class="details-badge" onclick="showProductDetails('${product.id}')">التفاصيل</div>
@@ -1570,7 +1576,7 @@
                             <span class="product-cat">${product.category}</span>
                             <h3 class="product-title">${product.name}</h3>
                             <div class="product-action-row">
-                                <button class="cart-circle-btn" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, ${product.isMeter || false})"><i class="fa-solid fa-cart-shopping"></i></button>
+                                <button class="cart-circle-btn" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, ${product.isMeter || false}, ${product.isArea || false})"><i class="fa-solid fa-cart-shopping"></i></button>
                                 <div class="product-price">${priceDisplay}</div>
                             </div>
                         </div>
@@ -1633,6 +1639,7 @@
             document.getElementById('newProductCategory').value = product.category || 'الكل';
             document.getElementById('newProductDesc').value = product.description || '';
             document.getElementById('newProductIsMeter').checked = product.isMeter || false;
+            document.getElementById('newProductIsArea').checked = product.isArea || false;
             if (product.image) {
                 document.getElementById('newProductImagePreview').src = product.image;
                 document.getElementById('newProductImagePreview').style.display = 'block';
@@ -1654,6 +1661,7 @@
             document.getElementById('newProductDesc').value = '';
             document.getElementById('newProductImage').value = '';
             document.getElementById('newProductIsMeter').checked = false;
+            document.getElementById('newProductIsArea').checked = false;
             document.getElementById('newProductImagePreview').style.display = 'none';
             document.getElementById('newProductImagePreview').src = '';
             document.getElementById('cameraIcon').style.display = 'block';
@@ -1668,6 +1676,7 @@
             let category = document.getElementById('newProductCategory').value; 
             const desc = document.getElementById('newProductDesc').value; 
             const isMeter = document.getElementById('newProductIsMeter').checked; 
+            const isArea = document.getElementById('newProductIsArea').checked;
             const stock = document.getElementById('newProductStock').value;
             const imageFile = document.getElementById('newProductImage').files[0]; 
             const btn = document.getElementById('addProductBtn');
@@ -1695,6 +1704,7 @@
                         category: category, 
                         description: desc || "", 
                         isMeter: !!isMeter,
+                        isArea: !!isArea,
                         stock: stock !== "" ? Number(stock) : 0
                     };
                     if (imageData) data.image = imageData;
@@ -1784,7 +1794,7 @@
         function showProductDetails(id) {
             const product = storeProducts.find(p => p.id === id); if(!product) return;
             document.getElementById('detailsImg').src = product.image; document.getElementById('detailsName').innerText = product.name; document.getElementById('detailsPrice').innerText = product.isMeter ? `${product.price} ج.م / متر` : `${product.price} ج.م`; document.getElementById('detailsDesc').innerText = product.description || "لا توجد تفاصيل إضافية.";
-            document.getElementById('detailsAddToCart').onclick = function() { addToCart(product.id, product.name, product.price, product.isMeter || false); closeModal('productDetailsModal'); }; openModal('productDetailsModal');
+            document.getElementById('detailsAddToCart').onclick = function() { addToCart(product.id, product.name, product.price, product.isMeter || false, product.isArea || false); closeModal('productDetailsModal'); }; openModal('productDetailsModal');
         }
 
         function exportStoreProducts() { if(storeProducts.length === 0) return alert("لا توجد منتجات لحفظها."); const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storeProducts)); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", `store_backup_${currentStoreId}.json`); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); showToast("تم التحميل! 📥"); }
@@ -1809,14 +1819,23 @@
             }; reader.readAsText(file);
         }
 
-        function addToCart(id, name, price, isMeter) { 
-            let quantity = 1; 
-            if (isMeter) { 
+        function addToCart(id, name, price, isMeter, isArea) { 
+            let quantity = 1;
+            let qtyDesc = '';
+            if (isArea) {
+                let len = prompt(`أدخل الطول (متر) للمنتج "${name}":`, "1");
+                if (len === null || len.trim() === "" || isNaN(len) || Number(len) <= 0) return;
+                let wid = prompt(`أدخل العرض (متر) للمنتج "${name}":`, "1");
+                if (wid === null || wid.trim() === "" || isNaN(wid) || Number(wid) <= 0) return;
+                quantity = Number(len) * Number(wid);
+                qtyDesc = `(${len}×${wid} = ${quantity.toFixed(2)} م²)`;
+            } else if (isMeter) { 
                 let qtyInput = prompt(`كم متر تريد من "${name}"؟`, "1"); 
                 if (qtyInput === null || qtyInput.trim() === "" || isNaN(qtyInput) || Number(qtyInput) <= 0) return; 
-                quantity = Number(qtyInput); 
+                quantity = Number(qtyInput);
+                qtyDesc = `(${quantity} متر)`;
             } 
-            cart.push({ id, name, price, quantity, isMeter }); 
+            cart.push({ id, name, price, quantity, isMeter, isArea, qtyDesc }); 
             updateCartUI(); 
             showToast("تمت الإضافة للسلة!"); 
             
@@ -1825,7 +1844,6 @@
             if(cartBtn && tooltip) {
                 cartBtn.classList.add('cart-glow');
                 tooltip.classList.add('show');
-                
                 clearTimeout(window.cartGlowTimeout);
                 window.cartGlowTimeout = setTimeout(() => {
                     cartBtn.classList.remove('cart-glow');
@@ -1833,7 +1851,19 @@
                 }, 4000);
             }
         }
-        function updateCartUI() { document.getElementById('cart-count').innerText = cart.length; const cartItemsDiv = document.getElementById('cart-items'); cartItemsDiv.innerHTML = ''; total = 0; cart.forEach((item, i) => { let itemTotal = item.price * item.quantity; total += itemTotal; let qtyDesc = item.isMeter ? `(${item.quantity} متر)` : ``; cartItemsDiv.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;"><span><button onclick="cart.splice(${i},1); updateCartUI();" style="color:red; background:none; border:none; cursor:pointer; margin-left:5px;"><i class="fa-solid fa-trash"></i></button> ${item.name} <small style="color:var(--text-gray);">${qtyDesc}</small></span><strong>${itemTotal} ج.م</strong></div>`; }); document.getElementById('cart-total').innerText = total; }
+        function updateCartUI() { 
+            document.getElementById('cart-count').innerText = cart.length; 
+            const cartItemsDiv = document.getElementById('cart-items'); 
+            cartItemsDiv.innerHTML = ''; 
+            total = 0; 
+            cart.forEach((item, i) => { 
+                let itemTotal = item.price * item.quantity; 
+                total += itemTotal; 
+                let qtyDesc = item.qtyDesc || (item.isMeter ? `(${item.quantity} متر)` : ``); 
+                cartItemsDiv.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;"><span><button onclick="cart.splice(${i},1); updateCartUI();" style="color:red; background:none; border:none; cursor:pointer; margin-left:5px;"><i class="fa-solid fa-trash"></i></button> ${item.name} <small style="color:var(--text-gray);">${qtyDesc}</small></span><strong>${itemTotal.toFixed(0)} ج.م</strong></div>`; 
+            }); 
+            document.getElementById('cart-total').innerText = total.toFixed(0); 
+        }
         
         function checkout() { 
             if (cart.length === 0) return alert("العربة فارغة!"); 
@@ -2035,12 +2065,39 @@
         }
 
         function toggleSaleProduct(id) {
-            if (!saleCart[id]) saleCart[id] = 1;
-            else delete saleCart[id];
+            const p = storeProducts.find(pp => pp.id === id);
+            if (!p) return;
+            if (saleCart[id]) {
+                delete saleCart[id];
+                renderSaleProducts();
+                return;
+            }
+            if (p.isArea) {
+                let len = prompt(`أدخل الطول (متر) لـ "${p.name}":`, "1");
+                if (len === null || isNaN(len) || Number(len) <= 0) return;
+                let wid = prompt(`أدخل العرض (متر) لـ "${p.name}":`, "1");
+                if (wid === null || isNaN(wid) || Number(wid) <= 0) return;
+                saleCart[id] = Number(len) * Number(wid);
+                saleCart[id + '_desc'] = `${len}×${wid} م²`;
+            } else if (p.isMeter) {
+                let m = prompt(`كم متر من "${p.name}"؟`, "1");
+                if (m === null || isNaN(m) || Number(m) <= 0) return;
+                saleCart[id] = Number(m);
+                saleCart[id + '_desc'] = `${m} متر`;
+            } else {
+                saleCart[id] = 1;
+            }
             renderSaleProducts();
         }
 
         function changeSaleQty(id, delta) {
+            const p = storeProducts.find(pp => pp.id === id);
+            if (p && (p.isMeter || p.isArea)) {
+                // للمنتجات بالمتر أو المساحة نعيد الطلب
+                toggleSaleProduct(id);
+                if (saleCart[id]) toggleSaleProduct(id); // remove then re-add with new prompt
+                return;
+            }
             saleCart[id] = (saleCart[id] || 0) + delta;
             if (saleCart[id] <= 0) delete saleCart[id];
             renderSaleProducts();
@@ -2049,11 +2106,12 @@
         function updateSaleTotal() {
             let total = 0;
             Object.keys(saleCart).forEach(id => {
+                if (id.endsWith('_desc')) return;
                 const p = storeProducts.find(pp => pp.id === id);
                 if (p) total += p.price * saleCart[id];
             });
             const el = document.getElementById('saleRunningTotal');
-            if (el) el.innerText = total + ' ج.م';
+            if (el) el.innerText = total.toFixed(0) + ' ج.م';
         }
 
         function createSaleInvoice() {
@@ -2063,12 +2121,14 @@
             let total = 0;
             let profit = 0;
             Object.keys(saleCart).forEach(id => {
+                if (id.endsWith('_desc')) return;
                 const p = storeProducts.find(pp => pp.id === id);
                 const qty = saleCart[id];
                 if (p && qty > 0) {
                     const itemTotal = p.price * qty;
                     const itemProfit = ((p.price || 0) - (p.cost || 0)) * qty;
-                    items.push({ id: p.id, name: p.name, price: p.price, cost: p.cost || 0, qty, total: itemTotal, profit: itemProfit });
+                    const desc = saleCart[id + '_desc'] || (p.isMeter ? qty + ' متر' : (p.isArea ? qty + ' م²' : ''));
+                    items.push({ id: p.id, name: p.name, price: p.price, cost: p.cost || 0, qty, total: itemTotal, profit: itemProfit, desc });
                     total += itemTotal;
                     profit += itemProfit;
                 }
@@ -2095,7 +2155,7 @@
                     <div id="invoiceToDownload" style="background:white; padding:20px; border-radius:12px;">
                         <h3 style="text-align:center; margin-bottom:5px; color:var(--primary);">${storeData.name || 'المتجر'}</h3>
                         <p style="text-align:center; font-size:13px; color:#666; margin-bottom:15px;">فاتورة للعميل: <strong>${customer}</strong></p>
-                        ${items.map(i => `<div style="display:flex;justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f0f0;"><span>${i.name} × ${i.qty}</span><span>${i.total} ج</span></div>`).join('')}
+                        ${items.map(i => `<div style="display:flex;justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f0f0;"><span>${i.name} ${i.desc ? '('+i.desc+')' : '× '+i.qty}</span><span>${i.total.toFixed(0)} ج</span></div>`).join('')}
                         <div style="margin-top:12px;">
                             <div style="display:flex;justify-content:space-between; font-weight:bold; font-size:16px;"><span>الإجمالي</span><span>${total} ج.م</span></div>
                             <div style="display:flex;justify-content:space-between;"><span>المدفوع</span><span>${paid} ج.م</span></div>
