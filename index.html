@@ -295,21 +295,57 @@
                     <button onclick="goBackToStep1()" style="background:var(--light-bg); color:var(--text-dark); border:1px solid var(--border-color); width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-top: 10px;">رجوع</button>
                 </div>
 
-                <div id="authStep3" style="display:none; text-align:right;">
-                    <h2 style="text-align:center; color:var(--primary);">إتمام الدفع 💳</h2>
-                    <p style="text-align:center; margin-bottom:15px;">المبلغ المطلوب: <strong id="selectedPlanPrice" style="color:var(--primary); font-size:22px;">0 ج.م</strong></p>
-                    <div class="payment-number-box">
-                        <span class="payment-amount">حوّل على الرقم ده</span>
-                        <div class="payment-number" onclick="navigator.clipboard.writeText(document.getElementById('payNumberTxt').innerText); showToast('تم نسخ الرقم');">
-                            <span id="payNumberTxt">01000000000</span>
-                            <i class="fa-solid fa-copy"></i>
+                <div id="authStep3" style="display:none; text-align:center; padding:10px 0;">
+                    <div style="width:56px; height:56px; background:linear-gradient(135deg,#7c3aed,#a78bfa); border-radius:50%; margin:0 auto 12px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fa-solid fa-credit-card" style="color:white; font-size:22px;"></i>
+                    </div>
+                    <h2 style="font-family:'Changa',sans-serif; color:#5b21b6; font-size:28px; margin-bottom:6px;">✨ إتمام الدفع ✨</h2>
+                    <p style="color:#64748b; font-size:14px; margin-bottom:18px;">لإتمام طلبك، يرجى تحويل المبلغ المطلوب</p>
+
+                    <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:16px; padding:16px 20px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:#64748b; font-weight:600;">المبلغ المطلوب:</span>
+                        <span style="font-size:28px; font-weight:900; color:#f97316;"><span id="selectedPlanPrice">60</span> <span style="font-size:16px; color:#5b21b6;">ج.م</span></span>
+                    </div>
+
+                    <div style="margin-bottom:8px; color:#64748b; font-weight:700; font-size:14px;">— حوّل عن طريق —</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px;">
+                        <div style="background:white; border:1.5px solid #e2e8f0; border-radius:14px; padding:16px 10px;">
+                            <div style="font-weight:900; font-size:18px; color:#5b21b6; margin-bottom:10px; letter-spacing:1px;">INSTA<span style="color:#7c3aed;">PAY</span></div>
+                            <div style="background:#5b21b6; color:white; padding:8px 12px; border-radius:20px; font-size:13px; font-weight:700;">إنستا باي</div>
+                        </div>
+                        <div style="background:white; border:1.5px solid #fdba74; border-radius:14px; padding:16px 10px;">
+                            <div style="font-size:32px; margin-bottom:6px;">💼</div>
+                            <div style="background:linear-gradient(135deg,#f97316,#fb923c); color:white; padding:8px 12px; border-radius:20px; font-size:13px; font-weight:700;">محفظة إلكترونية</div>
                         </div>
                     </div>
-                    <label style="font-weight:bold; display:block; margin-bottom:8px;">أرفق صورة الإيصال:</label>
-                    <input type="file" id="receiptInput" accept="image/*" onchange="handleReceiptUpload(event)" style="margin-bottom:10px; width:100%;">
+
+                    <p style="color:#64748b; font-size:14px; margin-bottom:8px;">على رقم الهاتف التالي:</p>
+                    <div onclick="navigator.clipboard.writeText('01285957035'); showToast('تم نسخ الرقم ✅');" style="background:#5b21b6; color:white; border-radius:16px; padding:14px 18px; font-size:22px; font-weight:900; letter-spacing:2px; cursor:pointer; margin-bottom:18px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                        <i class="fa-solid fa-phone"></i>
+                        <span id="payNumberTxt">01285957035</span>
+                        <i class="fa-regular fa-copy" style="font-size:16px; opacity:0.8;"></i>
+                    </div>
+
+                    <div style="background:#f5f3ff; border:1.5px dashed #c4b5fd; border-radius:14px; padding:14px; margin-bottom:16px; text-align:right;">
+                        <div style="display:flex; gap:10px; align-items:flex-start;">
+                            <i class="fa-solid fa-mobile-screen-button" style="color:#7c3aed; font-size:22px; margin-top:2px;"></i>
+                            <div>
+                                <strong style="color:#5b21b6;">بعد التحويل</strong>
+                                <p style="color:#64748b; font-size:13px; margin:4px 0 0;">يرجى إرسال صورة الإيصال لتأكيد طلبك<br>وشكراً لتعامللك معنا 💜</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label style="font-weight:bold; display:block; margin-bottom:8px; text-align:right; color:#5b21b6;">أرفق صورة الإيصال:</label>
+                    <input type="file" id="receiptInput" accept="image/*" onchange="handleReceiptUpload(event)" style="margin-bottom:10px; width:100%; padding:10px; border:1.5px solid #e2e8f0; border-radius:10px;">
                     <img id="receiptImagePreview" class="receipt-preview" src="">
-                    <button onclick="submitPaidSubscription()" class="main-btn" style="margin-top:10px;">تأكيد واشتراك 🚀</button>
-                    <button onclick="cancelPayment()" style="background:var(--light-bg); color:var(--text-dark); border:1px solid var(--border-color); width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">رجوع</button>
+
+                    <button onclick="submitPaidSubscription()" class="main-btn" style="margin-top:8px; background:linear-gradient(135deg,#5b21b6,#7c3aed); box-shadow:0 6px 20px rgba(91,33,182,0.35);">تأكيد الاشتراك 🚀</button>
+                    <button onclick="cancelPayment()" style="background:#f1f5f9; color:#475569; border:none; width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">رجوع</button>
+
+                    <div style="margin-top:20px; background:linear-gradient(135deg,#5b21b6,#7c3aed); color:white; border-radius:14px; padding:14px; font-size:13px;">
+                        💛 نشكرك لاختيار متجرنا<br>تسوق آمن وتجربة ممتعة
+                    </div>
                 </div>
 
                 <div id="authStep4" style="display:none; text-align:center; padding:30px 10px;">
@@ -1178,11 +1214,9 @@
             tempCategory = document.getElementById('newStoreCategory').value; 
             selectedPlan = planId; 
             selectedPrice = price; 
-            document.getElementById('selectedPlanPrice').innerText = price + " ج.م"; 
-            // رقم التحويل من إعدادات المنصة إن وجد
-            const platNum = document.getElementById('platPhone')?.value || document.getElementById('platWhatsapp')?.value || '';
+            document.getElementById('selectedPlanPrice').innerText = price;
             if (document.getElementById('payNumberTxt')) {
-                document.getElementById('payNumberTxt').innerText = platNum ? ('0' + platNum.replace(/^20/,'').replace(/^0/,'')) : '01285957035';
+                document.getElementById('payNumberTxt').innerText = '01285957035';
             }
             document.getElementById('authStep2').style.display = 'none'; 
             document.getElementById('authStep3').style.display = 'block'; 
