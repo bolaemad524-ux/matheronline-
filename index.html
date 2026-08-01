@@ -2090,14 +2090,16 @@
             list.style.gap = '10px';
             storeProducts.forEach(p => {
                 const qty = saleCart[p.id] || 0;
+                const desc = saleCart[p.id + '_desc'] || '';
+                const unitLabel = p.isArea ? 'م²' : (p.isMeter ? 'م' : '');
                 list.innerHTML += `
                     <div onclick="toggleSaleProduct('${p.id}')" style="background:white; border:2px solid ${qty>0 ? 'var(--primary)' : '#eee'}; border-radius:12px; padding:10px; text-align:center; cursor:pointer;">
                         <img src="${p.image || ''}" style="width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:6px;">
                         <div style="font-size:13px; font-weight:700; margin-bottom:4px;">${p.name}</div>
-                        <div style="font-size:14px; color:var(--primary); font-weight:800;">${p.price} ج</div>
+                        <div style="font-size:14px; color:var(--primary); font-weight:800;">${p.price} ج${unitLabel ? '/'+unitLabel : ''}</div>
                         ${qty > 0 ? `<div style="margin-top:8px; display:flex; justify-content:center; align-items:center; gap:10px;">
                             <button onclick="event.stopPropagation(); changeSaleQty('${p.id}', -1)" style="width:28px;height:28px;border-radius:50%;border:none;background:#ef4444;color:white;font-weight:bold;">-</button>
-                            <span style="font-weight:800; min-width:20px;">${qty}</span>
+                            <span style="font-weight:800; min-width:20px; font-size:12px;">${desc || qty}</span>
                             <button onclick="event.stopPropagation(); changeSaleQty('${p.id}', 1)" style="width:28px;height:28px;border-radius:50%;border:none;background:#22c55e;color:white;font-weight:bold;">+</button>
                         </div>` : ''}
                     </div>`;
@@ -2110,6 +2112,7 @@
             if (!p) return;
             if (saleCart[id]) {
                 delete saleCart[id];
+                delete saleCart[id + '_desc'];
                 renderSaleProducts();
                 return;
             }
@@ -2134,13 +2137,22 @@
         function changeSaleQty(id, delta) {
             const p = storeProducts.find(pp => pp.id === id);
             if (p && (p.isMeter || p.isArea)) {
-                // للمنتجات بالمتر أو المساحة نعيد الطلب
+                if (delta < 0) {
+                    delete saleCart[id];
+                    delete saleCart[id + '_desc'];
+                    renderSaleProducts();
+                    return;
+                }
+                delete saleCart[id];
+                delete saleCart[id + '_desc'];
                 toggleSaleProduct(id);
-                if (saleCart[id]) toggleSaleProduct(id); // remove then re-add with new prompt
                 return;
             }
             saleCart[id] = (saleCart[id] || 0) + delta;
-            if (saleCart[id] <= 0) delete saleCart[id];
+            if (saleCart[id] <= 0) {
+                delete saleCart[id];
+                delete saleCart[id + '_desc'];
+            }
             renderSaleProducts();
         }
 
