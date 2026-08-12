@@ -1141,6 +1141,105 @@
             return map[type] || ['الكل'];
         }
 
+        // منتجات تجريبية حسب نوع المتجر (صور من Unsplash)
+        function getSampleProducts(type) {
+            const samples = {
+                electronics: [
+                    { name: 'كابل كهرباء 2.5 مم', price: 85, category: 'أسلاك وكابلات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=400&fit=crop', stock: 50 },
+                    { name: 'مفتاح كهرباء مزدوج', price: 45, category: 'مفاتيح وفيش', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1558002038-1091a25e644d?w=400&h=400&fit=crop', stock: 30 },
+                    { name: 'لمبة LED 12 وات', price: 35, category: 'إنارة وإضاءة', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1565814636199-ae8133055c1c?w=400&h=400&fit=crop', stock: 100 },
+                    { name: 'فيش حائط 3 فتحات', price: 25, category: 'مفاتيح وفيش', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=400&fit=crop', stock: 40 }
+                ],
+                clothing: [
+                    { name: 'تيشيرت قطن رجالي', price: 180, category: 'رجالي', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop', stock: 25 },
+                    { name: 'فستان صيفي حريمي', price: 350, category: 'حريمي', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop', stock: 15 },
+                    { name: 'بنطلون جينز أطفال', price: 220, category: 'أطفال', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=400&h=400&fit=crop', stock: 20 },
+                    { name: 'جاكيت شتوي', price: 450, category: 'منتجات جديدة', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop', stock: 10 }
+                ],
+                fishing: [
+                    { name: 'ماكينة صيد احترافية', price: 850, category: 'ماكينات صيد', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=400&fit=crop', stock: 8 },
+                    { name: 'خيط صيد 100 متر', price: 65, category: 'خيوط وأدوات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1498654200943-275ca7078888?w=400&h=400&fit=crop', stock: 40 },
+                    { name: 'طعم صيد طبيعي', price: 40, category: 'طعوم صيد', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=400&fit=crop', stock: 60 },
+                    { name: 'سنارة تلسكوبية', price: 280, category: 'إكسسوارات صيد', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=400&fit=crop', stock: 12 }
+                ],
+                restaurant: [
+                    { name: 'سندوتش دجاج مشوي', price: 55, category: 'سندوتشات دجاج', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&h=400&fit=crop', stock: 50 },
+                    { name: 'برجر لحم أنجوس', price: 75, category: 'سندوتشات لحوم', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop', stock: 40 },
+                    { name: 'سندوتش جبنة وخضار', price: 40, category: 'سندوتشات خضار', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?w=400&h=400&fit=crop', stock: 30 },
+                    { name: 'عصير برتقال طازج', price: 25, category: 'مشروبات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=400&fit=crop', stock: 80 }
+                ],
+                supermarket: [
+                    { name: 'أرز بسمتي 5 كيلو', price: 120, category: 'منتجات البقالة', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=400&fit=crop', stock: 40 },
+                    { name: 'زيت عباد الشمس 1 لتر', price: 65, category: 'أطعمة ومشروبات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1474979266404-7ea320fa32dd?w=400&h=400&fit=crop', stock: 60 },
+                    { name: 'طماطم طازة كيلو', price: 18, category: 'خضروات وفواكه', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1546470427-e26264be0d15?w=400&h=400&fit=crop', stock: 100 },
+                    { name: 'منظف أرضيات', price: 45, category: 'منظفات وأدوات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400&h=400&fit=crop', stock: 35 }
+                ],
+                autoparts: [
+                    { name: 'فلتر زيت أصلي', price: 95, category: 'زيوت وإضافات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=400&fit=crop', stock: 25 },
+                    { name: 'تيل فرامل أمامي', price: 320, category: 'فرامل وإطارات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&h=400&fit=crop', stock: 15 },
+                    { name: 'شمعة احتراق', price: 55, category: 'محركات وأجزاء', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=400&h=400&fit=crop', stock: 40 },
+                    { name: 'زيت محرك 5W-30', price: 280, category: 'زيوت وإضافات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1635784063404-5c8e7e7c0c0a?w=400&h=400&fit=crop', stock: 20 }
+                ],
+                pharmacy: [
+                    { name: 'فيتامين سي 1000', price: 85, category: 'فيتامينات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop', stock: 50 },
+                    { name: 'كريم مرطب للبشرة', price: 120, category: 'مستحضرات تجميل', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop', stock: 30 },
+                    { name: 'مسكن آلام', price: 35, category: 'أدوية', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400&h=400&fit=crop', stock: 80 },
+                    { name: 'كمامات طبية علبة', price: 40, category: 'مستلزمات طبية', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1584634731339-252c581abfc7?w=400&h=400&fit=crop', stock: 100 }
+                ],
+                gifts: [
+                    { name: 'ميدالية مخصصة', price: 75, category: 'ميداليات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=400&h=400&fit=crop', stock: 30 },
+                    { name: 'كوب سيراميك مطبوع', price: 95, category: 'أكواب', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1514228742587-6b1554070342?w=400&h=400&fit=crop', stock: 25 },
+                    { name: 'باقة هدايا صغيرة', price: 180, category: 'هدايا وإكسسوارات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&h=400&fit=crop', stock: 15 },
+                    { name: 'إطار صور خشبي', price: 110, category: 'هدايا وإكسسوارات', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=400&h=400&fit=crop', stock: 20 }
+                ],
+                gold: [
+                    { name: 'خاتم ذهب عيار 21', price: 4500, category: 'خواتم', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop', stock: 5, isByGram: true, grams: 4 },
+                    { name: 'أسورة ذهب عيار 18', price: 8200, category: 'أساور', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop', stock: 3, isByGram: true, grams: 12 },
+                    { name: 'سلسلة ذهب عيار 21', price: 12000, category: 'سلاسل', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop', stock: 4, isByGram: true, grams: 18 },
+                    { name: 'حلقان ذهب', price: 2800, category: 'حلقان', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=400&fit=crop', stock: 8, isByGram: true, grams: 2.5 }
+                ],
+                silver: [
+                    { name: 'خاتم فضة نقية', price: 280, category: 'خواتم', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop', stock: 15, isByGram: true, grams: 8 },
+                    { name: 'أسورة فضة', price: 450, category: 'أساور', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop', stock: 10, isByGram: true, grams: 15 },
+                    { name: 'سلسلة فضة', price: 380, category: 'سلاسل', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop', stock: 12, isByGram: true, grams: 12 },
+                    { name: 'حلقان فضة', price: 180, category: 'حلقان', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=400&fit=crop', stock: 20, isByGram: true, grams: 4 }
+                ],
+                general: [
+                    { name: 'منتج تجريبي 1', price: 100, category: 'الكل', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop', stock: 20 },
+                    { name: 'منتج تجريبي 2', price: 150, category: 'الكل', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop', stock: 15 },
+                    { name: 'منتج تجريبي 3', price: 80, category: 'الكل', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop', stock: 25 },
+                    { name: 'منتج تجريبي 4', price: 200, category: 'الكل', description: 'منتج تجريبي — عدّل أو احذف', image: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400&h=400&fit=crop', stock: 10 }
+                ]
+            };
+            return samples[type] || samples.general;
+        }
+
+        function seedSampleProducts(storeId, storeType) {
+            const items = getSampleProducts(storeType || 'general');
+            const batch = db.batch();
+            const col = db.collection('stores').doc(storeId).collection('products');
+            items.forEach((p, i) => {
+                const ref = col.doc();
+                batch.set(ref, {
+                    name: p.name,
+                    price: p.price,
+                    cost: Math.round(p.price * 0.7),
+                    category: p.category || 'الكل',
+                    description: p.description || 'منتج تجريبي — عدّل أو احذف',
+                    image: p.image,
+                    stock: p.stock != null ? p.stock : 10,
+                    isMeter: false,
+                    isArea: false,
+                    isByGram: !!p.isByGram,
+                    grams: p.grams || 0,
+                    isDealOfDay: i === 0,
+                    sortOrder: Date.now() + i,
+                    isSample: true
+                });
+            });
+            return batch.commit();
+        }
+
         function copyPaymentNumber() {
             const number = document.getElementById('thePaymentNumber').innerText;
             navigator.clipboard.writeText(number).then(() => {
@@ -1304,9 +1403,10 @@
                     return db.collection("stores").doc(storeId).set({
                         name: "متجر جديد", address: "وصف المتجر", phone: tempPhone, facebook: "", instagram: "", logo: null, categories: getDefaultCategories(tempCategory), storeType: tempCategory, visitors: 0, ordersCount: 0, dailyVisits: {}
                     });
-                }).then(() => {
+                }).then(() => seedSampleProducts(storeId, tempCategory))
+                .then(() => {
                     sessionStorage.setItem('loggedStoreId', storeId);
-                    showToast("تم إنشاء المتجر بنجاح! 🎉");
+                    showToast("تم إنشاء المتجر بمنتجات تجريبية! 🎉");
                     setTimeout(() => { window.location.href = window.location.pathname + "?store=" + storeId; }, 1000);
                 }).catch(err => {
                     alert("حدث خطأ في إنشاء المتجر."); btn.innerText = "ابدأ تجربتك المجانية (3 أيام) 🚀"; btn.disabled = false;
@@ -1399,7 +1499,7 @@
         function createManualStore() {
             const name = document.getElementById('manualStoreName').value; const rawP = document.getElementById('manualStorePhone').value.trim(); const pass = document.getElementById('manualStorePass').value; const type = document.getElementById('manualStoreCategory').value;
             if(!name || !rawP || !pass) return alert("أكمل البيانات"); const phone = "20" + rawP; const storeId = generateShortId(); let expiry = getExpiryTimestamp('1_month');
-            db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: getDefaultCategories(type), storeType: type, visitors: 0, ordersCount: 0 }).then(() => { alert("تم الإنشاء!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }); });
+            db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, password: pass, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() }).then(() => { return db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: getDefaultCategories(type), storeType: type, visitors: 0, ordersCount: 0 }); }).then(() => seedSampleProducts(storeId, type)).then(() => { alert("تم الإنشاء بمنتجات تجريبية!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); });
         }
 
         function viewAdminReceipt(imgBase64) { document.getElementById('adminReceiptDisplay').src = imgBase64; openModal('adminReceiptModal'); }
@@ -1446,7 +1546,7 @@
                 if(!hasP) pList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا توجد طلبات جديدة.</p>'; if(!hasA) aList.innerHTML = '<p style="color:var(--text-gray); text-align:center;">لا يوجد تجار حالياً.</p>';
             });
         }
-        function approveMerchant(merchantId, merchantPhone, storeType, plan) { if(confirm("تفعيل المتجر؟")) { let expiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ status: 'active', expiryDate: expiry }).then(() => { db.collection("stores").doc(merchantId).set({ name: "متجر جديد", address: "وصف المتجر", phone: merchantPhone, facebook: "", instagram: "", logo: null, categories: getDefaultCategories(storeType || 'general'), storeType: storeType || 'general', visitors: 0, ordersCount: 0 }).then(() => showToast("تم التفعيل 🎉")); }); } }
+        function approveMerchant(merchantId, merchantPhone, storeType, plan) { if(confirm("تفعيل المتجر؟")) { let expiry = getExpiryTimestamp(plan); const st = storeType || 'general'; db.collection("platform_merchants").doc(merchantId).update({ status: 'active', expiryDate: expiry }).then(() => { return db.collection("stores").doc(merchantId).set({ name: "متجر جديد", address: "وصف المتجر", phone: merchantPhone, facebook: "", instagram: "", logo: null, categories: getDefaultCategories(st), storeType: st, visitors: 0, ordersCount: 0 }); }).then(() => seedSampleProducts(merchantId, st)).then(() => showToast("تم التفعيل بمنتجات تجريبية 🎉")); } }
         function approveRenewal(merchantId, plan) { if(confirm("تأكيد التجديد وتفعيل المتجر؟")) { let newExpiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ expiryDate: newExpiry, plan: plan, status: 'active', renewalStatus: firebase.firestore.FieldValue.delete(), renewalPlan: firebase.firestore.FieldValue.delete(), renewalPrice: firebase.firestore.FieldValue.delete(), renewalReceipt: firebase.firestore.FieldValue.delete() }).then(() => { showToast("تم تجديد الباقة بنجاح 🎉"); }); } }
         function toggleStoreStatus(id, newStatus) { if(confirm(newStatus === 'active' ? "تأكيد تفعيل المتجر مرة أخرى؟" : "تأكيد إيقاف المتجر عن العمل؟")) { db.collection("platform_merchants").doc(id).update({ status: newStatus }).then(() => showToast("تم تحديث حالة المتجر!")); } }
         function renewStoreTime(id) { let days = prompt("أدخل عدد الأيام لتجديد الباقة (مثلاً 30 لشهر):", "30"); if(days && !isNaN(days) && parseInt(days) > 0) { db.collection("platform_merchants").doc(id).get().then(docSnap => { let currentExpiry = docSnap.data().expiryDate || Date.now(); if(currentExpiry < Date.now()) currentExpiry = Date.now(); let newExpiry = currentExpiry + (parseInt(days) * 24 * 60 * 60 * 1000); db.collection("platform_merchants").doc(id).update({ expiryDate: newExpiry, status: 'active' }).then(() => showToast("تم تجديد الباقة بنجاح! ⏱️")); }); } }
