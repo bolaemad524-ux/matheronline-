@@ -756,6 +756,9 @@
                         <i class="fa-regular fa-credit-card" style="color:#60a5fa;"></i>
                     </div>
                 </div>
+                <button onclick="startNewSale()" style="width:100%; background:white; color:#2563eb; border:1.5px dashed #93c5fd; padding:13px; border-radius:14px; font-weight:800; cursor:pointer; font-family:'Cairo'; font-size:15px; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px;">
+                    <i class="fa-solid fa-plus"></i> عملية بيع جديدة
+                </button>
                 <div id="saleInvoicePreview" style="display:none; background:#f8f9fa; padding:15px; border-radius:12px; border:1px solid #ddd;"></div>
             </div>
 
@@ -2841,6 +2844,19 @@
             if (viewId === 'dash-orders') loadOrders(false);
         };
 
+        function startNewSale() {
+            saleCart = {};
+            const nameEl = document.getElementById('saleCustomerName');
+            const paidEl = document.getElementById('salePaidAmount');
+            const preview = document.getElementById('saleInvoicePreview');
+            if (nameEl) nameEl.value = '';
+            if (paidEl) paidEl.value = '';
+            if (preview) { preview.style.display = 'none'; preview.innerHTML = ''; }
+            renderSaleProducts();
+            showToast("عملية بيع جديدة جاهزة");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function renderSaleProducts() {
             const list = document.getElementById('saleProductsList');
             if (!list) return;
@@ -3019,7 +3035,13 @@
             }
         }
 
+        let lastOrdersOnlyRemaining = false;
         function loadOrders(onlyRemaining) {
+            lastOrdersOnlyRemaining = !!onlyRemaining;
+            const allBtn = document.getElementById('ordersAllBtn');
+            const remBtn = document.getElementById('ordersRemainingBtn');
+            if (allBtn) allBtn.classList.toggle('active', !onlyRemaining);
+            if (remBtn) remBtn.classList.toggle('active', !!onlyRemaining);
             const list = document.getElementById('ordersList');
             if (!list) return;
             list.innerHTML = '<p style="text-align:center;">جاري التحميل...</p>';
@@ -3030,17 +3052,45 @@
                     const o = doc.data();
                     if (onlyRemaining && (!o.remaining || o.remaining <= 0)) return;
                     has = true;
+                    const payBtn = (o.remaining > 0) ? `<button onclick="markOrderPaidFull('${doc.id}', ${Number(o.total)||0})" style="margin-top:8px; width:100%; background:#22c55e; color:white; border:none; padding:8px 10px; border-radius:8px; font-weight:800; cursor:pointer; font-family:'Cairo'; font-size:13px;"><i class="fa-solid fa-circle-check"></i> تم دفع المبلغ بالكامل</button>` : '';
+                    const items = Array.isArray(o.items) ? o.items : [];
+                    const itemsHtml = items.length ? items.map(i => {
+                        const qtyTxt = i.desc ? i.desc : ('× ' + (i.qty || 1));
+                        const lineTotal = (i.total != null ? i.total : ((i.price || 0) * (i.qty || 1)));
+                        return `<div style="display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px dashed #eee; font-size:13px;">
+                            <span style="font-weight:700; color:#1e293b;">${i.name || 'صنف'} <small style="color:#64748b; font-weight:600;">(${qtyTxt})</small></span>
+                            <span style="font-weight:800; color:#2563eb; white-space:nowrap;">${Number(lineTotal).toFixed(0)} ج</span>
+                        </div>`;
+                    }).join('') : '<div style="font-size:13px; color:#94a3b8;">لا توجد تفاصيل أصناف</div>';
                     list.innerHTML += `
                         <div class="dash-card" style="border-right:4px solid ${o.remaining > 0 ? '#ef4444' : '#22c55e'};">
-                            <strong>${o.customer}</strong>
+                            <strong>${o.customer || 'عميل'}</strong>
+                            <div style="background:#f8fafc; border-radius:10px; padding:8px 10px; margin:8px 0;">
+                                <div style="font-size:12px; color:#64748b; font-weight:800; margin-bottom:4px;">الأصناف في الفاتورة</div>
+                                ${itemsHtml}
+                            </div>
                             <div style="font-size:13px; color:var(--text-gray); margin:6px 0;">
-                                الإجمالي: ${o.total} | مدفوع: ${o.paid} | باقي: <span style="color:${o.remaining>0?'#ef4444':'#22c55e'}; font-weight:bold;">${o.remaining || 0}</span>
+                                الإجمالي: <b>${o.total || 0}</b> | مدفوع: <b>${o.paid || 0}</b> | باقي: <span style="color:${o.remaining>0?'#ef4444':'#22c55e'}; font-weight:bold;">${o.remaining || 0}</span>
                             </div>
                             <small>${new Date(o.date).toLocaleString('ar-EG')}</small>
+                            ${payBtn}
                         </div>`;
                 });
                 if (!has) list.innerHTML = '<p style="text-align:center; color:var(--text-gray);">لا توجد طلبات</p>';
             });
+        }
+
+        function markOrderPaidFull(orderId, total) {
+            if (!confirm("تأكيد استلام باقي المبلغ بالكامل؟")) return;
+            db.collection("stores").doc(currentStoreId).collection("orders").doc(orderId).update({
+                paid: Number(total) || 0,
+                remaining: 0,
+                status: 'paid',
+                paidFullAt: Date.now()
+            }).then(() => {
+                showToast("تم تسجيل السداد بالكامل ✅");
+                loadOrders(lastOrdersOnlyRemaining);
+            }).catch(e => alert("خطأ: " + (e.message || e)));
         }
 
         // ===== المساعد الذكي =====
