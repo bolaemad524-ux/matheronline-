@@ -688,7 +688,7 @@
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
                     <button onclick="switchDashView('dash-sales', null)" class="dash-card" style="text-align:center; padding:20px; cursor:pointer; border:2px solid var(--primary);">
                         <i class="fa-solid fa-cash-register" style="font-size:28px; color:var(--primary); margin-bottom:8px;"></i>
-                        <div style="font-weight:800; color:var(--text-dark);">البيع</div>
+                        <div style="font-weight:800; color:var(--text-dark);">وضع الكاشير</div>
                     </button>
                     <button onclick="switchDashView('dash-orders', null)" class="dash-card" style="text-align:center; padding:20px; cursor:pointer; border:2px solid #25D366;">
                         <i class="fa-solid fa-receipt" style="font-size:28px; color:#25D366; margin-bottom:8px;"></i>
@@ -715,22 +715,48 @@
                 <button onclick="merchantLogout()" style="background:#e63946; color:white; border:none; padding:15px; width:100%; border-radius:10px; font-weight:bold; cursor:pointer; font-size:16px; margin-top:10px;"><i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج</button>
             </div>
 
-            <!-- قسم البيع -->
+            <!-- وضع الكاشير -->
             <div id="dash-sales" class="dash-view">
-                <h3 style="margin-bottom:15px; color:var(--text-dark);"><i class="fa-solid fa-cash-register"></i> البيع وإنشاء فاتورة</h3>
-                <div class="dash-card">
-                    <input type="text" id="saleCustomerName" placeholder="اسم العميل" style="margin-bottom:12px;">
-                    <div id="saleProductsList" style="max-height:280px; overflow-y:auto; margin-bottom:15px;"></div>
-                    <div style="background:#f0f6ff; padding:12px; border-radius:10px; margin-bottom:12px; text-align:center;">
-                        <span style="color:var(--text-gray); font-size:13px;">الإجمالي الحالي:</span>
-                        <strong id="saleRunningTotal" style="font-size:20px; color:var(--primary); margin-right:8px;">0 ج.م</strong>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+                    <div onclick="document.getElementById('saleInvoicePreview').scrollIntoView({behavior:'smooth'})" style="position:relative; width:48px; height:48px; background:white; border-radius:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(13,110,253,0.12); cursor:pointer;">
+                        <i class="fa-solid fa-cart-shopping" style="color:#2563eb; font-size:20px;"></i>
+                        <span id="saleCartBadge" style="display:none; position:absolute; top:-6px; left:-6px; background:#2563eb; color:white; width:20px; height:20px; border-radius:50%; font-size:11px; font-weight:800; align-items:center; justify-content:center;">0</span>
                     </div>
-                    <div style="display:flex; gap:10px; margin-bottom:12px;">
-                        <input type="number" id="salePaidAmount" placeholder="المبلغ المدفوع" style="flex:1;">
-                        <button onclick="createSaleInvoice()" class="btn-save" style="width:auto; padding:12px 20px; margin:0;">إنشاء فاتورة</button>
+                    <div style="text-align:right;">
+                        <h3 style="margin:0; color:#1e293b; font-size:20px; display:flex; align-items:center; justify-content:flex-end; gap:8px;">
+                            وضع الكاشير وإنشاء فاتورة
+                            <i class="fa-solid fa-file-invoice" style="color:#2563eb;"></i>
+                        </h3>
+                        <p style="margin:4px 0 0; color:#94a3b8; font-size:13px;">اختر المنتج الذي ترغب في بيعه</p>
                     </div>
-                    <div id="saleInvoicePreview" style="display:none; background:#f8f9fa; padding:15px; border-radius:12px; border:1px solid #ddd;"></div>
                 </div>
+
+                <div style="background:white; border-radius:18px; padding:12px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:14px;">
+                    <i class="fa-solid fa-magnifying-glass" style="color:#94a3b8;"></i>
+                    <input type="text" id="saleCustomerName" placeholder="اسم العميل (اختياري)" style="flex:1; border:none; background:transparent; margin:0; padding:8px 0; font-size:14px; outline:none;">
+                    <i class="fa-regular fa-user" style="color:#cbd5e1; font-size:18px;"></i>
+                </div>
+
+                <div id="saleProductsList" style="max-height:46vh; overflow-y:auto; margin-bottom:12px;"></div>
+
+                <div style="background:linear-gradient(90deg,#eff6ff,#dbeafe); border-radius:18px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong id="saleRunningTotal" style="font-size:26px; color:#1d4ed8; font-weight:900;">0.00 ج</strong>
+                    <div style="display:flex; align-items:center; gap:8px; color:#334155; font-weight:800;">
+                        الإجمالي الحالي
+                        <span style="width:32px; height:32px; background:white; border-radius:10px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-file-lines" style="color:#2563eb;"></i></span>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-bottom:12px;">
+                    <button onclick="createSaleInvoice()" style="flex:1.2; background:#2563eb; color:white; border:none; padding:14px 10px; border-radius:14px; font-weight:800; cursor:pointer; font-family:'Cairo'; font-size:15px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        إنشاء فاتورة <i class="fa-solid fa-file-invoice"></i>
+                    </button>
+                    <div style="flex:1; background:white; border:1.5px solid #bfdbfe; border-radius:14px; display:flex; align-items:center; padding:0 10px;">
+                        <input type="number" id="salePaidAmount" placeholder="المبلغ المدفوع" style="flex:1; border:none; background:transparent; margin:0; padding:12px 4px; font-size:14px; font-weight:700; outline:none;">
+                        <i class="fa-regular fa-credit-card" style="color:#60a5fa;"></i>
+                    </div>
+                </div>
+                <div id="saleInvoicePreview" style="display:none; background:#f8f9fa; padding:15px; border-radius:12px; border:1px solid #ddd;"></div>
             </div>
 
             <!-- قسم الطلبات -->
@@ -2831,14 +2857,19 @@
                 const desc = saleCart[p.id + '_desc'] || '';
                 const unitLabel = p.isArea ? 'م²' : (p.isMeter ? 'م' : '');
                 list.innerHTML += `
-                    <div onclick="toggleSaleProduct('${p.id}')" style="background:white; border:2px solid ${qty>0 ? 'var(--primary)' : '#eee'}; border-radius:12px; padding:10px; text-align:center; cursor:pointer;">
-                        <img src="${p.image || ''}" style="width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:6px;">
-                        <div style="font-size:13px; font-weight:700; margin-bottom:4px;">${p.name}</div>
-                        <div style="font-size:14px; color:var(--primary); font-weight:800;">${p.price} ج${unitLabel ? '/'+unitLabel : ''}</div>
+                    <div style="background:white; border-radius:18px; padding:10px; box-shadow:0 4px 14px rgba(15,23,42,0.06); ${qty>0 ? 'outline:2px solid #2563eb;' : ''}">
+                        <img src="${p.image || ''}" onclick="toggleSaleProduct('${p.id}')" style="width:100%; height:110px; object-fit:cover; border-radius:14px; margin-bottom:8px; cursor:pointer;">
+                        <div style="font-size:14px; font-weight:800; color:#1e293b; margin-bottom:8px; text-align:right;">${p.name}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <button onclick="toggleSaleProduct('${p.id}')" style="width:34px;height:34px;border-radius:50%;border:1.5px solid #bfdbfe;background:#eff6ff;color:#2563eb;cursor:pointer;">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                            </button>
+                            <div style="font-size:16px; color:#2563eb; font-weight:900;">${p.price} ج${unitLabel ? '/'+unitLabel : ''}</div>
+                        </div>
                         ${qty > 0 ? `<div style="margin-top:8px; display:flex; justify-content:center; align-items:center; gap:10px;">
-                            <button onclick="event.stopPropagation(); changeSaleQty('${p.id}', -1)" style="width:28px;height:28px;border-radius:50%;border:none;background:#ef4444;color:white;font-weight:bold;">-</button>
+                            <button onclick="changeSaleQty('${p.id}', -1)" style="width:28px;height:28px;border-radius:50%;border:none;background:#ef4444;color:white;font-weight:bold;">-</button>
                             <span style="font-weight:800; min-width:20px; font-size:12px;">${desc || qty}</span>
-                            <button onclick="event.stopPropagation(); changeSaleQty('${p.id}', 1)" style="width:28px;height:28px;border-radius:50%;border:none;background:#22c55e;color:white;font-weight:bold;">+</button>
+                            <button onclick="changeSaleQty('${p.id}', 1)" style="width:28px;height:28px;border-radius:50%;border:none;background:#22c55e;color:white;font-weight:bold;">+</button>
                         </div>` : ''}
                     </div>`;
             });
@@ -2902,12 +2933,17 @@
                 if (p) total += p.price * saleCart[id];
             });
             const el = document.getElementById('saleRunningTotal');
-            if (el) el.innerText = total.toFixed(0) + ' ج.م';
+            if (el) el.innerText = total.toFixed(2) + ' ج';
+            const badge = document.getElementById('saleCartBadge');
+            if (badge) {
+                const count = Object.keys(saleCart).filter(k => !k.endsWith('_desc') && saleCart[k] > 0).length;
+                badge.innerText = count;
+                badge.style.display = count ? 'flex' : 'none';
+            }
         }
 
         function createSaleInvoice() {
-            const customer = document.getElementById('saleCustomerName').value.trim();
-            if (!customer) return alert("أدخل اسم العميل");
+            const customer = document.getElementById('saleCustomerName').value.trim() || 'عميل';
             let items = [];
             let total = 0;
             let profit = 0;
