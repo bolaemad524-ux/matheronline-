@@ -1388,7 +1388,8 @@
         }
 
         // 🎯 كوبري تسجيل دخول التجار
-        function checkMerchantLogin() {
+        function checkMerchantLogin(mode) {
+            if (mode !== 'signup') mode = 'login';
             let rawPhone = document.getElementById('loginPhone').value.trim().replace(/[^0-9]/g, '');
             tempPass = document.getElementById('loginPass').value.trim();
             
@@ -1405,26 +1406,30 @@
 
             const resetBtn = () => { if (btn) { btn.innerText = originalText; btn.disabled = false; } };
 
-            // نافذة جاهزة عشان المتصفح ميمنعش فتح الفيديو بعد الرد من السيرفر
-            let tutorialWin = null;
-            try { tutorialWin = window.open('', '_blank'); } catch(e) { tutorialWin = null; }
-
-            // البحث في قاعدة التجار أولاً (أضمن)
             db.collection("platform_merchants").where("phone", "==", tempPhone).get()
             .then(snap => {
                 if (snap.empty) {
                     resetBtn();
-                    if (tutorialWin) tutorialWin.location.href = TUTORIAL_VIDEO_URL;
-                    else window.open(TUTORIAL_VIDEO_URL, '_blank');
+                    if (mode === 'login') {
+                        alert("هذا الحساب غير مسجل.\nاضغط «إنشاء حساب جديد» لتسجيل متجرك.");
+                        return;
+                    }
+                    if (!confirm("ستذهب أولاً إلى فيديو لشرح البرنامج")) return;
+                    window.open(TUTORIAL_VIDEO_URL, '_blank');
                     document.getElementById('authStep1').style.display = 'none';
                     document.getElementById('authStep2').style.display = 'block';
                     showToast("اتفرج على الشرح ثم ابدأ التجربة المجانية");
                     return;
                 }
-                if (tutorialWin) try { tutorialWin.close(); } catch(e) {}
 
                 const doc = snap.docs[0];
                 const mData = doc.data();
+
+                if (mode === 'signup') {
+                    resetBtn();
+                    alert("هذا الرقم مسجل بالفعل.\nاستخدم تسجيل الدخول.");
+                    return;
+                }
 
                 if (mData.password !== tempPass) {
                     alert("الرقم السري غير صحيح!");
@@ -1520,7 +1525,7 @@
                 alert("اكتب رقم الموبايل والباسورد ثم اضغط إنشاء حساب جديد.");
                 return;
             }
-            checkMerchantLogin();
+            checkMerchantLogin('signup');
         }
         
         function startFreeTrial() {
