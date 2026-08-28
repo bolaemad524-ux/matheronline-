@@ -263,9 +263,14 @@
                 <i class="fa-solid fa-bag-shopping"></i> 
                 <span>BOLA <span class="emad-gold">EMAD</span></span>
             </div>
-            <button onclick="openModal('landingContactModal')" class="contact-us-btn">
-                <i class="fa-solid fa-headset"></i> تواصل معنا
-            </button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+                <button onclick="openTutorialVideo(false)" class="contact-us-btn" style="background:rgba(212,175,55,0.18); border-color:#d4af37; color:#f5e6b8;">
+                    <i class="fa-solid fa-circle-play"></i> لشرح البرنامج اضغط هنا
+                </button>
+                <button onclick="openModal('landingContactModal')" class="contact-us-btn">
+                    <i class="fa-solid fa-headset"></i> تواصل معنا
+                </button>
+            </div>
         </div>
 
         <div class="hero-section">
@@ -297,7 +302,7 @@
                     <input type="password" id="loginPass" placeholder="••••••••">
                     <button class="main-btn" onclick="checkMerchantLogin()">تسجيل الدخول</button>
                     <div class="auth-divider">أو</div>
-                    <button type="button" class="auth-create-btn" onclick="document.getElementById('loginPhone').focus(); checkMerchantLogin();">
+                    <button type="button" class="auth-create-btn" onclick="startNewAccountFlow()">
                         <i class="fa-solid fa-user-plus"></i> إنشاء حساب جديد
                     </button>
                     <div class="auth-footer-row">
@@ -327,18 +332,20 @@
                         ابدأ تجربتك المجانية (3 أيام) 🚀
                     </button>
 
+                    <div id="paidPlansBox">
                     <div style="margin-top:20px; text-align:center; color:#a89b7c; font-size:13px; font-weight:bold;">أو اختر باقة مباشرة</div>
-                    <div class="plan-card" onclick="selectPlan('1_month', 60)" style="margin-top:12px;">
+                    <div class="plan-card" id="planCardMonth" onclick="selectPlan('1_month', platformPlans.month)" style="margin-top:12px;">
                         <span>اشتراك شهري</span>
-                        <span class="plan-price">60 ج</span>
+                        <span class="plan-price" id="planPriceMonthTxt">60 ج</span>
                     </div>
-                    <div class="plan-card" onclick="selectPlan('3_months', 200)">
+                    <div class="plan-card" id="planCardQuarter" onclick="selectPlan('3_months', platformPlans.quarter)">
                         <span>اشتراك كل 3 شهور</span>
-                        <span class="plan-price">200 ج</span>
+                        <span class="plan-price" id="planPriceQuarterTxt">200 ج</span>
                     </div>
-                    <div class="plan-card" onclick="selectPlan('1_year', 720)">
+                    <div class="plan-card" id="planCardYear" onclick="selectPlan('1_year', platformPlans.year)">
                         <span>اشتراك سنوي</span>
-                        <span class="plan-price">720 ج</span>
+                        <span class="plan-price" id="planPriceYearTxt">720 ج</span>
+                    </div>
                     </div>
 
                     <button onclick="goBackToStep1()" style="background:transparent; color:#a89b7c; border:1px solid rgba(212,175,55,0.3); width:100%; padding:12px; border-radius:12px; font-weight:bold; cursor:pointer; margin-top: 10px; font-family:'Cairo',sans-serif;">رجوع</button>
@@ -434,6 +441,21 @@
                 <input type="tel" id="platPhone" placeholder="10xxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.startsWith('0')) this.value = this.value.substring(1);">
             </div>
             <button onclick="savePlatformContact()" class="btn-primary" style="background:var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;">حفظ البيانات 💾</button>
+        </div>
+
+        <h3 style="margin-top:30px; border-top:1px solid var(--border-color); padding-top:20px; color: var(--primary); text-align: right;">💳 أسعار الباقات</h3>
+        <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
+            <label style="font-weight:bold; font-size:14px; color:var(--text-gray); display:block; margin-bottom:5px;">اشتراك شهري (ج.م)</label>
+            <input type="number" id="platPriceMonth" placeholder="60" min="0">
+            <label style="font-weight:bold; font-size:14px; color:var(--text-gray); display:block; margin-bottom:5px;">اشتراك 3 شهور (ج.م)</label>
+            <input type="number" id="platPriceQuarter" placeholder="200" min="0">
+            <label style="font-weight:bold; font-size:14px; color:var(--text-gray); display:block; margin-bottom:5px;">اشتراك سنوي (ج.م)</label>
+            <input type="number" id="platPriceYear" placeholder="720" min="0">
+            <div style="display:flex; align-items:center; gap:10px; background:white; padding:12px; border-radius:10px; margin-bottom:15px;">
+                <input type="checkbox" id="platHidePaidPlans" style="width:20px; height:20px; cursor:pointer;">
+                <label for="platHidePaidPlans" style="margin:0; font-weight:bold;">إخفاء كل الباقات المدفوعة وإظهار التجربة المجانية فقط</label>
+            </div>
+            <button onclick="savePlatformPlans()" class="btn-primary" style="background:var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;">حفظ أسعار الباقات 💾</button>
         </div>
 
         <h3 style="margin-top:30px; border-top:1px solid var(--border-color); padding-top:20px; color: #e63946; text-align: right;">🔒 تغيير كلمة مرور الإدارة</h3>
@@ -545,6 +567,10 @@
 
             <div id="dash-products" class="dash-view">
                 <h3 style="margin-bottom:15px; color:var(--text-dark);">إدارة المنتجات</h3>
+                <div class="search-box" style="margin-bottom:15px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="merchantProductSearch" placeholder="ابحث باسم المنتج..." oninput="filterMerchantProducts()">
+                </div>
                 <div id="admin-products-list" style="max-height: 65vh; overflow-y: auto; padding-right:5px;"></div>
             </div>
 
@@ -985,6 +1011,21 @@
         </div>
     </div>
 
+    <div id="tutorialModal" class="modal">
+        <div class="modal-content" style="text-align:center; max-width:420px;">
+            <span class="close-btn" onclick="closeModal('tutorialModal')"><i class="fa-solid fa-xmark"></i></span>
+            <i class="fa-solid fa-circle-play" style="font-size:48px; color:#d4af37; margin-bottom:12px;"></i>
+            <h2 style="color:var(--primary); font-family:'Changa', sans-serif; margin-bottom:10px;">شرح البرنامج</h2>
+            <p style="color:var(--text-gray); font-size:15px; line-height:1.7; margin-bottom:18px;">لازم تتفرج على فيديو الشرح الأول قبل إنشاء حساب جديد عشان تفهم البرنامج كويس.</p>
+            <button onclick="openTutorialVideo(true)" style="background:linear-gradient(135deg,#e8c547,#d4af37); color:#1a1208; border:none; width:100%; padding:14px; border-radius:12px; font-weight:900; cursor:pointer; font-family:'Cairo'; font-size:16px; margin-bottom:10px;">
+                <i class="fa-solid fa-play"></i> مشاهدة فيديو الشرح
+            </button>
+            <button id="tutorialDoneBtn" onclick="confirmWatchedTutorial()" style="display:none; background:var(--primary); color:white; border:none; width:100%; padding:14px; border-radius:12px; font-weight:900; cursor:pointer; font-family:'Cairo'; font-size:15px;">
+                شاهدت الفيديو — متابعة إنشاء الحساب
+            </button>
+        </div>
+    </div>
+
     <div id="tourOverlay" class="tour-overlay"></div>
     <div id="tourTooltip" class="tour-tooltip">
         <h2 id="tourTitle" style="color:var(--primary); font-family:'Changa'; margin-bottom:10px; font-size:22px;">...</h2>
@@ -1014,6 +1055,9 @@
         const isSuperAdmin = urlParams.get('super') === 'bola'; 
 
         let tempPhone = ""; let tempPass = ""; let tempCategory = ""; let selectedPlan = ""; let selectedPrice = 0; let receiptBase64 = "";
+        const TUTORIAL_VIDEO_URL = "https://www.facebook.com/share/v/19Me5hDr8a/";
+        let platformPlans = { month: 60, quarter: 200, year: 720, hidePaid: false };
+        let pendingNewSignup = false;
         let storeData = { phone: "", name: "", address: "", facebook: "", instagram: "", logo: null, categories: ['الكل'], storeType: 'general', visitors: 0, ordersCount: 0, dailyVisits: {} };
         let storeProducts = []; let cart = []; let total = 0; let currentCategory = 'الكل';
         let editingProductId = null;
@@ -1041,6 +1085,15 @@
                     if(document.getElementById('platFacebook')) document.getElementById('platFacebook').value = data.facebook || "";
                     if(document.getElementById('platWhatsapp')) document.getElementById('platWhatsapp').value = wa;
                     if(document.getElementById('platPhone')) document.getElementById('platPhone').value = ph;
+                    if (data.priceMonth != null) platformPlans.month = Number(data.priceMonth) || 60;
+                    if (data.priceQuarter != null) platformPlans.quarter = Number(data.priceQuarter) || 200;
+                    if (data.priceYear != null) platformPlans.year = Number(data.priceYear) || 720;
+                    platformPlans.hidePaid = !!data.hidePaidPlans;
+                    if (document.getElementById('platPriceMonth')) document.getElementById('platPriceMonth').value = platformPlans.month;
+                    if (document.getElementById('platPriceQuarter')) document.getElementById('platPriceQuarter').value = platformPlans.quarter;
+                    if (document.getElementById('platPriceYear')) document.getElementById('platPriceYear').value = platformPlans.year;
+                    if (document.getElementById('platHidePaidPlans')) document.getElementById('platHidePaidPlans').checked = platformPlans.hidePaid;
+                    applyPlatformPlansToUI();
                 }
             });
         }
@@ -1049,7 +1102,30 @@
         function savePlatformContact() {
             let wa = document.getElementById('platWhatsapp').value.trim(); let ph = document.getElementById('platPhone').value.trim();
             wa = wa ? "20" + wa : ""; ph = ph ? "20" + ph : "";
-            db.collection("settings").doc("platform_info").set({ facebook: document.getElementById('platFacebook').value, whatsapp: wa, phone: ph }).then(() => showToast("تم حفظ بيانات المنصة ☁️"));
+            db.collection("settings").doc("platform_info").set({ facebook: document.getElementById('platFacebook').value, whatsapp: wa, phone: ph }, { merge: true }).then(() => showToast("تم حفظ بيانات المنصة ☁️"));
+        }
+
+        function savePlatformPlans() {
+            const month = Number(document.getElementById('platPriceMonth').value) || 60;
+            const quarter = Number(document.getElementById('platPriceQuarter').value) || 200;
+            const year = Number(document.getElementById('platPriceYear').value) || 720;
+            const hidePaid = document.getElementById('platHidePaidPlans').checked;
+            db.collection("settings").doc("platform_info").set({
+                priceMonth: month, priceQuarter: quarter, priceYear: year, hidePaidPlans: hidePaid
+            }, { merge: true }).then(() => {
+                platformPlans = { month, quarter, year, hidePaid };
+                applyPlatformPlansToUI();
+                showToast("تم حفظ أسعار الباقات ✅");
+            });
+        }
+
+        function applyPlatformPlansToUI() {
+            const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val + ' ج'; };
+            setTxt('planPriceMonthTxt', platformPlans.month);
+            setTxt('planPriceQuarterTxt', platformPlans.quarter);
+            setTxt('planPriceYearTxt', platformPlans.year);
+            const box = document.getElementById('paidPlansBox');
+            if (box) box.style.display = platformPlans.hidePaid ? 'none' : 'block';
         }
 
         function applyStoreTheme(type) {
@@ -1330,10 +1406,16 @@
             db.collection("platform_merchants").where("phone", "==", tempPhone).get()
             .then(snap => {
                 if (snap.empty) {
-                    // تاجر جديد → صفحة التسجيل
+                    // تاجر جديد → لازم يشوف الشرح أولاً
+                    resetBtn();
+                    if (!hasWatchedTutorial()) {
+                        pendingNewSignup = true;
+                        openModal('tutorialModal');
+                        showToast("اتفرج على فيديو الشرح الأول");
+                        return;
+                    }
                     document.getElementById('authStep1').style.display = 'none';
                     document.getElementById('authStep2').style.display = 'block';
-                    resetBtn();
                     return;
                 }
 
@@ -1386,6 +1468,43 @@
         }
 
         function goBackToStep1() { document.getElementById('authStep2').style.display = 'none'; document.getElementById('authStep1').style.display = 'block'; }
+
+        function hasWatchedTutorial() {
+            return localStorage.getItem('watchedTutorialVideo') === '1';
+        }
+        function openTutorialVideo(fromSignup) {
+            window.open(TUTORIAL_VIDEO_URL, '_blank');
+            const doneBtn = document.getElementById('tutorialDoneBtn');
+            if (doneBtn) doneBtn.style.display = 'block';
+            if (!fromSignup) {
+                // من أيقونة الشرح العامة
+                localStorage.setItem('watchedTutorialVideo', '1');
+            }
+        }
+        function confirmWatchedTutorial() {
+            localStorage.setItem('watchedTutorialVideo', '1');
+            closeModal('tutorialModal');
+            if (pendingNewSignup) {
+                pendingNewSignup = false;
+                document.getElementById('authStep1').style.display = 'none';
+                document.getElementById('authStep2').style.display = 'block';
+            }
+        }
+        function startNewAccountFlow() {
+            const phone = document.getElementById('loginPhone').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            if (!phone || !pass) {
+                document.getElementById('loginPhone').focus();
+                alert("اكتب رقم الموبايل والباسورد أولاً ثم اضغط إنشاء حساب جديد.");
+                return;
+            }
+            if (!hasWatchedTutorial()) {
+                pendingNewSignup = true;
+                openModal('tutorialModal');
+                return;
+            }
+            checkMerchantLogin();
+        }
         
         function startFreeTrial() {
             tempCategory = document.getElementById('newStoreCategory').value;
@@ -1577,9 +1696,9 @@
                         <h2 style="color:var(--primary); margin-bottom:8px;">اختر باقتك 🎯</h2>
                         <p style="color:var(--text-gray); font-size:14px; margin-bottom:18px;">اشترك دلوقتي واستمر في استقبال الطلبات</p>
                         <div id="trialPlansList">
-                            <div class="plan-card" onclick="startTrialPlanPayment('1_month', 60)"><span>اشتراك شهري</span><span class="plan-price">60 ج</span></div>
-                            <div class="plan-card" onclick="startTrialPlanPayment('3_months', 200)"><span>اشتراك 3 شهور</span><span class="plan-price">200 ج</span></div>
-                            <div class="plan-card" onclick="startTrialPlanPayment('1_year', 720)"><span>اشتراك سنوي</span><span class="plan-price">720 ج</span></div>
+                            <div class="plan-card" onclick="startTrialPlanPayment('1_month', platformPlans.month)"><span>اشتراك شهري</span><span class="plan-price">${platformPlans.month} ج</span></div>
+                            <div class="plan-card" onclick="startTrialPlanPayment('3_months', platformPlans.quarter)"><span>اشتراك 3 شهور</span><span class="plan-price">${platformPlans.quarter} ج</span></div>
+                            <div class="plan-card" onclick="startTrialPlanPayment('1_year', platformPlans.year)"><span>اشتراك سنوي</span><span class="plan-price">${platformPlans.year} ج</span></div>
                         </div>
                         <div id="trialPaymentBox" style="display:none; text-align:right; margin-top:15px;">
                             <h3 style="text-align:center; color:var(--primary); margin-bottom:12px;">إتمام الدفع</h3>
@@ -1885,9 +2004,9 @@
                                         <p style='color:var(--text-gray); font-size:15px; margin-bottom:25px;'>نتمنى أن تكون تجربتك رائعة! اختر باقة الآن لتفعيل متجرك واستقبال الطلبات مجدداً.</p>
                                         
                                         <div id="renewalPlans">
-                                            <div class="plan-card" onclick="showRenewalPayment('1_month', 60)"><span>اشتراك شهري</span><span class="plan-price">60 ج</span></div>
-                                            <div class="plan-card" onclick="showRenewalPayment('3_months', 200)"><span>اشتراك 3 شهور</span><span class="plan-price">200 ج</span></div>
-                                            <div class="plan-card" onclick="showRenewalPayment('1_year', 720)"><span>اشتراك سنوي</span><span class="plan-price">720 ج</span></div>
+                                            <div class="plan-card" onclick="showRenewalPayment('1_month', platformPlans.month)"><span>اشتراك شهري</span><span class="plan-price">${platformPlans.month} ج</span></div>
+                                            <div class="plan-card" onclick="showRenewalPayment('3_months', platformPlans.quarter)"><span>اشتراك 3 شهور</span><span class="plan-price">${platformPlans.quarter} ج</span></div>
+                                            <div class="plan-card" onclick="showRenewalPayment('1_year', platformPlans.year)"><span>اشتراك سنوي</span><span class="plan-price">${platformPlans.year} ج</span></div>
                                         </div>
 
                                         <div id="renewalPaymentBox" style="display:none; text-align:right;">
@@ -2140,6 +2259,22 @@
         }
 
         function filterProducts() { const searchTerm = document.getElementById('searchInput').value.toLowerCase(); const filtered = storeProducts.filter(p => { const matchCat = currentCategory === 'الكل' || p.category === currentCategory; const matchSearch = p.name.toLowerCase().includes(searchTerm); return matchCat && matchSearch; }); renderProducts(filtered); }
+        function filterMerchantProducts() {
+            const q = (document.getElementById('merchantProductSearch')?.value || '').trim().toLowerCase();
+            const adminList = document.getElementById('admin-products-list');
+            if (!adminList) return;
+            adminList.innerHTML = '';
+            const list = !q ? storeProducts : storeProducts.filter(p => (p.name || '').toLowerCase().includes(q));
+            if (!list.length) {
+                adminList.innerHTML = '<p style="text-align:center; color:var(--text-gray); padding:20px;">لا يوجد منتج بهذا الاسم</p>';
+                return;
+            }
+            list.forEach((product) => {
+                const priceDisplay = product.isByGram ? `${product.price} ج (${product.grams || ''}ج)` : (product.isMeter ? `${product.price} ج/م` : `${product.price} ج`);
+                const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);';
+                adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`;
+            });
+        }
         function toggleDealOfDay(id) { 
             const product = storeProducts.find(p => p.id === id); 
             if (!product) return;
