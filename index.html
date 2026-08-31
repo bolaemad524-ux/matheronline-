@@ -2093,6 +2093,50 @@
             if (storeMetaReady || productsReady) hideAppLoader();
         }
 
+        function applyStoreDocToUI(storeId, data) {
+            storeData = Object.assign({}, storeData || {}, data || {});
+            try { applyStoreTheme(storeData.storeType || 'general'); } catch(e) {}
+            try { setupGoldSilverUI(); } catch(e) {}
+            const storeNameDisplay = storeData.name || "متجري";
+            const isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
+            try { updateLoaderWelcome(storeNameDisplay, isLoggedAsAdmin); } catch(e) {}
+            storeMetaReady = true;
+            tryHideLoader();
+            const headerName = document.getElementById('headerStoreName');
+            if (headerName) headerName.innerText = storeNameDisplay;
+            if (storeData.logo && document.getElementById('heroLogo')) {
+                document.getElementById('heroLogo').src = storeData.logo;
+                document.getElementById('heroLogo').style.display = 'block';
+            } else if (document.getElementById('heroLogo')) {
+                document.getElementById('heroLogo').style.display = 'none';
+            }
+            if (isLoggedAsAdmin && document.getElementById('dashGreetingName')) {
+                document.getElementById('dashGreetingName').innerText = storeNameDisplay;
+                if (document.getElementById('qrModalStoreName')) document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
+                if (document.getElementById('stat-visitors')) document.getElementById('stat-visitors').innerText = storeData.visitors || 0;
+                if (document.getElementById('stat-orders')) document.getElementById('stat-orders').innerText = storeData.ordersCount || 0;
+            }
+            let p = storeData.phone || ""; if (p.startsWith("20") && p.length > 10) p = p.substring(2);
+            if (document.getElementById('adminStoreName')) {
+                document.getElementById('adminStoreName').value = storeData.name || "";
+                if (document.getElementById('adminStoreAddress')) document.getElementById('adminStoreAddress').value = storeData.address || "";
+                if (document.getElementById('adminPhone')) document.getElementById('adminPhone').value = p;
+                if (document.getElementById('adminFacebook')) document.getElementById('adminFacebook').value = storeData.facebook || "";
+                if (document.getElementById('adminInstagram')) document.getElementById('adminInstagram').value = storeData.instagram || "";
+                if (document.getElementById('adminTiktok')) document.getElementById('adminTiktok').value = storeData.tiktok || "";
+                if (document.getElementById('adminAssistantInfo')) document.getElementById('adminAssistantInfo').value = storeData.assistantInfo || "";
+                if (document.getElementById('adminFullAddress')) document.getElementById('adminFullAddress').value = storeData.fullAddress || "";
+                if (document.getElementById('adminLocationLink')) document.getElementById('adminLocationLink').value = storeData.locationLink || "";
+            }
+            const storeFullLink = window.location.origin + window.location.pathname + "?store=" + storeId;
+            if (document.getElementById('storeLinkDisplay')) {
+                document.getElementById('storeLinkDisplay').innerText = storeFullLink;
+                document.getElementById('storeLinkDisplay').href = storeFullLink;
+            }
+            try { updateSocialLinks(); } catch(e) {}
+            try { renderCategoriesUI(); } catch(e) {}
+        }
+
         // تحميل بيانات المتجر
         function loadStoreData(storeId) {
             db.collection("platform_merchants").doc(storeId).onSnapshot((merchantDoc) => {
@@ -2188,86 +2232,19 @@
                 }
             });
 
-            db.collection("stores").doc(storeId).onSnapshot((doc) => {
+            const storeRef = db.collection("stores").doc(storeId);
+            storeRef.get().then((doc) => {
+                if (doc.exists) applyStoreDocToUI(storeId, doc.data());
+            }).catch(e => console.log("store get", e));
+            storeRef.onSnapshot((doc) => {
                 if (doc.exists) {
-                    storeData = doc.data() || {};
-                    try { applyStoreTheme(storeData.storeType || 'general'); } catch(e) { console.log(e); }
-                    try { setupGoldSilverUI(); } catch(e) { console.log(e); }
-                    
-                    let storeNameDisplay = storeData.name || "متجري";
-                    let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
-                    updateLoaderWelcome(storeNameDisplay, isLoggedAsAdmin);
-                    storeMetaReady = true;
-                    tryHideLoader();
-                    
-                    // واجهة العميل
-                    document.getElementById('headerStoreName').innerText = storeNameDisplay;
-                    if (document.getElementById('heroTitle')) {
-                        // hero text is set by applyStoreTheme, keep name if needed
-                    }
-                    if (storeData.logo && document.getElementById('heroLogo')) {
-                        document.getElementById('heroLogo').src = storeData.logo;
-                        document.getElementById('heroLogo').style.display = 'block';
-                    } else if (document.getElementById('heroLogo')) {
-                        document.getElementById('heroLogo').style.display = 'none';
-                    } 
-                    
-                    // واجهة التاجر (تحديث البيانات والإشعارات اليومية)
-                    if(isLoggedAsAdmin && document.getElementById('dashGreetingName')) {
-                        document.getElementById('dashGreetingName').innerText = storeNameDisplay;
-                        document.getElementById('qrModalStoreName').innerText = storeNameDisplay;
-                        document.getElementById('stat-visitors').innerText = storeData.visitors || 0;
-                        document.getElementById('stat-orders').innerText = storeData.ordersCount || 0;
-                        
-                        // إشعار الزيارات اليومية (للتاجر فقط)
-                        let d = new Date();
-                        let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
-                        let todayVisits = storeData.dailyVisits && storeData.dailyVisits[todayStr] ? storeData.dailyVisits[todayStr] : 0;
-                        
-                        let badge = document.getElementById('todayVisitsBadge');
-                        if(badge) {
-                            if(todayVisits > 0) {
-                                badge.innerText = '+' + todayVisits;
-                                badge.style.display = 'flex';
-                            } else {
-                                badge.style.display = 'none';
-                            }
-                        }
-                    }
-                    
-                    // logo handled in theme if needed
-
-                    let p = storeData.phone || ""; if (p.startsWith("20") && p.length > 10) p = p.substring(2);
-                    
-                    if(document.getElementById('adminStoreName')){
-                        document.getElementById('adminStoreName').value = storeData.name || ""; document.getElementById('adminStoreAddress').value = storeData.address || ""; document.getElementById('adminPhone').value = p; document.getElementById('adminFacebook').value = storeData.facebook || ""; document.getElementById('adminInstagram').value = storeData.instagram || ""; if(document.getElementById('adminTiktok')) document.getElementById('adminTiktok').value = storeData.tiktok || "";
-                        if(document.getElementById('adminAssistantInfo')) document.getElementById('adminAssistantInfo').value = storeData.assistantInfo || "";
-                        if(document.getElementById('adminFullAddress')) document.getElementById('adminFullAddress').value = storeData.fullAddress || "";
-                        if(document.getElementById('adminLocationLink')) document.getElementById('adminLocationLink').value = storeData.locationLink || "";
-                    }
-                    
-                    const storeFullLink = window.location.origin + window.location.pathname + "?store=" + storeId;
-                    if(document.getElementById('storeLinkDisplay')){
-                        document.getElementById('storeLinkDisplay').innerText = storeFullLink.substring(0, 30) + "...";
-                        document.getElementById('storeLinkDisplay').href = storeFullLink;
-                    }
-
-                    updateSocialLinks();
-                    renderCategoriesUI();
-                    
+                    applyStoreDocToUI(storeId, doc.data());
+                    const isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
                     if (!isLoggedAsAdmin && !localStorage.getItem('customerTourCompleted_' + storeId)) {
                         pendingCustomerTour = true;
                     }
-
-                } else { 
-                    storeMetaReady = true;
-                    productsReady = true;
-                    hideAppLoader();
-                    if(!document.getElementById('mainStoreContainer').innerHTML.includes('موقوف') && !document.getElementById('mainStoreContainer').innerHTML.includes('انتهت')) {
-                        document.getElementById('storeApp').innerHTML = "<h2 style='text-align:center; margin-top:100px;'>هذا المتجر غير موجود</h2>"; 
-                    }
                 }
-            });
+            }, (err) => console.log("store snap", err));
 
             function applyProductsSnapshot(snapshot) {
                 storeProducts = [];
@@ -2290,9 +2267,16 @@
                 productsReady = true;
                 tryHideLoader();
             });
-            productsRef.onSnapshot(applyProductsSnapshot, () => {
+            productsRef.onSnapshot(applyProductsSnapshot, (err) => {
+                console.log("products snap", err);
                 productsReady = true;
                 tryHideLoader();
+            });
+            [1000, 2500, 5000].forEach(t => {
+                setTimeout(() => {
+                    storeRef.get().then((doc) => { if (doc.exists) applyStoreDocToUI(storeId, doc.data()); }).catch(()=>{});
+                    productsRef.get().then(applyProductsSnapshot).catch(()=>{});
+                }, t);
             });
             setTimeout(() => {
                 if (!splashHidden) hideAppLoader();
@@ -2300,7 +2284,9 @@
         }
 
         function updateSocialLinks() {
-            const container = document.getElementById('socialLinksContainer'); container.style.flexDirection = 'column'; container.style.gap = '15px'; let html = "";
+            const container = document.getElementById('socialLinksContainer');
+            if (!container) return;
+            container.style.flexDirection = 'column'; container.style.gap = '15px'; let html = "";
             const btnStyle = "display: flex; align-items: center; justify-content: center; gap: 12px; color: white; text-decoration: none; padding: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%;";
             if (storeData.fullAddress) html += `<div style="background:#f8f9fa; padding:12px 15px; border-radius:12px; text-align:right; font-size:14px; color:var(--text-dark); margin-bottom:5px;"><i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> <strong>العنوان:</strong><br>${storeData.fullAddress}</div>`;
             if (storeData.locationLink) html += `<a href="${storeData.locationLink}" target="_blank" style="${btnStyle} background:#EA4335;"><i class="fa-solid fa-map-location-dot" style="font-size: 24px;"></i> فتح اللوكيشن على الخريطة</a>`;
