@@ -2673,8 +2673,29 @@
             return closed;
         }
 
+        function isAtAppRoot() {
+            if (document.querySelectorAll('.modal').length && [...document.querySelectorAll('.modal')].some(m => m.id !== 'onboardingModal' && isElVisible(m))) return false;
+            const merchantApp = document.getElementById('merchantDashboardApp');
+            const storeApp = document.getElementById('storeApp');
+            const adminApp = document.getElementById('superAdminApp');
+            const loginApp = document.getElementById('loginApp');
+            const previewBtn = document.getElementById('exitPreviewBtn');
+            if (isElVisible(storeApp) && previewBtn && previewBtn.style.display === 'flex') return false;
+            if (isElVisible(merchantApp)) {
+                const home = document.getElementById('dash-home');
+                return !!(home && home.style.display === 'block');
+            }
+            if (isElVisible(adminApp)) return true;
+            if (isElVisible(storeApp)) return !currentCategory || currentCategory === 'الكل';
+            if (isElVisible(loginApp)) {
+                const step1 = document.getElementById('authStep1');
+                return !!(step1 && step1.style.display !== 'none');
+            }
+            return true;
+        }
+
         function goAppHomeFromBack() {
-            if (closeOpenAppModals()) return;
+            if (closeOpenAppModals()) return true;
 
             const merchantApp = document.getElementById('merchantDashboardApp');
             const storeApp = document.getElementById('storeApp');
@@ -2684,7 +2705,7 @@
 
             if (isElVisible(storeApp) && previewBtn && previewBtn.style.display === 'flex') {
                 exitPreview();
-                return;
+                return true;
             }
 
             if (isElVisible(merchantApp)) {
@@ -2692,41 +2713,63 @@
                 if (home && home.style.display !== 'block') {
                     switchDashView('dash-home', document.getElementById('nav-home'));
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return true;
                 }
-                return;
+                return false;
             }
 
-            if (isElVisible(adminApp)) {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
+            if (isElVisible(adminApp)) return false;
 
             if (isElVisible(storeApp)) {
                 if (typeof currentCategory !== 'undefined' && currentCategory !== 'الكل') {
                     const firstBtn = document.querySelector('#categories-nav-container .cat-btn');
                     setCategory('الكل', firstBtn);
+                    return true;
                 }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
+                return false;
             }
 
             if (isElVisible(loginApp)) {
                 const step3 = document.getElementById('authStep3');
                 const step2 = document.getElementById('authStep2');
                 const step4 = document.getElementById('authStep4');
-                if (step3 && step3.style.display === 'block') { cancelPayment(); return; }
+                if (step3 && step3.style.display === 'block') { cancelPayment(); return true; }
                 if (step4 && step4.style.display === 'block') {
                     step4.style.display = 'none';
                     document.getElementById('authStep1').style.display = 'block';
-                    return;
+                    return true;
                 }
-                if (step2 && step2.style.display === 'block') { goBackToStep1(); return; }
+                if (step2 && step2.style.display === 'block') { goBackToStep1(); return true; }
             }
+            return false;
         }
 
+        let allowAppLeave = false;
+        let homeBackCount = 0;
         try { history.replaceState({ app: 'base' }, ''); history.pushState({ app: 'stay' }, ''); } catch(e) {}
         window.addEventListener('popstate', function() {
-            goAppHomeFromBack();
+            if (allowAppLeave) return;
+            const moved = goAppHomeFromBack();
+            if (moved || !isAtAppRoot()) {
+                homeBackCount = 0;
+                try { history.pushState({ app: 'stay' }, ''); } catch(e) {}
+                return;
+            }
+            const storeApp = document.getElementById('storeApp');
+            const previewBtn = document.getElementById('exitPreviewBtn');
+            const isCustomerStore = isElVisible(storeApp) && !(previewBtn && previewBtn.style.display === 'flex');
+            homeBackCount++;
+            if (isCustomerStore || homeBackCount >= 2) {
+                const exitMsg = isCustomerStore ? 'هل تريد الخروج من متجرنا 😢' : 'هل تريد الخروج من البرنامج؟';
+                if (confirm(exitMsg)) {
+                    allowAppLeave = true;
+                    history.back();
+                    return;
+                }
+                homeBackCount = 0;
+            } else {
+                showToast("اضغط رجوع مرة أخرى للخروج");
+            }
             try { history.pushState({ app: 'stay' }, ''); } catch(e) {}
         });
 
