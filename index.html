@@ -2055,27 +2055,16 @@
             brand.innerText = isMerchant ? ('أهلاً بك يا صاحب ' + n) : ('مرحباً بك في ' + n);
         }
 
-        function preloadProductImages() {
-            const urls = (storeProducts || []).map(p => p.image).filter(Boolean).slice(0, 20);
-            if (!urls.length) return Promise.resolve();
-            return Promise.race([
-                Promise.all(urls.map(src => new Promise(res => {
-                    const img = new Image();
-                    img.onload = img.onerror = () => res();
-                    img.src = src;
-                }))),
-                new Promise(res => setTimeout(res, 7000))
-            ]);
-        }
-
         function hideAppLoader() {
             if (splashHidden) return;
             splashHidden = true;
             const isMerchant = sessionStorage.getItem('loggedStoreId') === currentStoreId;
             const el = document.getElementById('appLoader');
-            if (el) el.classList.add('hide');
-            setTimeout(() => {
-                if (el) el.style.display = 'none';
+            if (el) {
+                el.classList.add('hide');
+                el.style.display = 'none';
+            }
+            try {
                 if (isMerchant) {
                     document.getElementById('storeApp').style.display = 'none';
                     document.getElementById('merchantDashboardApp').style.display = 'block';
@@ -2085,12 +2074,12 @@
                     document.getElementById('merchantDashboardApp').style.display = 'none';
                     if (pendingCustomerTour) { pendingCustomerTour = false; setTimeout(() => startTour(true), 400); }
                 }
-            }, 350);
+            } catch (e) {}
         }
 
         function tryHideLoader() {
-            if (!storeMetaReady || !productsReady || splashHidden) return;
-            preloadProductImages().then(hideAppLoader);
+            if (splashHidden) return;
+            if (storeMetaReady || productsReady) hideAppLoader();
         }
 
         // تحميل بيانات المتجر
@@ -2275,20 +2264,16 @@
                 if(document.getElementById('stat-products')){
                     document.getElementById('stat-products').innerText = storeProducts.length;
                 }
-                filterProducts();
                 productsReady = true;
                 tryHideLoader();
+                try { filterProducts(); } catch (e) {}
             }, () => {
                 productsReady = true;
                 tryHideLoader();
             });
             setTimeout(() => {
-                if (!splashHidden) {
-                    productsReady = true;
-                    storeMetaReady = true;
-                    hideAppLoader();
-                }
-            }, 12000);
+                if (!splashHidden) hideAppLoader();
+            }, 4000);
         }
 
         function updateSocialLinks() {
@@ -2411,7 +2396,16 @@
             });
         }
 
-        function filterProducts() { const searchTerm = document.getElementById('searchInput').value.toLowerCase(); const filtered = storeProducts.filter(p => { const matchCat = currentCategory === 'الكل' || p.category === currentCategory; const matchSearch = p.name.toLowerCase().includes(searchTerm); return matchCat && matchSearch; }); renderProducts(filtered); }
+        function filterProducts() {
+            const searchEl = document.getElementById('searchInput');
+            const searchTerm = searchEl ? (searchEl.value || '').toLowerCase() : '';
+            const filtered = storeProducts.filter(p => {
+                const matchCat = currentCategory === 'الكل' || p.category === currentCategory;
+                const matchSearch = (p.name || '').toLowerCase().includes(searchTerm);
+                return matchCat && matchSearch;
+            });
+            renderProducts(filtered);
+        }
         function filterMerchantProducts() {
             const q = (document.getElementById('merchantProductSearch')?.value || '').trim().toLowerCase();
             const adminList = document.getElementById('admin-products-list');
