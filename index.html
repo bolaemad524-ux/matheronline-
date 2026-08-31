@@ -252,9 +252,68 @@
         .tour-focus { position: relative; z-index: 4002 !important; background: #e2edff !important; border-radius: 10px; transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.5); }
         .nav-fab.tour-focus { background: white !important; color: var(--primary) !important; border: 4px solid var(--primary); box-shadow: 0 0 20px rgba(13, 110, 253, 0.8); }
         .cart-icon-btn.tour-focus { background: white !important; color: var(--primary) !important; border: 2px solid var(--primary); transform: scale(1.1); }
+    #welcomeSplash { display:none; position:fixed; inset:0; z-index:99999; align-items:center; justify-content:center; padding:28px 22px; }
+        #welcomeSplash.cust { background: radial-gradient(circle at 50% 18%, #fff7ef 0%, #f8efe6 45%, #f4e8dc 100%); }
+        #welcomeSplash.merch { background: radial-gradient(circle at 80% 0%, #243044 0%, #152033 40%, #0d1522 100%); }
+        .ws-wrap { width:100%; max-width:360px; text-align:center; }
+        .ws-bag {
+            width: 132px; height: 132px; margin: 0 auto 22px; border-radius: 50%;
+            display:flex; align-items:center; justify-content:center; position:relative;
+        }
+        #welcomeSplash.cust .ws-bag { background: radial-gradient(circle, #f3e0d0 0%, rgba(243,224,208,0) 70%); }
+        #welcomeSplash.merch .ws-bag { background: radial-gradient(circle, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0) 70%); }
+        .ws-monogram {
+            width:86px; height:86px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+            font-family:'Changa',sans-serif; font-size:38px; font-weight:800;
+        }
+        #welcomeSplash.cust .ws-monogram { background:linear-gradient(160deg,#e8c4ae,#c48b72); color:#fff; box-shadow:0 12px 30px rgba(168,110,80,0.28); }
+        #welcomeSplash.merch .ws-monogram { background:transparent; color:#d4af37; font-size:64px; text-shadow:0 0 24px rgba(212,175,55,0.35); }
+        .ws-hello { font-size:16px; font-weight:700; margin-bottom:6px; }
+        #welcomeSplash.cust .ws-hello { color:#5c4a3d; }
+        #welcomeSplash.merch .ws-hello { color:#e8e0d0; }
+        .ws-brand { font-family:'Changa',sans-serif; font-size:34px; font-weight:800; line-height:1.25; margin:0 0 10px; }
+        #welcomeSplash.cust .ws-brand { color:#b08b74; }
+        #welcomeSplash.merch .ws-brand { color:#e7c56a; font-size:28px; }
+        .ws-sub { font-size:13px; font-weight:600; margin-bottom:28px; }
+        #welcomeSplash.cust .ws-sub { color:#8b735f; }
+        #welcomeSplash.merch .ws-sub { color:#9aa6b5; }
+        .ws-card { border-radius:22px; padding:18px 16px 16px; }
+        #welcomeSplash.cust .ws-card { background:#fff; box-shadow:0 10px 28px rgba(160,120,90,0.08); }
+        #welcomeSplash.merch .ws-card { background:rgba(255,255,255,0.05); border:1px solid rgba(212,175,55,0.15); }
+        .ws-card-icon { width:42px; height:42px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; }
+        #welcomeSplash.cust .ws-card-icon { background:#f7efe8; color:#c49a82; }
+        #welcomeSplash.merch .ws-card-icon { background:rgba(212,175,55,0.12); color:#d4af37; }
+        .ws-load-txt { font-size:13px; font-weight:700; margin-bottom:12px; }
+        #welcomeSplash.cust .ws-load-txt { color:#6b5648; }
+        #welcomeSplash.merch .ws-load-txt { color:#c9d0d8; }
+        .ws-bar { height:7px; border-radius:99px; overflow:hidden; }
+        #welcomeSplash.cust .ws-bar { background:#ead9cc; }
+        #welcomeSplash.merch .ws-bar { background:#2a3544; }
+        .ws-bar > span { display:block; height:100%; width:8%; border-radius:99px; transition:width .25s linear; }
+        #welcomeSplash.cust .ws-bar > span { background:#c49a82; }
+        #welcomeSplash.merch .ws-bar > span { background:linear-gradient(90deg,#e7c56a,#d4af37); }
+        .ws-pct { margin-top:8px; font-size:13px; font-weight:800; }
+        #welcomeSplash.cust .ws-pct { color:#8a6d5b; }
+        #welcomeSplash.merch .ws-pct { color:#d4af37; }
+        #welcomeSplash.hide { opacity:0; transition:opacity .45s ease; pointer-events:none; }
     </style>
 </head>
 <body>
+
+    <div id="welcomeSplash">
+        <div class="ws-wrap">
+            <div class="ws-bag"><div class="ws-monogram" id="wsLetter">B</div></div>
+            <div class="ws-hello" id="wsHello">مرحباً بك</div>
+            <div class="ws-brand" id="wsBrand">المتجر</div>
+            <div class="ws-sub" id="wsSub">جودة نختارها بعناية ... لأجلك ♥</div>
+            <div class="ws-card">
+                <div class="ws-card-icon" id="wsIcon"><i class="fa-solid fa-gift"></i></div>
+                <div class="ws-load-txt" id="wsLoadTxt">جاري تجهيز أفضل المنتجات لك</div>
+                <div class="ws-bar"><span id="wsBar"></span></div>
+                <div class="ws-pct" id="wsPct">0%</div>
+            </div>
+        </div>
+    </div>
 
     <div id="toast" class="toast">تم!</div>
 
@@ -1402,10 +1461,12 @@
             if(isLoggedAsAdmin) {
                 document.getElementById('storeApp').style.display = 'none';
                 document.getElementById('merchantDashboardApp').style.display = 'block';
+                startWelcomeSplash(true);
             } else {
                 // واجهة العميل دائماً لزوار الرابط
                 document.getElementById('storeApp').style.display = 'block';
                 document.getElementById('merchantDashboardApp').style.display = 'none';
+                startWelcomeSplash(false);
                 let d = new Date();
                 let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
                 
@@ -2010,6 +2071,64 @@
         }
 
 
+        let welcomeTimer = null;
+        function startWelcomeSplash(isMerchant) {
+            const el = document.getElementById('welcomeSplash');
+            if (!el) return;
+            el.className = isMerchant ? 'merch' : 'cust';
+            el.style.display = 'flex';
+            const hello = document.getElementById('wsHello');
+            const brand = document.getElementById('wsBrand');
+            const sub = document.getElementById('wsSub');
+            const loadTxt = document.getElementById('wsLoadTxt');
+            const icon = document.getElementById('wsIcon');
+            if (isMerchant) {
+                if (hello) hello.innerText = 'مرحباً بك';
+                if (brand) brand.innerHTML = 'في لوحة التحكم<br>الخاصة بمتجرك';
+                if (sub) sub.innerText = 'هنا يمكنك إدارة متجرك بسهولة وتطوير أعمالك معنا ♥';
+                if (loadTxt) loadTxt.innerText = 'جاري تحميل بيانات متجرك';
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-shop"></i>';
+            } else {
+                if (hello) hello.innerText = 'مرحباً بك في متجر';
+                if (brand) brand.innerText = 'المتجر';
+                if (sub) sub.innerText = 'جودة نختارها بعناية ... لأجلك ♥';
+                if (loadTxt) loadTxt.innerText = 'جاري تجهيز أفضل المنتجات لك';
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-gift"></i>';
+            }
+            let pct = 8;
+            const bar = document.getElementById('wsBar');
+            const pctEl = document.getElementById('wsPct');
+            if (welcomeTimer) clearInterval(welcomeTimer);
+            welcomeTimer = setInterval(() => {
+                pct = Math.min(100, pct + Math.floor(Math.random() * 14) + 6);
+                if (bar) bar.style.width = pct + '%';
+                if (pctEl) pctEl.innerText = pct + '%';
+                if (pct >= 100) {
+                    clearInterval(welcomeTimer);
+                    setTimeout(hideWelcomeSplash, 350);
+                }
+            }, 220);
+            setTimeout(hideWelcomeSplash, 2800);
+        }
+        function updateWelcomeBrand(name) {
+            const n = (name || '').trim();
+            if (!n) return;
+            const brand = document.getElementById('wsBrand');
+            const letter = document.getElementById('wsLetter');
+            const splash = document.getElementById('welcomeSplash');
+            if (letter) letter.innerText = n.charAt(0);
+            if (splash && splash.classList.contains('cust') && brand) brand.innerText = n;
+            if (splash && splash.classList.contains('merch') && brand) {
+                brand.innerHTML = 'في لوحة التحكم<br>الخاصة بـ ' + n;
+            }
+        }
+        function hideWelcomeSplash() {
+            const el = document.getElementById('welcomeSplash');
+            if (!el || el.style.display === 'none') return;
+            el.classList.add('hide');
+            setTimeout(() => { el.style.display = 'none'; }, 450);
+        }
+
         // تحميل بيانات المتجر
         function loadStoreData(storeId) {
             db.collection("platform_merchants").doc(storeId).onSnapshot((merchantDoc) => {
@@ -2113,6 +2232,7 @@
                     
                     let storeNameDisplay = storeData.name || "متجري";
                     let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
+                    try { updateWelcomeBrand(storeNameDisplay); } catch(e) {}
                     
                     // واجهة العميل
                     document.getElementById('headerStoreName').innerText = storeNameDisplay;
