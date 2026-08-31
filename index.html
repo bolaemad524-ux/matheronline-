@@ -249,28 +249,73 @@
         .tour-btn-next { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 15px; font-family: 'Cairo'; }
         .tour-btn-skip { background: transparent; color: var(--text-gray); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; font-family: 'Cairo'; text-decoration: underline; }
 
-\n        /* ✨ شاشة ترحيب احترافية باسم البراند */\n        #brandWelcomeOverlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 50% 20%,#ffffff 0%,#f5f7fb 52%,#e9eef5 100%);opacity:0;transition:opacity .35s ease}\n        #brandWelcomeOverlay.show{display:flex;opacity:1}\n        #brandWelcomeOverlay.hide{opacity:0;pointer-events:none}\n        .brand-welcome-card{width:min(430px,94vw);min-height:560px;border-radius:34px;background:rgba(255,255,255,.96);box-shadow:0 30px 90px rgba(15,23,42,.18),0 0 0 1px rgba(255,255,255,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:42px 28px 34px;position:relative;overflow:hidden;transform:translateY(18px) scale(.97);transition:transform .55s cubic-bezier(.2,.8,.2,1)}\n        #brandWelcomeOverlay.show .brand-welcome-card{transform:translateY(0) scale(1)}\n        .brand-welcome-card:before{content:'';position:absolute;width:320px;height:320px;border-radius:50%;background:rgba(13,110,253,.07);top:-160px;left:-110px}.brand-welcome-card:after{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:rgba(251,133,0,.07);bottom:-140px;right:-90px}\n        .brand-welcome-mode,.brand-welcome-small,.brand-welcome-name,.brand-welcome-message,.brand-loader-box,.brand-welcome-footer,.brand-welcome-logo,.brand-welcome-default-logo{position:relative;z-index:2}\n        .brand-welcome-mode{font-size:12px;font-weight:900;color:var(--text-gray);margin-bottom:20px}.brand-welcome-small{color:var(--text-gray);font-size:15px;font-weight:700;margin-bottom:7px}.brand-welcome-name{font-family:'Changa',sans-serif;font-size:clamp(27px,7vw,38px);font-weight:900;color:var(--text-dark);line-height:1.25;max-width:100%;overflow-wrap:anywhere;margin-bottom:12px}\n        .brand-welcome-message{color:#64748b;font-size:14px;line-height:1.8;max-width:320px;margin-bottom:30px}.brand-welcome-logo,.brand-welcome-default-logo{width:112px;height:112px;border-radius:32px;margin-bottom:24px}.brand-welcome-logo{object-fit:cover;background:#fff;border:5px solid #fff;box-shadow:0 15px 35px rgba(15,23,42,.13);display:none}.brand-welcome-default-logo{display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--primary),#111827);color:#fff;box-shadow:0 15px 35px rgba(15,23,42,.16)}.brand-welcome-default-logo i{font-size:46px}\n        .brand-loader-box{width:100%;max-width:320px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;padding:16px 17px 15px}.brand-loader-row{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#475569;font-size:12px;font-weight:800;margin-bottom:10px}.brand-loader-row span:last-child{color:var(--primary);font-family:monospace}.brand-loader-track{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden}.brand-loader-bar{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--primary),var(--secondary));transition:width .16s ease}.brand-loader-dots{display:flex;justify-content:center;gap:6px;margin-top:17px}.brand-loader-dots span{width:7px;height:7px;border-radius:50%;background:#cbd5e1;animation:brandDot 1s infinite ease-in-out}.brand-loader-dots span:nth-child(2){animation-delay:.15s}.brand-loader-dots span:nth-child(3){animation-delay:.3s}@keyframes brandDot{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-5px);opacity:1}}.brand-welcome-footer{margin-top:18px;font-size:11px;color:#94a3b8;font-weight:700}\n        @media(max-width:480px){.brand-welcome-card{min-height:540px;padding:35px 22px 28px;border-radius:28px}.brand-welcome-logo,.brand-welcome-default-logo{width:96px;height:96px;border-radius:28px}.brand-welcome-default-logo i{font-size:38px}}\n        .tour-focus { position: relative; z-index: 4002 !important; background: #e2edff !important; border-radius: 10px; transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+        .tour-focus { position: relative; z-index: 4002 !important; background: #e2edff !important; border-radius: 10px; transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.5); }
         .nav-fab.tour-focus { background: white !important; color: var(--primary) !important; border: 4px solid var(--primary); box-shadow: 0 0 20px rgba(13, 110, 253, 0.8); }
         .cart-icon-btn.tour-focus { background: white !important; color: var(--primary) !important; border: 2px solid var(--primary); transform: scale(1.1); }
+    #welcomeSplash { display:none; position:fixed; inset:0; z-index:99999; align-items:center; justify-content:center; padding:28px 22px; }
+        #welcomeSplash.cust { background: radial-gradient(circle at 50% 18%, #fff7ef 0%, #f8efe6 45%, #f4e8dc 100%); }
+        #welcomeSplash.merch { background: radial-gradient(circle at 80% 0%, #243044 0%, #152033 40%, #0d1522 100%); }
+        .ws-wrap { width:100%; max-width:360px; text-align:center; }
+        .ws-bag {
+            width: 132px; height: 132px; margin: 0 auto 22px; border-radius: 50%;
+            display:flex; align-items:center; justify-content:center; position:relative;
+        }
+        #welcomeSplash.cust .ws-bag { background: radial-gradient(circle, #f3e0d0 0%, rgba(243,224,208,0) 70%); }
+        #welcomeSplash.merch .ws-bag { background: radial-gradient(circle, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0) 70%); }
+        .ws-monogram {
+            width:86px; height:86px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+            font-family:'Changa',sans-serif; font-size:38px; font-weight:800;
+        }
+        #welcomeSplash.cust .ws-monogram { background:linear-gradient(160deg,#e8c4ae,#c48b72); color:#fff; box-shadow:0 12px 30px rgba(168,110,80,0.28); }
+        #welcomeSplash.merch .ws-monogram { background:transparent; color:#d4af37; font-size:64px; text-shadow:0 0 24px rgba(212,175,55,0.35); }
+        .ws-hello { font-size:16px; font-weight:700; margin-bottom:6px; }
+        #welcomeSplash.cust .ws-hello { color:#5c4a3d; }
+        #welcomeSplash.merch .ws-hello { color:#e8e0d0; }
+        .ws-brand { font-family:'Changa',sans-serif; font-size:34px; font-weight:800; line-height:1.25; margin:0 0 10px; }
+        #welcomeSplash.cust .ws-brand { color:#b08b74; }
+        #welcomeSplash.merch .ws-brand { color:#e7c56a; font-size:28px; }
+        .ws-sub { font-size:13px; font-weight:600; margin-bottom:28px; }
+        #welcomeSplash.cust .ws-sub { color:#8b735f; }
+        #welcomeSplash.merch .ws-sub { color:#9aa6b5; }
+        .ws-card { border-radius:22px; padding:18px 16px 16px; }
+        #welcomeSplash.cust .ws-card { background:#fff; box-shadow:0 10px 28px rgba(160,120,90,0.08); }
+        #welcomeSplash.merch .ws-card { background:rgba(255,255,255,0.05); border:1px solid rgba(212,175,55,0.15); }
+        .ws-card-icon { width:42px; height:42px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; }
+        #welcomeSplash.cust .ws-card-icon { background:#f7efe8; color:#c49a82; }
+        #welcomeSplash.merch .ws-card-icon { background:rgba(212,175,55,0.12); color:#d4af37; }
+        .ws-load-txt { font-size:13px; font-weight:700; margin-bottom:12px; }
+        #welcomeSplash.cust .ws-load-txt { color:#6b5648; }
+        #welcomeSplash.merch .ws-load-txt { color:#c9d0d8; }
+        .ws-bar { height:7px; border-radius:99px; overflow:hidden; }
+        #welcomeSplash.cust .ws-bar { background:#ead9cc; }
+        #welcomeSplash.merch .ws-bar { background:#2a3544; }
+        .ws-bar > span { display:block; height:100%; width:8%; border-radius:99px; transition:width .25s linear; }
+        #welcomeSplash.cust .ws-bar > span { background:#c49a82; }
+        #welcomeSplash.merch .ws-bar > span { background:linear-gradient(90deg,#e7c56a,#d4af37); }
+        .ws-pct { margin-top:8px; font-size:13px; font-weight:800; }
+        #welcomeSplash.cust .ws-pct { color:#8a6d5b; }
+        #welcomeSplash.merch .ws-pct { color:#d4af37; }
+        #welcomeSplash.hide { opacity:0; transition:opacity .45s ease; pointer-events:none; }
     </style>
 </head>
 <body>
 
-    <div id="toast" class="toast">تم!</div>
-    <!-- ✨ ترحيب ديناميكي باسم المتجر للعميل والتاجر -->
-    <div id="brandWelcomeOverlay" aria-hidden="true">
-        <div class="brand-welcome-card">
-            <div class="brand-welcome-mode" id="brandWelcomeMode">تجربة المتجر</div>
-            <img id="brandWelcomeLogo" class="brand-welcome-logo" alt="شعار المتجر">
-            <div id="brandWelcomeDefaultLogo" class="brand-welcome-default-logo"><i class="fa-solid fa-store"></i></div>
-            <div class="brand-welcome-small" id="brandWelcomeSmall">مرحباً بك في</div>
-            <div class="brand-welcome-name" id="brandWelcomeName">متجري</div>
-            <div class="brand-welcome-message" id="brandWelcomeMessage">جاري تجهيز المتجر لك... لحظات ونبدأ.</div>
-            <div class="brand-loader-box"><div class="brand-loader-row"><span id="brandWelcomeLoaderText">جاري تجهيز المتجر</span><span id="brandWelcomePercent">0%</span></div><div class="brand-loader-track"><div class="brand-loader-bar" id="brandWelcomeBar"></div></div><div class="brand-loader-dots"><span></span><span></span><span></span></div></div>
-            <div class="brand-welcome-footer">تجربة مميزة تبدأ من أول لحظة ✨</div>
+    <div id="welcomeSplash">
+        <div class="ws-wrap">
+            <div class="ws-bag"><div class="ws-monogram" id="wsLetter">B</div></div>
+            <div class="ws-hello" id="wsHello">مرحباً بك</div>
+            <div class="ws-brand" id="wsBrand">المتجر</div>
+            <div class="ws-sub" id="wsSub">جودة نختارها بعناية ... لأجلك ♥</div>
+            <div class="ws-card">
+                <div class="ws-card-icon" id="wsIcon"><i class="fa-solid fa-gift"></i></div>
+                <div class="ws-load-txt" id="wsLoadTxt">جاري تجهيز أفضل المنتجات لك</div>
+                <div class="ws-bar"><span id="wsBar"></span></div>
+                <div class="ws-pct" id="wsPct">0%</div>
+            </div>
         </div>
     </div>
 
+    <div id="toast" class="toast">تم!</div>
 
     <div id="loginApp" class="landing-wrapper">
         <div class="landing-header">
@@ -1111,28 +1156,6 @@
         let storeProducts = []; let cart = []; let total = 0; let currentCategory = 'الكل';
         let editingProductId = null;
 
-
-        // ✨ ترحيب باسم البراند مع مؤشر تحميل
-        let brandWelcomeTimer = null, brandWelcomeProgressTimer = null;
-        function showBrandWelcome(mode,name,logo){
-            const overlay=document.getElementById('brandWelcomeOverlay'); if(!overlay)return;
-            const safeName=(name||'متجري').toString().trim()||'متجري';
-            const logoEl=document.getElementById('brandWelcomeLogo'), defaultLogo=document.getElementById('brandWelcomeDefaultLogo');
-            document.getElementById('brandWelcomeMode').innerText=mode==='merchant'?'لوحة التاجر':'تجربة العميل';
-            document.getElementById('brandWelcomeSmall').innerText=mode==='merchant'?'مرحباً بك في لوحة':'مرحباً بك في';
-            document.getElementById('brandWelcomeName').innerText=safeName;
-            document.getElementById('brandWelcomeMessage').innerText=mode==='merchant'?'جاري تجهيز لوحة التحكم الخاصة بمتجرك...':'جاري تجهيز المتجر لك... لحظات ونبدأ التسوق.';
-            document.getElementById('brandWelcomeLoaderText').innerText=mode==='merchant'?'جاري تحميل بيانات متجرك':'جاري تجهيز منتجات المتجر';
-            if(logo){logoEl.src=logo;logoEl.style.display='block';defaultLogo.style.display='none'}else{logoEl.removeAttribute('src');logoEl.style.display='none';defaultLogo.style.display='flex'}
-            clearTimeout(brandWelcomeTimer);clearInterval(brandWelcomeProgressTimer);
-            const bar=document.getElementById('brandWelcomeBar'),percent=document.getElementById('brandWelcomePercent');bar.style.width='0%';percent.innerText='0%';
-            overlay.classList.remove('hide');overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');
-            let progress=0; brandWelcomeProgressTimer=setInterval(()=>{progress+=Math.floor(Math.random()*7)+3;if(progress>96)progress=96;bar.style.width=progress+'%';percent.innerText=progress+'%'},120);
-            brandWelcomeTimer=setTimeout(hideBrandWelcome,1900);
-        }
-        function updateBrandWelcome(name,logo){const overlay=document.getElementById('brandWelcomeOverlay');if(!overlay||!overlay.classList.contains('show'))return;if(name)document.getElementById('brandWelcomeName').innerText=name;if(logo){const l=document.getElementById('brandWelcomeLogo');l.src=logo;l.style.display='block';document.getElementById('brandWelcomeDefaultLogo').style.display='none'}}
-        function hideBrandWelcome(){clearInterval(brandWelcomeProgressTimer);const bar=document.getElementById('brandWelcomeBar'),percent=document.getElementById('brandWelcomePercent');if(bar)bar.style.width='100%';if(percent)percent.innerText='100%';const overlay=document.getElementById('brandWelcomeOverlay');if(!overlay)return;setTimeout(()=>{overlay.classList.add('hide');setTimeout(()=>{overlay.classList.remove('show','hide');overlay.setAttribute('aria-hidden','true')},380)},160)}
-
         function generateShortId() {
             return Math.random().toString(36).substring(2, 8);
         }
@@ -1434,7 +1457,6 @@
             // لوحة التاجر فقط من sessionStorage (مش localStorage) عشان العميل ميشوفهاش
             let loggedId = sessionStorage.getItem('loggedStoreId');
             let isLoggedAsAdmin = loggedId === currentStoreId;
-            showBrandWelcome(isLoggedAsAdmin ? 'merchant' : 'customer', isLoggedAsAdmin ? 'متجري' : 'متجرك', null);
             
             if(isLoggedAsAdmin) {
                 document.getElementById('storeApp').style.display = 'none';
@@ -1452,6 +1474,7 @@
                 }).catch(e => console.log("تحديث الزوار:", e));
             }
             loadStoreData(currentStoreId);
+            setTimeout(function(){ try { startWelcomeSplash(isLoggedAsAdmin); } catch(e) {} }, 0);
         } else {
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
         }
@@ -2047,6 +2070,67 @@
         }
 
 
+        let welcomeTimer = null;
+        function startWelcomeSplash(isMerchant) {
+            const el = document.getElementById('welcomeSplash');
+            if (!el) return;
+            el.className = isMerchant ? 'merch' : 'cust';
+            el.style.display = 'flex';
+            const hello = document.getElementById('wsHello');
+            const brand = document.getElementById('wsBrand');
+            const sub = document.getElementById('wsSub');
+            const loadTxt = document.getElementById('wsLoadTxt');
+            const icon = document.getElementById('wsIcon');
+            if (isMerchant) {
+                if (hello) hello.innerText = 'مرحباً بك';
+                if (brand) brand.innerHTML = 'في لوحة التحكم<br>الخاصة بمتجرك';
+                if (sub) sub.innerText = 'هنا يمكنك إدارة متجرك بسهولة وتطوير أعمالك معنا ♥';
+                if (loadTxt) loadTxt.innerText = 'جاري تحميل بيانات متجرك';
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-shop"></i>';
+            } else {
+                if (hello) hello.innerText = 'مرحباً بك في متجر';
+                if (brand) brand.innerText = 'المتجر';
+                if (sub) sub.innerText = 'جودة نختارها بعناية ... لأجلك ♥';
+                if (loadTxt) loadTxt.innerText = 'جاري تجهيز أفضل المنتجات لك';
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-gift"></i>';
+            }
+            let pct = 8;
+            const bar = document.getElementById('wsBar');
+            const pctEl = document.getElementById('wsPct');
+            if (welcomeTimer) clearInterval(welcomeTimer);
+            welcomeTimer = setInterval(() => {
+                try {
+                    if (storeData && storeData.name) updateWelcomeBrand(storeData.name);
+                    pct = Math.min(100, pct + Math.floor(Math.random() * 14) + 6);
+                    if (bar) bar.style.width = pct + '%';
+                    if (pctEl) pctEl.innerText = pct + '%';
+                    if (pct >= 100) {
+                        clearInterval(welcomeTimer);
+                        setTimeout(hideWelcomeSplash, 350);
+                    }
+                } catch(e) {}
+            }, 220);
+            setTimeout(hideWelcomeSplash, 2800);
+        }
+        function updateWelcomeBrand(name) {
+            const n = (name || '').trim();
+            if (!n) return;
+            const brand = document.getElementById('wsBrand');
+            const letter = document.getElementById('wsLetter');
+            const splash = document.getElementById('welcomeSplash');
+            if (letter) letter.innerText = n.charAt(0);
+            if (splash && splash.classList.contains('cust') && brand) brand.innerText = n;
+            if (splash && splash.classList.contains('merch') && brand) {
+                brand.innerHTML = 'في لوحة التحكم<br>الخاصة بـ ' + n;
+            }
+        }
+        function hideWelcomeSplash() {
+            const el = document.getElementById('welcomeSplash');
+            if (!el || el.style.display === 'none') return;
+            el.classList.add('hide');
+            setTimeout(() => { el.style.display = 'none'; }, 450);
+        }
+
         // تحميل بيانات المتجر
         function loadStoreData(storeId) {
             db.collection("platform_merchants").doc(storeId).onSnapshot((merchantDoc) => {
@@ -2150,7 +2234,6 @@
                     
                     let storeNameDisplay = storeData.name || "متجري";
                     let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
-                    updateBrandWelcome(storeNameDisplay, storeData.logo || null);
                     
                     // واجهة العميل
                     document.getElementById('headerStoreName').innerText = storeNameDisplay;
