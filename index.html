@@ -1196,7 +1196,8 @@
 
         function applyStoreTheme(type) {
             const root = document.documentElement; 
-            document.getElementById('pharmacyBanner').style.display = 'none';
+            const pharmacyBanner = document.getElementById('pharmacyBanner');
+            if (pharmacyBanner) pharmacyBanner.style.display = 'none';
             let heroTitle = "أهلاً بك في متجرنا";
             let heroSub = "اكتشف منتجاتنا المميزة واطلب بسهولة";
             let heroBtn = "تسوق الآن";
@@ -1204,7 +1205,7 @@
             if (type === 'pharmacy') { 
                 root.style.setProperty('--primary', '#2a9d8f'); 
                 root.style.setProperty('--secondary', '#e76f51'); 
-                document.getElementById('pharmacyBanner').style.display = 'block'; 
+                if (pharmacyBanner) pharmacyBanner.style.display = 'block'; 
                 heroTitle = "صحتك تهمنا 💊";
                 heroSub = "اطلب أدويتك وروشتتك بسهولة";
             } else if (type === 'electronics') {
@@ -2189,8 +2190,9 @@
 
             db.collection("stores").doc(storeId).onSnapshot((doc) => {
                 if (doc.exists) {
-                    storeData = doc.data(); applyStoreTheme(storeData.storeType || 'general');
-                    setupGoldSilverUI();
+                    storeData = doc.data() || {};
+                    try { applyStoreTheme(storeData.storeType || 'general'); } catch(e) { console.log(e); }
+                    try { setupGoldSilverUI(); } catch(e) { console.log(e); }
                     
                     let storeNameDisplay = storeData.name || "متجري";
                     let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
@@ -2267,17 +2269,28 @@
                 }
             });
 
-            db.collection("stores").doc(storeId).collection("products").onSnapshot((snapshot) => {
-                storeProducts = []; snapshot.forEach(doc => { let pData = doc.data(); if(pData.sortOrder === undefined) pData.sortOrder = Date.now(); storeProducts.push({ id: doc.id, ...pData }); });
-                storeProducts.sort((a, b) => a.sortOrder - b.sortOrder); 
-                
-                if(document.getElementById('stat-products')){
+            function applyProductsSnapshot(snapshot) {
+                storeProducts = [];
+                snapshot.forEach(doc => {
+                    let pData = doc.data() || {};
+                    if (pData.sortOrder === undefined) pData.sortOrder = Date.now();
+                    storeProducts.push({ id: doc.id, ...pData });
+                });
+                storeProducts.sort((a, b) => a.sortOrder - b.sortOrder);
+                if (document.getElementById('stat-products')) {
                     document.getElementById('stat-products').innerText = storeProducts.length;
                 }
                 productsReady = true;
                 tryHideLoader();
-                try { filterProducts(); } catch (e) {}
-            }, () => {
+                try { filterProducts(); } catch (e) { console.log(e); }
+            }
+            const productsRef = db.collection("stores").doc(storeId).collection("products");
+            productsRef.get().then(applyProductsSnapshot).catch(err => {
+                console.log("products get", err);
+                productsReady = true;
+                tryHideLoader();
+            });
+            productsRef.onSnapshot(applyProductsSnapshot, () => {
                 productsReady = true;
                 tryHideLoader();
             });
