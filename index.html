@@ -272,11 +272,12 @@
 </head>
 <body>
 
-    <div id="appLoader">
+    <div id="appLoader" onclick="hideAppLoader()">
         <div class="loader-card">
             <div class="loader-spin"></div>
             <h2 id="loaderBrand">أهلاً بك</h2>
             <p id="loaderMsg">جاري تجهيز المتجر وتحميل المنتجات...</p>
+            <button type="button" onclick="event.stopPropagation(); hideAppLoader();" style="margin-top:18px; background:#fbbf24; color:#111; border:none; padding:10px 22px; border-radius:999px; font-weight:800; font-family:'Cairo'; cursor:pointer;">دخول المتجر</button>
         </div>
     </div>
 
@@ -1098,6 +1099,12 @@
     <i class="fa-solid fa-hand-point-down tour-pointer" id="tourPointer"></i>
 
     <script>
+        setTimeout(function(){
+            var el = document.getElementById('appLoader');
+            if (el) { el.style.display = 'none'; el.remove(); }
+        }, 3000);
+    </script>
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAzildDtyvUV3eNBWkin8wXQsMaEwFoeDs",
             authDomain: "madgeralktrony.firebaseapp.com",
@@ -1419,12 +1426,14 @@
             }
         } else if (currentStoreId) {
             document.getElementById('loginApp').style.display = 'none';
-            document.getElementById('storeApp').style.display = 'none';
-            document.getElementById('merchantDashboardApp').style.display = 'none';
             let loggedId = sessionStorage.getItem('loggedStoreId');
             let isLoggedAsAdmin = loggedId === currentStoreId;
-            showAppLoader(isLoggedAsAdmin);
-            if(!isLoggedAsAdmin) {
+            if(isLoggedAsAdmin) {
+                document.getElementById('storeApp').style.display = 'none';
+                document.getElementById('merchantDashboardApp').style.display = 'block';
+            } else {
+                document.getElementById('storeApp').style.display = 'block';
+                document.getElementById('merchantDashboardApp').style.display = 'none';
                 let d = new Date();
                 let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
                 db.collection("stores").doc(currentStoreId).update({ 
@@ -1432,6 +1441,8 @@
                     [`dailyVisits.${todayStr}`]: firebase.firestore.FieldValue.increment(1)
                 }).catch(e => console.log("تحديث الزوار:", e));
             }
+            showAppLoader(isLoggedAsAdmin);
+            setTimeout(function(){ hideAppLoader(); }, 2500);
             loadStoreData(currentStoreId);
         } else {
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
@@ -2056,20 +2067,19 @@
         }
 
         function hideAppLoader() {
-            if (splashHidden) return;
-            splashHidden = true;
-            const isMerchant = sessionStorage.getItem('loggedStoreId') === currentStoreId;
             const el = document.getElementById('appLoader');
             if (el) {
-                el.classList.add('hide');
-                el.style.display = 'none';
+                el.style.setProperty('display', 'none', 'important');
+                el.remove();
             }
+            splashHidden = true;
             try {
+                const isMerchant = sessionStorage.getItem('loggedStoreId') === currentStoreId;
                 if (isMerchant) {
                     document.getElementById('storeApp').style.display = 'none';
                     document.getElementById('merchantDashboardApp').style.display = 'block';
                     if (pendingMerchantTour) { pendingMerchantTour = false; setTimeout(() => startTour(false), 400); }
-                } else {
+                } else if (currentStoreId) {
                     document.getElementById('storeApp').style.display = 'block';
                     document.getElementById('merchantDashboardApp').style.display = 'none';
                     if (pendingCustomerTour) { pendingCustomerTour = false; setTimeout(() => startTour(true), 400); }
