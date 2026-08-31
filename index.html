@@ -2653,6 +2653,83 @@
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
         window.onclick = function(e) { if (e.target.classList.contains('modal') && e.target.id !== 'onboardingModal' && e.target.id !== 'tutorialModal') e.target.style.display = "none"; }
 
+        function isElVisible(el) {
+            if (!el) return false;
+            const d = el.style.display;
+            if (d === 'none') return false;
+            if (d === 'block' || d === 'flex') return true;
+            return window.getComputedStyle(el).display !== 'none';
+        }
+
+        function closeOpenAppModals() {
+            let closed = false;
+            document.querySelectorAll('.modal').forEach(m => {
+                if (m.id === 'onboardingModal') return;
+                if (isElVisible(m)) {
+                    m.style.display = 'none';
+                    closed = true;
+                }
+            });
+            return closed;
+        }
+
+        function goAppHomeFromBack() {
+            if (closeOpenAppModals()) return;
+
+            const merchantApp = document.getElementById('merchantDashboardApp');
+            const storeApp = document.getElementById('storeApp');
+            const adminApp = document.getElementById('superAdminApp');
+            const loginApp = document.getElementById('loginApp');
+            const previewBtn = document.getElementById('exitPreviewBtn');
+
+            if (isElVisible(storeApp) && previewBtn && previewBtn.style.display === 'flex') {
+                exitPreview();
+                return;
+            }
+
+            if (isElVisible(merchantApp)) {
+                const home = document.getElementById('dash-home');
+                if (home && home.style.display !== 'block') {
+                    switchDashView('dash-home', document.getElementById('nav-home'));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                return;
+            }
+
+            if (isElVisible(adminApp)) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            if (isElVisible(storeApp)) {
+                if (typeof currentCategory !== 'undefined' && currentCategory !== 'الكل') {
+                    const firstBtn = document.querySelector('#categories-nav-container .cat-btn');
+                    setCategory('الكل', firstBtn);
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            if (isElVisible(loginApp)) {
+                const step3 = document.getElementById('authStep3');
+                const step2 = document.getElementById('authStep2');
+                const step4 = document.getElementById('authStep4');
+                if (step3 && step3.style.display === 'block') { cancelPayment(); return; }
+                if (step4 && step4.style.display === 'block') {
+                    step4.style.display = 'none';
+                    document.getElementById('authStep1').style.display = 'block';
+                    return;
+                }
+                if (step2 && step2.style.display === 'block') { goBackToStep1(); return; }
+            }
+        }
+
+        try { history.replaceState({ app: 'base' }, ''); history.pushState({ app: 'stay' }, ''); } catch(e) {}
+        window.addEventListener('popstate', function() {
+            goAppHomeFromBack();
+            try { history.pushState({ app: 'stay' }, ''); } catch(e) {}
+        });
+
         // ===== المخزن =====
         function renderInventory() {
             const list = document.getElementById('inventoryList');
