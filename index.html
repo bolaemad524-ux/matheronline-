@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">BOLA EMAD - منصة المتاجر</title>
+    <title id="pageTitle">متجر</title>
+    <meta property="og:title" id="ogTitle" content="متجر">
+    <meta property="og:description" id="ogDesc" content="">
+    <meta name="description" id="metaDesc" content="">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Changa:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -1333,6 +1336,18 @@
             s = s.replace(/-+/g, '-').replace(/^-|-$/g, '');
             return s || 'store';
         }
+        function setStorePageTitle(name) {
+            const t = (name || '').trim() || 'متجر';
+            document.title = t;
+            const el = document.getElementById('pageTitle');
+            if (el) el.textContent = t;
+            const og = document.getElementById('ogTitle');
+            if (og) og.setAttribute('content', t);
+            const d1 = document.getElementById('ogDesc');
+            if (d1) d1.setAttribute('content', t);
+            const d2 = document.getElementById('metaDesc');
+            if (d2) d2.setAttribute('content', t);
+        }
         function getStorePublicLink(storeId, name) {
             const slug = (storeData && storeData.slug) ? storeData.slug : makeStoreSlug(name || (storeData && storeData.name) || storeId);
             return window.location.origin + window.location.pathname + "?store=" + encodeURIComponent(slug);
@@ -2548,6 +2563,7 @@
                     
                     let storeNameDisplay = storeData.name || "متجري";
                     let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
+                    try { if (!isLoggedAsAdmin) setStorePageTitle(storeNameDisplay); } catch(e) {}
                     
                     // واجهة العميل
                     if (document.getElementById('headerStoreName')) document.getElementById('headerStoreName').innerText = storeNameDisplay;
