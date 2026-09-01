@@ -296,6 +296,18 @@
         #welcomeSplash.cust .ws-pct { color:#8a6d5b; }
         #welcomeSplash.merch .ws-pct { color:#d4af37; }
         #welcomeSplash.hide { opacity:0; transition:opacity .45s ease; pointer-events:none; }
+        #buyGuide {
+            display:none; position:fixed; inset:0; z-index:99998;
+            background:rgba(8,20,40,0.55); align-items:center; justify-content:center;
+            padding:16px; overflow-y:auto;
+        }
+        .bg-card { width:100%; max-width:420px; background:#f4f8ff; border-radius:22px; padding:16px 14px 18px; box-shadow:0 20px 50px rgba(0,0,0,0.25); }
+        .bg-head { background:#1d6fe8; color:#fff; border-radius:14px; padding:10px 12px; font-weight:800; text-align:center; margin-bottom:12px; }
+        .bg-step { background:#fff; border-radius:14px; padding:12px; margin-bottom:8px; display:flex; gap:10px; align-items:flex-start; }
+        .bg-num { min-width:34px; height:34px; border-radius:50%; background:#1d6fe8; color:#fff; font-weight:900; display:flex; align-items:center; justify-content:center; }
+        .bg-step h4 { margin:0 0 4px; color:#1d4ed8; font-size:15px; }
+        .bg-step p { margin:0; color:#334155; font-size:13px; line-height:1.55; font-weight:600; }
+        .bg-skip { width:100%; margin-top:8px; background:#1d6fe8; color:#fff; border:none; padding:13px; border-radius:12px; font-weight:900; font-size:16px; cursor:pointer; font-family:'Cairo'; }
 
         /* ثيمات واجهة العميل */
         #storeApp.skin-gold .store-container { background:#0d1320; color:#f3e6c4; }
@@ -379,6 +391,41 @@
                 <div class="ws-bar"><span id="wsBar"></span></div>
                 <div class="ws-pct" id="wsPct">0%</div>
             </div>
+        </div>
+    </div>
+
+    <div id="buyGuide">
+        <div class="bg-card">
+            <div class="bg-head"><i class="fa-solid fa-cart-shopping"></i> خطوات الشراء من المتجر</div>
+            <div class="bg-step">
+                <div class="bg-num">1</div>
+                <div>
+                    <h4>اضغط على العربة</h4>
+                    <p>في المنتج المراد شرائه اضغط أيقونة العربة الزرقاء.</p>
+                </div>
+            </div>
+            <div class="bg-step">
+                <div class="bg-num">2</div>
+                <div>
+                    <h4>العربة بالأعلى</h4>
+                    <p>بعد إضافة المنتجات اضغط علامة العربة فوق عشان تفتح السلة وتأكد طلبك.</p>
+                </div>
+            </div>
+            <div class="bg-step">
+                <div class="bg-num">3</div>
+                <div>
+                    <h4>فاتورة الشراء</h4>
+                    <p>راجع المنتجات والإجمالي ثم اضغط «تأكيد الأوردر».</p>
+                </div>
+            </div>
+            <div class="bg-step">
+                <div class="bg-num">4</div>
+                <div>
+                    <h4>رسالة واتساب جاهزة</h4>
+                    <p>هتتبعت رسالة للواتساب فيها المنتجات والإجمالي تلقائيًا.</p>
+                </div>
+            </div>
+            <button class="bg-skip" onclick="hideBuyGuide()">تخطي</button>
         </div>
     </div>
 
@@ -1602,6 +1649,7 @@
             }
             loadStoreData(currentStoreId);
             setTimeout(function(){ try { startWelcomeSplash(isLoggedAsAdmin); } catch(e) {} }, 0);
+            if (!isLoggedAsAdmin) setTimeout(function(){ try { if (document.getElementById('buyGuide') && document.getElementById('buyGuide').style.display !== 'flex') showBuyGuide(); } catch(e) {} }, 3200);
         } else {
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
         }
@@ -2199,6 +2247,7 @@
 
         let welcomeTimer = null;
         function startWelcomeSplash(isMerchant) {
+            pendingBuyGuide = !isMerchant;
             const el = document.getElementById('welcomeSplash');
             if (!el) return;
             el.className = isMerchant ? 'merch' : 'cust';
@@ -2253,9 +2302,23 @@
         }
         function hideWelcomeSplash() {
             const el = document.getElementById('welcomeSplash');
-            if (!el || el.style.display === 'none') return;
-            el.classList.add('hide');
-            setTimeout(() => { el.style.display = 'none'; }, 450);
+            if (el && el.style.display !== 'none') {
+                el.classList.add('hide');
+                setTimeout(() => { el.style.display = 'none'; }, 450);
+            }
+            if (pendingBuyGuide) {
+                pendingBuyGuide = false;
+                setTimeout(showBuyGuide, 480);
+            }
+        }
+        let pendingBuyGuide = false;
+        function showBuyGuide() {
+            const g = document.getElementById('buyGuide');
+            if (g) g.style.display = 'flex';
+        }
+        function hideBuyGuide() {
+            const g = document.getElementById('buyGuide');
+            if (g) g.style.display = 'none';
         }
 
         // تحميل بيانات المتجر
