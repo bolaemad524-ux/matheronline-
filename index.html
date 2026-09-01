@@ -298,16 +298,26 @@
         #welcomeSplash.hide { opacity:0; transition:opacity .45s ease; pointer-events:none; }
         #buyGuide {
             display:none; position:fixed; inset:0; z-index:99998;
-            background:rgba(8,20,40,0.55); align-items:center; justify-content:center;
-            padding:16px; overflow-y:auto;
+            background:rgba(8,20,40,0.62);
+            flex-direction:column; justify-content:flex-end;
         }
-        .bg-card { width:100%; max-width:420px; background:#f4f8ff; border-radius:22px; padding:16px 14px 18px; box-shadow:0 20px 50px rgba(0,0,0,0.25); }
-        .bg-head { background:#1d6fe8; color:#fff; border-radius:14px; padding:10px 12px; font-weight:800; text-align:center; margin-bottom:12px; }
-        .bg-step { background:#fff; border-radius:14px; padding:12px; margin-bottom:8px; display:flex; gap:10px; align-items:flex-start; }
-        .bg-num { min-width:34px; height:34px; border-radius:50%; background:#1d6fe8; color:#fff; font-weight:900; display:flex; align-items:center; justify-content:center; }
-        .bg-step h4 { margin:0 0 4px; color:#1d4ed8; font-size:15px; }
-        .bg-step p { margin:0; color:#334155; font-size:13px; line-height:1.55; font-weight:600; }
-        .bg-skip { width:100%; margin-top:8px; background:#1d6fe8; color:#fff; border:none; padding:13px; border-radius:12px; font-weight:900; font-size:16px; cursor:pointer; font-family:'Cairo'; }
+        .bg-card {
+            width:100%; background:#f4f8ff; border-radius:22px 22px 0 0;
+            padding:16px 14px 0; box-shadow:0 -12px 40px rgba(0,0,0,0.25);
+            max-height:70vh; display:flex; flex-direction:column;
+        }
+        .bg-head { background:#1d6fe8; color:#fff; border-radius:14px; padding:10px 12px; font-weight:800; text-align:center; margin-bottom:12px; flex-shrink:0; }
+        .bg-step { background:#fff; border-radius:14px; padding:16px; display:none; gap:12px; align-items:flex-start; }
+        .bg-step.on { display:flex; }
+        .bg-num { min-width:36px; height:36px; border-radius:50%; background:#1d6fe8; color:#fff; font-weight:900; display:flex; align-items:center; justify-content:center; }
+        .bg-step h4 { margin:0 0 4px; color:#1d4ed8; font-size:16px; }
+        .bg-step p { margin:0; color:#334155; font-size:14px; line-height:1.6; font-weight:600; }
+        .bg-actions {
+            position:sticky; bottom:0; background:#f4f8ff; padding:12px 0 calc(14px + env(safe-area-inset-bottom));
+            display:flex; gap:8px; margin-top:12px;
+        }
+        .bg-skip { flex:1; background:#e2e8f0; color:#334155; border:none; padding:14px; border-radius:12px; font-weight:900; font-size:16px; cursor:pointer; font-family:'Cairo'; }
+        .bg-next { flex:1.4; background:#1d6fe8; color:#fff; border:none; padding:14px; border-radius:12px; font-weight:900; font-size:16px; cursor:pointer; font-family:'Cairo'; }
 
         /* ثيمات واجهة العميل */
         #storeApp.skin-gold .store-container { background:#0d1320; color:#f3e6c4; }
@@ -397,35 +407,38 @@
     <div id="buyGuide">
         <div class="bg-card">
             <div class="bg-head"><i class="fa-solid fa-cart-shopping"></i> خطوات الشراء من المتجر</div>
-            <div class="bg-step">
+            <div class="bg-step on" data-step="0">
                 <div class="bg-num">1</div>
                 <div>
                     <h4>اضغط على العربة</h4>
-                    <p>في المنتج المراد شرائه اضغط أيقونة العربة الزرقاء.</p>
+                    <p>في المنتج المراد شرائه اضغط أيقونة العربة.</p>
                 </div>
             </div>
-            <div class="bg-step">
+            <div class="bg-step" data-step="1">
                 <div class="bg-num">2</div>
                 <div>
                     <h4>العربة بالأعلى</h4>
-                    <p>بعد إضافة المنتجات اضغط علامة العربة فوق عشان تفتح السلة وتأكد طلبك.</p>
+                    <p>بعد إضافة المنتجات اضغط علامة العربة فوق عشان تفتح السلة.</p>
                 </div>
             </div>
-            <div class="bg-step">
+            <div class="bg-step" data-step="2">
                 <div class="bg-num">3</div>
                 <div>
                     <h4>فاتورة الشراء</h4>
                     <p>راجع المنتجات والإجمالي ثم اضغط «تأكيد الأوردر».</p>
                 </div>
             </div>
-            <div class="bg-step">
+            <div class="bg-step" data-step="3">
                 <div class="bg-num">4</div>
                 <div>
                     <h4>رسالة واتساب جاهزة</h4>
                     <p>هتتبعت رسالة للواتساب فيها المنتجات والإجمالي تلقائيًا.</p>
                 </div>
             </div>
-            <button class="bg-skip" onclick="hideBuyGuide()">تخطي</button>
+            <div class="bg-actions">
+                <button class="bg-skip" onclick="hideBuyGuide()">تخطي</button>
+                <button class="bg-next" id="buyGuideNextBtn" onclick="nextBuyGuide()">التالي</button>
+            </div>
         </div>
     </div>
 
@@ -2128,19 +2141,16 @@
                     pointer.style.transform = 'none';
                 } else if (isCustomerTourMode) {
                     pointer.style.display = 'block';
+                    tooltip.style.bottom = '18px';
+                    tooltip.style.top = 'auto';
+                    tooltip.style.transform = 'translateX(-50%)';
                     if(step.target === 'mainCartBtn') {
                         document.getElementById('customerHeader').style.zIndex = '4001';
-                        tooltip.style.bottom = 'auto';
-                        tooltip.style.top = '120px';
-                        tooltip.style.transform = 'translateX(-50%)';
                         pointer.style.top = (targetRect.bottom + 10) + 'px';
                         pointer.style.bottom = 'auto';
                         pointer.style.left = (targetRect.left + (targetRect.width / 2) - 17) + 'px';
                         pointer.style.transform = 'rotate(180deg)'; 
                     } else if (step.target === 'categories-nav-container') {
-                        tooltip.style.bottom = 'auto';
-                        tooltip.style.top = (targetRect.bottom + 70) + 'px';
-                        tooltip.style.transform = 'translateX(-50%)';
                         pointer.style.top = (targetRect.bottom + 5) + 'px';
                         pointer.style.bottom = 'auto';
                         pointer.style.left = '50%';
@@ -2312,9 +2322,25 @@
             }
         }
         let pendingBuyGuide = false;
+        let buyGuideStep = 0;
         function showBuyGuide() {
             const g = document.getElementById('buyGuide');
-            if (g) g.style.display = 'flex';
+            if (!g) return;
+            buyGuideStep = 0;
+            renderBuyGuideStep();
+            g.style.display = 'flex';
+        }
+        function renderBuyGuideStep() {
+            document.querySelectorAll('#buyGuide .bg-step').forEach((el, i) => {
+                el.classList.toggle('on', i === buyGuideStep);
+            });
+            const btn = document.getElementById('buyGuideNextBtn');
+            if (btn) btn.innerText = buyGuideStep >= 3 ? 'ابدأ التسوق' : 'التالي';
+        }
+        function nextBuyGuide() {
+            if (buyGuideStep >= 3) { hideBuyGuide(); return; }
+            buyGuideStep++;
+            renderBuyGuideStep();
         }
         function hideBuyGuide() {
             const g = document.getElementById('buyGuide');
@@ -2483,7 +2509,11 @@
                     
                     // إطلاق الجولة التعريفية للعميل
                     if (!isLoggedAsAdmin && !localStorage.getItem('customerTourCompleted_' + storeId)) {
-                        setTimeout(() => startTour(true), 1000);
+                        setTimeout(() => {
+                            const g = document.getElementById('buyGuide');
+                            if (g && g.style.display === 'flex') return;
+                            startTour(true);
+                        }, 8000);
                     }
 
                 } else { 
