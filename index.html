@@ -236,7 +236,7 @@
         /* 🎯 نظام الجولة التعريفية (Onboarding Tour) للتاجر والعميل 🎯 */
         .tour-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 4000; display: none; backdrop-filter: blur(2px); transition: 0.3s; }
         
-        .tour-tooltip { position: fixed; background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; z-index: 4001; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.4); text-align: center; transition: 0.3s; left: 50%; transform: translateX(-50%); border: 2px solid var(--primary); }
+        .tour-tooltip { position: fixed; background: white; padding: 18px 16px 16px; border-radius: 15px; width: 90%; max-width: 350px; z-index: 4001; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.4); text-align: center; transition: 0.3s; left: 50%; top: 40%; transform: translate(-50%, -50%); border: 2px solid var(--primary); }
         
         .tour-pointer { position: fixed; font-size: 35px; color: var(--primary); z-index: 4005; animation: bounce-arrow 1s infinite alternate; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: none; transition: 0.3s ease-in-out; pointer-events: none;}
         @keyframes bounce-arrow { from { margin-top: 0; } to { margin-top: -15px; } }
@@ -2141,9 +2141,9 @@
                     pointer.style.transform = 'none';
                 } else if (isCustomerTourMode) {
                     pointer.style.display = 'block';
-                    tooltip.style.bottom = '18px';
-                    tooltip.style.top = 'auto';
-                    tooltip.style.transform = 'translateX(-50%)';
+                    tooltip.style.top = '38%';
+                    tooltip.style.bottom = 'auto';
+                    tooltip.style.transform = 'translate(-50%, -50%)';
                     if(step.target === 'mainCartBtn') {
                         document.getElementById('customerHeader').style.zIndex = '4001';
                         pointer.style.top = (targetRect.bottom + 10) + 'px';
