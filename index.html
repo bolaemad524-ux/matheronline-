@@ -1308,7 +1308,7 @@
         const db = firebase.firestore();
 
         const urlParams = new URLSearchParams(window.location.search);
-        const currentStoreId = urlParams.get('store');
+        let currentStoreId = urlParams.get('store');
         const isSuperAdmin = urlParams.get('super') === 'bola'; 
 
         let tempPhone = ""; let tempPass = ""; let tempCategory = ""; let selectedPlan = ""; let selectedPrice = 0; let receiptBase64 = "";
@@ -1321,6 +1321,30 @@
 
         function generateShortId() {
             return Math.random().toString(36).substring(2, 8);
+        }
+        function makeStoreSlug(name) {
+            let s = (name || '').trim().replace(/\s+/g, '-');
+            s = s.replace(/[^\u0600-\u06FFa-zA-Z0-9\-]/g, '');
+            s = s.replace(/-+/g, '-').replace(/^-|-$/g, '');
+            return s || 'store';
+        }
+        function getStorePublicLink(storeId, name) {
+            const slug = (storeData && storeData.slug) ? storeData.slug : makeStoreSlug(name || (storeData && storeData.name) || storeId);
+            return window.location.origin + window.location.pathname + "?store=" + encodeURIComponent(slug);
+        }
+        function resolveStoreId(param) {
+            if (!param) return Promise.resolve(null);
+            const raw = decodeURIComponent(param);
+            return db.collection("stores").doc(raw).get().then(doc => {
+                if (doc.exists) return raw;
+                return db.collection("stores").where("slug", "==", raw).limit(1).get().then(snap => {
+                    if (!snap.empty) return snap.docs[0].id;
+                    return db.collection("stores").where("slug", "==", param).limit(1).get().then(snap2 => {
+                        if (!snap2.empty) return snap2.docs[0].id;
+                        return raw;
+                    });
+                });
+            }).catch(() => raw);
         }
 
         function getExpiryTimestamp(plan) {
@@ -1642,28 +1666,27 @@
             }
         } else if (currentStoreId) {
             document.getElementById('loginApp').style.display = 'none';
-            // لوحة التاجر فقط من sessionStorage (مش localStorage) عشان العميل ميشوفهاش
-            let loggedId = sessionStorage.getItem('loggedStoreId');
-            let isLoggedAsAdmin = loggedId === currentStoreId;
-            
-            if(isLoggedAsAdmin) {
-                document.getElementById('storeApp').style.display = 'none';
-                document.getElementById('merchantDashboardApp').style.display = 'block';
-            } else {
-                // واجهة العميل دائماً لزوار الرابط
-                document.getElementById('storeApp').style.display = 'block';
-                document.getElementById('merchantDashboardApp').style.display = 'none';
-                let d = new Date();
-                let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
-                
-                db.collection("stores").doc(currentStoreId).update({ 
-                    visitors: firebase.firestore.FieldValue.increment(1),
-                    [`dailyVisits.${todayStr}`]: firebase.firestore.FieldValue.increment(1)
-                }).catch(e => console.log("تحديث الزوار:", e));
-            }
-            loadStoreData(currentStoreId);
-            setTimeout(function(){ try { startWelcomeSplash(isLoggedAsAdmin); } catch(e) {} }, 0);
-            if (!isLoggedAsAdmin) setTimeout(function(){ try { if (document.getElementById('buyGuide') && document.getElementById('buyGuide').style.display !== 'flex') showBuyGuide(); } catch(e) {} }, 3200);
+            resolveStoreId(currentStoreId).then(function(realId) {
+                currentStoreId = realId || currentStoreId;
+                let loggedId = sessionStorage.getItem('loggedStoreId');
+                let isLoggedAsAdmin = loggedId === currentStoreId;
+                if(isLoggedAsAdmin) {
+                    document.getElementById('storeApp').style.display = 'none';
+                    document.getElementById('merchantDashboardApp').style.display = 'block';
+                } else {
+                    document.getElementById('storeApp').style.display = 'block';
+                    document.getElementById('merchantDashboardApp').style.display = 'none';
+                    let d = new Date();
+                    let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+                    db.collection("stores").doc(currentStoreId).update({ 
+                        visitors: firebase.firestore.FieldValue.increment(1),
+                        [`dailyVisits.${todayStr}`]: firebase.firestore.FieldValue.increment(1)
+                    }).catch(e => console.log("تحديث الزوار:", e));
+                }
+                loadStoreData(currentStoreId);
+                setTimeout(function(){ try { startWelcomeSplash(isLoggedAsAdmin); } catch(e) {} }, 0);
+                if (!isLoggedAsAdmin) setTimeout(function(){ try { if (document.getElementById('buyGuide') && document.getElementById('buyGuide').style.display !== 'flex') showBuyGuide(); } catch(e) {} }, 3200);
+            });
         } else {
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
         }
@@ -2224,10 +2247,10 @@
         
         function merchantLogout() { firebase.auth().signOut().then(() => { sessionStorage.removeItem('loggedStoreId'); window.location.href = window.location.pathname; }); }
         
-        function copyStoreLink() { navigator.clipboard.writeText(window.location.origin + window.location.pathname + "?store=" + currentStoreId).then(() => showToast("تم نسخ الرابط 🚀")); }
+        function copyStoreLink() { navigator.clipboard.writeText(getStorePublicLink(currentStoreId)).then(() => showToast("تم نسخ الرابط 🚀")); }
 
         function openQrModal() {
-            const storeFullLink = window.location.origin + window.location.pathname + "?store=" + currentStoreId;
+            const storeFullLink = getStorePublicLink(currentStoreId);
             document.getElementById("qrcode").innerHTML = ""; // مسح الكود القديم
             
             // إنشاء الـ QR Code الجديد
@@ -2244,7 +2267,7 @@
         }
 
         function shareStoreLink() {
-            const storeFullLink = window.location.origin + window.location.pathname + "?store=" + currentStoreId;
+            const storeFullLink = getStorePublicLink(currentStoreId);
             if (navigator.share) {
                 navigator.share({
                     title: `متجر ${storeData.name}`,
@@ -2499,9 +2522,13 @@
                         if(document.getElementById('adminLocationLink')) document.getElementById('adminLocationLink').value = storeData.locationLink || "";
                     }
                     
-                    const storeFullLink = window.location.origin + window.location.pathname + "?store=" + storeId;
+                    if (!storeData.slug && storeNameDisplay) {
+                        storeData.slug = makeStoreSlug(storeNameDisplay);
+                        db.collection("stores").doc(storeId).update({ slug: storeData.slug }).catch(()=>{});
+                    }
+                    const storeFullLink = getStorePublicLink(storeId, storeNameDisplay);
                     if(document.getElementById('storeLinkDisplay')){
-                        document.getElementById('storeLinkDisplay').innerText = storeFullLink.substring(0, 30) + "...";
+                        document.getElementById('storeLinkDisplay').innerText = storeFullLink;
                         document.getElementById('storeLinkDisplay').href = storeFullLink;
                     }
 
@@ -2553,6 +2580,7 @@
             let pVal = document.getElementById('adminPhone').value.trim(); let finalP = pVal ? "20" + pVal : "";
             const updates = { 
                 name: document.getElementById('adminStoreName').value, 
+                slug: makeStoreSlug(document.getElementById('adminStoreName').value), 
                 address: document.getElementById('adminStoreAddress').value, 
                 phone: finalP, 
                 facebook: document.getElementById('adminFacebook').value, 
