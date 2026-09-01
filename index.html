@@ -1387,7 +1387,8 @@
 
         function applyStoreTheme(type) {
             const root = document.documentElement; 
-            document.getElementById('pharmacyBanner').style.display = 'none';
+            const pharmacyBanner = document.getElementById('pharmacyBanner');
+            if (pharmacyBanner) pharmacyBanner.style.display = 'none';
             let heroTitle = "أهلاً بك في متجرنا";
             let heroSub = "اكتشف منتجاتنا المميزة واطلب بسهولة";
             let heroBtn = "تسوق الآن";
@@ -1395,7 +1396,7 @@
             if (type === 'pharmacy') { 
                 root.style.setProperty('--primary', '#2a9d8f'); 
                 root.style.setProperty('--secondary', '#e76f51'); 
-                document.getElementById('pharmacyBanner').style.display = 'block'; 
+                if (pharmacyBanner) pharmacyBanner.style.display = 'block'; 
                 heroTitle = "صحتك تهمنا 💊";
                 heroSub = "اطلب أدويتك وروشتتك بسهولة";
             } else if (type === 'electronics') {
@@ -2453,7 +2454,7 @@
                     let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
                     
                     // واجهة العميل
-                    document.getElementById('headerStoreName').innerText = storeNameDisplay;
+                    if (document.getElementById('headerStoreName')) document.getElementById('headerStoreName').innerText = storeNameDisplay;
                     if (document.getElementById('heroTitle')) {
                         // hero text is set by applyStoreTheme, keep name if needed
                     }
@@ -2516,11 +2517,12 @@
                         }, 8000);
                     }
 
-                } else { 
-                    if(!document.getElementById('mainStoreContainer').innerHTML.includes('موقوف') && !document.getElementById('mainStoreContainer').innerHTML.includes('انتهت')) {
-                        document.getElementById('storeApp').innerHTML = "<h2 style='text-align:center; margin-top:100px;'>هذا المتجر غير موجود</h2>"; 
-                    }
+                } else {
+                    if (doc.metadata && doc.metadata.fromCache) return;
+                    console.log('store doc missing, waiting retry', storeId);
                 }
+            }, (err) => {
+                console.log('store snapshot error', err);
             });
 
             db.collection("stores").doc(storeId).collection("products").onSnapshot((snapshot) => {
