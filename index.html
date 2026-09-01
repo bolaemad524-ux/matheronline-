@@ -1379,6 +1379,9 @@
                     if (document.getElementById('platPriceQuarter')) document.getElementById('platPriceQuarter').value = platformPlans.quarter;
                     if (document.getElementById('platPriceYear')) document.getElementById('platPriceYear').value = platformPlans.year;
                     if (document.getElementById('platHidePaidPlans')) document.getElementById('platHidePaidPlans').checked = platformPlans.hidePaid;
+                    if (data.adminPin && typeof adminLocalPins !== 'undefined' && adminLocalPins.indexOf(data.adminPin) === -1) {
+                        adminLocalPins.push(data.adminPin);
+                    }
                     applyPlatformPlansToUI();
                 }
             });
@@ -1657,9 +1660,13 @@
             document.getElementById('superAdminApp').style.display = 'block';
             try { loadAllMerchantsAdmin(); } catch(e) { console.log(e); }
         }
+        let adminLocalPins = ["941997", "01285957035Bola@"];
+        function isValidAdminPin(pass) {
+            return adminLocalPins.indexOf(pass) !== -1;
+        }
         function enterAdminPanel(pass) {
             if (!pass) return alert("أدخل الرقم السري");
-            if (pass === "941997") {
+            if (isValidAdminPin(pass)) {
                 openAdminUI();
                 firebase.auth().signInWithEmailAndPassword("admin@bola-stores.com", pass).catch(() => {
                     firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass).catch(()=>{});
@@ -1670,14 +1677,22 @@
             if (btn) { btn.disabled = true; btn.innerText = 'جاري الدخول...'; }
             const t = setTimeout(() => {
                 if (btn) { btn.disabled = false; btn.innerText = 'دخول'; }
-                alert("تعذر الاتصال. تأكد من الإنترنت أو استخدم الرقم السري الافتراضي.");
-            }, 7000);
+                alert("تعذر الاتصال أو كلمة المرور غير صحيحة.");
+            }, 6000);
             firebase.auth().signInWithEmailAndPassword("admin@bola-stores.com", pass)
             .then(() => { clearTimeout(t); openAdminUI(); })
             .catch(() => {
-                clearTimeout(t);
-                if (btn) { btn.disabled = false; btn.innerText = 'دخول'; }
-                alert("كلمة المرور غير صحيحة!");
+                db.collection("settings").doc("platform_info").get().then(doc => {
+                    clearTimeout(t);
+                    if (btn) { btn.disabled = false; btn.innerText = 'دخول'; }
+                    const saved = doc.exists ? (doc.data().adminPin || '') : '';
+                    if (saved && saved === pass) openAdminUI();
+                    else alert("كلمة المرور غير صحيحة!");
+                }).catch(() => {
+                    clearTimeout(t);
+                    if (btn) { btn.disabled = false; btn.innerText = 'دخول'; }
+                    alert("كلمة المرور غير صحيحة!");
+                });
             });
         }
         function submitAdminGate() {
@@ -1975,6 +1990,8 @@
                     document.getElementById('adminNewPassword').value = '';
                     btn.innerHTML = originalText;
                     btn.disabled = false;
+                    if (typeof adminLocalPins !== 'undefined' && adminLocalPins.indexOf(newPass) === -1) adminLocalPins.push(newPass);
+                    db.collection("settings").doc("platform_info").set({ adminPin: newPass }, { merge: true }).catch(()=>{});
                     showToast("تم تغيير كلمة المرور بنجاح! 🔒");
                 }).catch((error) => {
                     console.error(error);
