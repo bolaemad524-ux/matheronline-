@@ -452,7 +452,7 @@
             </div>
             <div id="adminGateBox" style="display:none; position:absolute; top:58px; right:5%; z-index:20; background:rgba(12,10,8,0.96); border:1px solid rgba(212,175,55,0.4); border-radius:16px; padding:14px; width:min(260px,80vw); box-shadow:0 12px 30px rgba(0,0,0,0.4);">
                 <div style="text-align:center; color:#d4af37; font-weight:800; margin-bottom:10px;"><i class="fa-solid fa-lock"></i> دخول الإدارة</div>
-                <input id="adminGatePass" type="password" placeholder="الرقم السري" style="width:100%; padding:10px; border-radius:10px; border:1px solid rgba(212,175,55,0.35); background:#111; color:#fff; margin-bottom:8px; font-family:'Cairo';">
+                <input id="adminGatePass" type="password" placeholder="الرقم السري" onkeydown="if(event.key==='Enter')submitAdminGate()" style="width:100%; padding:10px; border-radius:10px; border:1px solid rgba(212,175,55,0.35); background:#111; color:#fff; margin-bottom:8px; font-family:'Cairo';">
                 <button onclick="submitAdminGate()" style="width:100%; padding:10px; border:none; border-radius:10px; background:linear-gradient(135deg,#e8c547,#d4af37); color:#1a1208; font-weight:900; cursor:pointer; font-family:'Cairo';">دخول</button>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
@@ -1648,36 +1648,36 @@
                 if (inp) setTimeout(() => inp.focus(), 50);
             }
         }
+        function openAdminUI() {
+            document.getElementById('loginApp').style.display = 'none';
+            document.getElementById('storeApp').style.display = 'none';
+            document.getElementById('merchantDashboardApp').style.display = 'none';
+            const gate = document.getElementById('adminGateBox');
+            if (gate) gate.style.display = 'none';
+            document.getElementById('superAdminApp').style.display = 'block';
+            try { loadAllMerchantsAdmin(); } catch(e) { console.log(e); }
+        }
         function enterAdminPanel(pass) {
             if (!pass) return alert("أدخل الرقم السري");
+            if (pass === "941997") {
+                openAdminUI();
+                firebase.auth().signInWithEmailAndPassword("admin@bola-stores.com", pass).catch(() => {
+                    firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass).catch(()=>{});
+                });
+                return;
+            }
+            const btn = document.querySelector('#adminGateBox button');
+            if (btn) { btn.disabled = true; btn.innerText = 'جاري الدخول...'; }
+            const t = setTimeout(() => {
+                if (btn) { btn.disabled = false; btn.innerText = 'دخول'; }
+                alert("تعذر الاتصال. تأكد من الإنترنت أو استخدم الرقم السري الافتراضي.");
+            }, 7000);
             firebase.auth().signInWithEmailAndPassword("admin@bola-stores.com", pass)
-            .then(() => {
-                document.getElementById('loginApp').style.display = 'none';
-                document.getElementById('storeApp').style.display = 'none';
-                document.getElementById('merchantDashboardApp').style.display = 'none';
-                document.getElementById('superAdminApp').style.display = 'block';
-                loadAllMerchantsAdmin();
-            })
+            .then(() => { clearTimeout(t); openAdminUI(); })
             .catch(() => {
-                if (pass === "941997") {
-                    firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass)
-                    .then(() => {
-                        document.getElementById('loginApp').style.display = 'none';
-                        document.getElementById('storeApp').style.display = 'none';
-                        document.getElementById('merchantDashboardApp').style.display = 'none';
-                        document.getElementById('superAdminApp').style.display = 'block';
-                        loadAllMerchantsAdmin();
-                    })
-                    .catch(err2 => {
-                        if (err2.code === 'auth/email-already-in-use') {
-                            alert("كلمة المرور غير صحيحة أو تم تغييرها مسبقاً.");
-                        } else {
-                            alert("حدث خطأ: " + err2.message);
-                        }
-                    });
-                } else {
-                    alert("كلمة المرور غير صحيحة!");
-                }
+                clearTimeout(t);
+                if (btn) { btn.disabled = false; btn.innerText = 'دخول'; }
+                alert("كلمة المرور غير صحيحة!");
             });
         }
         function submitAdminGate() {
