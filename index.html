@@ -448,7 +448,12 @@
         <div class="landing-header">
             <div class="logo">
                 <i class="fa-solid fa-bag-shopping"></i> 
-                <span>BOLA <span class="emad-gold">EMAD</span></span>
+                <span><span id="bolaTapWord" onclick="onBolaLogoTap()" style="cursor:default; user-select:none;">BOLA</span> <span class="emad-gold">EMAD</span></span>
+            </div>
+            <div id="adminGateBox" style="display:none; position:absolute; top:58px; right:5%; z-index:20; background:rgba(12,10,8,0.96); border:1px solid rgba(212,175,55,0.4); border-radius:16px; padding:14px; width:min(260px,80vw); box-shadow:0 12px 30px rgba(0,0,0,0.4);">
+                <div style="text-align:center; color:#d4af37; font-weight:800; margin-bottom:10px;"><i class="fa-solid fa-lock"></i> دخول الإدارة</div>
+                <input id="adminGatePass" type="password" placeholder="الرقم السري" style="width:100%; padding:10px; border-radius:10px; border:1px solid rgba(212,175,55,0.35); background:#111; color:#fff; margin-bottom:8px; font-family:'Cairo';">
+                <button onclick="submitAdminGate()" style="width:100%; padding:10px; border:none; border-radius:10px; background:linear-gradient(135deg,#e8c547,#d4af37); color:#1a1208; font-weight:900; cursor:pointer; font-family:'Cairo';">دخول</button>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
                 <button onclick="openTutorialVideo(false)" class="contact-us-btn" style="background:rgba(212,175,55,0.18); border-color:#d4af37; color:#f5e6b8;">
@@ -1627,6 +1632,57 @@
             navigator.clipboard.writeText(number).then(() => {
                 showToast("تم نسخ الرقم بنجاح!");
             });
+        }
+
+        let bolaTapCount = 0;
+        let bolaTapTimer = null;
+        function onBolaLogoTap() {
+            bolaTapCount++;
+            if (bolaTapTimer) clearTimeout(bolaTapTimer);
+            bolaTapTimer = setTimeout(() => { bolaTapCount = 0; }, 2500);
+            if (bolaTapCount >= 5) {
+                bolaTapCount = 0;
+                const box = document.getElementById('adminGateBox');
+                if (box) box.style.display = 'block';
+                const inp = document.getElementById('adminGatePass');
+                if (inp) setTimeout(() => inp.focus(), 50);
+            }
+        }
+        function enterAdminPanel(pass) {
+            if (!pass) return alert("أدخل الرقم السري");
+            firebase.auth().signInWithEmailAndPassword("admin@bola-stores.com", pass)
+            .then(() => {
+                document.getElementById('loginApp').style.display = 'none';
+                document.getElementById('storeApp').style.display = 'none';
+                document.getElementById('merchantDashboardApp').style.display = 'none';
+                document.getElementById('superAdminApp').style.display = 'block';
+                loadAllMerchantsAdmin();
+            })
+            .catch(() => {
+                if (pass === "941997") {
+                    firebase.auth().createUserWithEmailAndPassword("admin@bola-stores.com", pass)
+                    .then(() => {
+                        document.getElementById('loginApp').style.display = 'none';
+                        document.getElementById('storeApp').style.display = 'none';
+                        document.getElementById('merchantDashboardApp').style.display = 'none';
+                        document.getElementById('superAdminApp').style.display = 'block';
+                        loadAllMerchantsAdmin();
+                    })
+                    .catch(err2 => {
+                        if (err2.code === 'auth/email-already-in-use') {
+                            alert("كلمة المرور غير صحيحة أو تم تغييرها مسبقاً.");
+                        } else {
+                            alert("حدث خطأ: " + err2.message);
+                        }
+                    });
+                } else {
+                    alert("كلمة المرور غير صحيحة!");
+                }
+            });
+        }
+        function submitAdminGate() {
+            const pass = (document.getElementById('adminGatePass') || {}).value || '';
+            enterAdminPanel(pass.trim());
         }
 
         // 🎯 مسار الإدارة المحمي بالـ Auth
