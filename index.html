@@ -781,6 +781,14 @@
                         <img id="newProductImagePreview" style="display:none; width:100%; max-height:150px; object-fit:contain; border-radius:8px; margin-top: 10px;">
                     </div>
                     <input type="file" id="newProductImage" accept="image/jpeg,image/png,image/webp,image/jpg" style="display:none;" onchange="previewNewProductImage(event)">
+                    <div id="productEditTools" style="display:none; gap:8px; margin-bottom:14px;">
+                        <button type="button" onclick="downloadCurrentEditImage()" style="flex:1; background:#0d6efd; color:white; border:none; padding:10px; border-radius:10px; font-weight:800; cursor:pointer; font-family:'Cairo';">
+                            <i class="fa-solid fa-download"></i> تحميل الصورة
+                        </button>
+                        <button type="button" onclick="copyCurrentEditDetails()" style="flex:1; background:#111827; color:white; border:none; padding:10px; border-radius:10px; font-weight:800; cursor:pointer; font-family:'Cairo';">
+                            <i class="fa-regular fa-copy"></i> نسخ التفاصيل
+                        </button>
+                    </div>
 
                     <div class="input-icon-wrapper">
                         <i class="fa-solid fa-tag"></i>
@@ -2769,7 +2777,7 @@
 
             productsToRender.forEach((product) => { 
                 const priceDisplay = product.isByGram ? `${product.price} ج (${product.grams || ''}ج)` : (product.isMeter ? `${product.price} ج/م` : `${product.price} ج`); const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);'; 
-                if(adminList) adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`; 
+                if(adminList) adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="downloadProductImage('${product.id}')" title="تحميل الصورة"><i class="fa-solid fa-download"></i></button><button class="icon-btn" onclick="copyProductDetails('${product.id}')" title="نسخ التفاصيل"><i class="fa-regular fa-copy"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`; 
             });
         }
 
@@ -2787,7 +2795,7 @@
             list.forEach((product) => {
                 const priceDisplay = product.isByGram ? `${product.price} ج (${product.grams || ''}ج)` : (product.isMeter ? `${product.price} ج/م` : `${product.price} ج`);
                 const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);';
-                adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`;
+                adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="downloadProductImage('${product.id}')" title="تحميل الصورة"><i class="fa-solid fa-download"></i></button><button class="icon-btn" onclick="copyProductDetails('${product.id}')" title="نسخ التفاصيل"><i class="fa-regular fa-copy"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`;
             });
         }
         function toggleDealOfDay(id) { 
@@ -2853,11 +2861,86 @@
             }
             document.getElementById('newProductImage').value = '';
             document.getElementById('addProductBtn').innerHTML = '<i class="fa-solid fa-check"></i> تحديث المنتج';
+            const tools = document.getElementById('productEditTools');
+            if (tools) tools.style.display = 'flex';
             switchDashView('dash-add', document.getElementById('nav-add'));
             showToast("تعديل المنتج...");
         }
 
+        function getProductDetailsText(p) {
+            if (!p) return '';
+            let price = p.price != null ? p.price + ' ج.م' : '';
+            if (p.isMeter) price += ' / متر';
+            if (p.isArea) price += ' / م²';
+            if (p.isByGram) price += ' (' + (p.grams || '') + ' جم)';
+            return [
+                'اسم المنتج: ' + (p.name || ''),
+                'القسم: ' + (p.category || ''),
+                'سعر البيع: ' + price,
+                p.cost != null && p.cost !== '' ? ('سعر الشراء: ' + p.cost + ' ج.م') : '',
+                'الكمية: ' + (p.stock != null ? p.stock : ''),
+                'التفاصيل: ' + (p.description || '')
+            ].filter(Boolean).join('\n');
+        }
+        function copyProductDetails(id) {
+            const p = storeProducts.find(x => x.id === id);
+            const txt = getProductDetailsText(p);
+            if (!txt) return alert('لا توجد تفاصيل');
+            navigator.clipboard.writeText(txt).then(() => showToast('تم نسخ التفاصيل')).catch(() => {
+                prompt('انسخ التفاصيل:', txt);
+            });
+        }
+        function copyCurrentEditDetails() {
+            if (editingProductId) return copyProductDetails(editingProductId);
+            const fake = {
+                name: document.getElementById('newProductName').value,
+                category: document.getElementById('newProductCategory').value,
+                price: document.getElementById('newProductPrice').value,
+                cost: document.getElementById('newProductCost').value,
+                stock: document.getElementById('newProductStock').value,
+                description: document.getElementById('newProductDesc').value,
+                isMeter: document.getElementById('newProductIsMeter').checked,
+                isArea: document.getElementById('newProductIsArea').checked,
+                isByGram: document.getElementById('newProductIsByGram') && document.getElementById('newProductIsByGram').checked,
+                grams: document.getElementById('newProductGrams') ? document.getElementById('newProductGrams').value : ''
+            };
+            navigator.clipboard.writeText(getProductDetailsText(fake)).then(() => showToast('تم نسخ التفاصيل'));
+        }
+        function downloadProductImage(id) {
+            const p = storeProducts.find(x => x.id === id);
+            const src = p && p.image;
+            if (!src) return alert('لا توجد صورة للمنتج');
+            const name = ((p.name || 'product') + '').replace(/[\\/:*?"<>|]/g, '-') + '.jpg';
+            if (src.startsWith('data:')) {
+                const a = document.createElement('a');
+                a.href = src; a.download = name; a.click();
+                showToast('تم تحميل الصورة');
+                return;
+            }
+            fetch(src).then(r => r.blob()).then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = name; a.click();
+                URL.revokeObjectURL(url);
+                showToast('تم تحميل الصورة');
+            }).catch(() => {
+                window.open(src, '_blank');
+            });
+        }
+        function downloadCurrentEditImage() {
+            const src = document.getElementById('newProductImagePreview').src;
+            if (!src || document.getElementById('newProductImagePreview').style.display === 'none') {
+                if (editingProductId) return downloadProductImage(editingProductId);
+                return alert('لا توجد صورة');
+            }
+            if (editingProductId) return downloadProductImage(editingProductId);
+            const a = document.createElement('a');
+            a.href = src; a.download = 'product.jpg'; a.click();
+        }
+
         function resetProductForm() {
+            const tools = document.getElementById('productEditTools');
+            if (tools) tools.style.display = 'none';
             editingProductId = null;
             document.getElementById('newProductName').value = '';
             document.getElementById('newProductCost').value = '';
