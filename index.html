@@ -1759,6 +1759,10 @@
                 window.location.href = window.location.pathname;
             }
         } else if (currentStoreId) {
+            if (!sessionStorage.getItem('bootReload')) {
+                sessionStorage.setItem('bootReload', '1');
+                location.reload();
+            }
             document.getElementById('loginApp').style.display = 'none';
             resolveStoreId(currentStoreId).then(function(realId) {
                 currentStoreId = realId || currentStoreId;
@@ -2649,15 +2653,25 @@
                 console.log('store snapshot error', err);
             });
 
-            db.collection("stores").doc(storeId).collection("products").onSnapshot((snapshot) => {
-                storeProducts = []; snapshot.forEach(doc => { let pData = doc.data(); if(pData.sortOrder === undefined) pData.sortOrder = Date.now(); storeProducts.push({ id: doc.id, ...pData }); });
-                storeProducts.sort((a, b) => a.sortOrder - b.sortOrder); 
-                
-                if(document.getElementById('stat-products')){
+            function applyProductsSnapshot(snapshot) {
+                storeProducts = [];
+                snapshot.forEach(doc => {
+                    let pData = doc.data() || {};
+                    if (pData.sortOrder === undefined) pData.sortOrder = Date.now();
+                    storeProducts.push({ id: doc.id, ...pData });
+                });
+                storeProducts.sort((a, b) => a.sortOrder - b.sortOrder);
+                if (document.getElementById('stat-products')) {
                     document.getElementById('stat-products').innerText = storeProducts.length;
                 }
-                filterProducts();
-            });
+                try { filterProducts(); } catch(e) {}
+                try { filterMerchantProducts(); } catch(e) {}
+            }
+            const productsRef = db.collection("stores").doc(storeId).collection("products");
+            productsRef.get().then(applyProductsSnapshot).catch(()=>{});
+            productsRef.onSnapshot(applyProductsSnapshot, () => {});
+            setTimeout(() => { productsRef.get().then(applyProductsSnapshot).catch(()=>{}); }, 1600);
+            setTimeout(() => { productsRef.get().then(applyProductsSnapshot).catch(()=>{}); }, 4000);
         }
 
         function updateSocialLinks() {
