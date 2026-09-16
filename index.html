@@ -15,6 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <style>
         :root { 
@@ -184,8 +185,20 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.55); backdrop-filter: blur(6px); z-index: 1000; overflow-y: auto; }
         #tutorialModal { z-index: 4000; background: rgba(0,0,0,0.78); }
         .modal-content { background-color: white; width: 94%; max-width: 600px; margin: 40px auto; border-radius: 18px; padding: 24px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
-        .studio-opt { width:100%; background:#f1f5f9; border:2px solid #e2e8f0; padding:14px; border-radius:12px; font-weight:800; cursor:pointer; font-family:'Cairo'; margin-bottom:8px; font-size:15px; }
-        .studio-opt.active { border-color:var(--primary); background:#eff6ff; color:var(--primary); }
+        .studio-opt { width:100%; background:#fff; border:1.5px solid #f1d5d8; padding:16px 12px; border-radius:18px; font-weight:800; cursor:pointer; font-family:'Cairo'; margin-bottom:0; font-size:15px; text-align:center; }
+        .studio-opt.active { border-color:#e11d2e; background:#fff5f5; box-shadow:0 0 0 3px rgba(225,29,46,0.12); }
+        #studioOrderModal .modal-content { max-width:440px; border-radius:24px; padding:18px 16px 20px; overflow:hidden; }
+        .st-head { text-align:right; margin:0 0 14px; }
+        .st-head h2 { margin:0; font-size:26px; font-weight:900; color:#111; }
+        .st-head h2 span { color:#e11d2e; }
+        .st-head p { margin:4px 0 0; color:#8b9099; font-size:13px; font-weight:600; }
+        .st-chip { background:#fdecee; color:#c81e2b; border-radius:12px; padding:10px 12px; font-weight:800; font-size:14px; display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+        .st-upload { border:2px dashed #f0cfd3; border-radius:16px; padding:22px 12px; text-align:center; cursor:pointer; background:#fff; margin-bottom:12px; }
+        .st-upload i { color:#e11d2e; font-size:28px; display:block; margin-bottom:6px; }
+        .st-next { width:100%; background:linear-gradient(90deg,#e11d2e,#ff3b4e); color:#fff; border:none; padding:14px; border-radius:16px; font-weight:900; font-size:18px; cursor:pointer; font-family:'Cairo'; margin-top:12px; }
+        .st-next.green { background:linear-gradient(90deg,#16a34a,#22c55e); }
+        .st-cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .st-ok { width:86px; height:86px; border-radius:50%; background:linear-gradient(180deg,#22c55e,#16a34a); color:#fff; display:flex; align-items:center; justify-content:center; font-size:40px; margin:10px auto 12px; box-shadow:0 8px 20px rgba(22,163,74,0.35); }
         .close-btn { position: absolute; top: 14px; left: 14px; font-size: 18px; cursor: pointer; color: var(--text-gray); background: var(--light-bg); width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; }
         
         .floating-action-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-dark); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; }
@@ -1248,46 +1261,105 @@
         </div>
 
         <div id="studioOrderModal" class="modal">
-            <div class="modal-content" style="max-width:460px;">
+            <div class="modal-content">
                 <span class="close-btn" onclick="closeModal('studioOrderModal')"><i class="fa-solid fa-xmark"></i></span>
-                <h2 style="color:var(--primary); margin-bottom:8px;" id="studioStepTitle">تفاصيل التصميم</h2>
-                <p style="color:var(--text-gray); font-size:13px; margin-bottom:14px;" id="studioStepHint">ارفع الصور أو اكتب اللي عايزه يتطبع</p>
+                <h2 id="studioStepTitle" style="display:none;">تفاصيل التصميم</h2>
+                <p id="studioStepHint" style="display:none;"></p>
+
                 <div id="studioStep1">
-                    <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">صور الطباعة (اختياري)</label>
-                    <input type="file" id="studioImagesInput" accept="image/*" multiple onchange="handleStudioImages(event)" style="margin-bottom:10px;">
-                    <div id="studioImagesPreview" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;"></div>
-                    <textarea id="studioNotes" rows="3" placeholder="اكتب الاسم أو الكلمة أو أي تفاصيل هتتطبع / تتحفر على المنتج"></textarea>
-                    <button onclick="studioGoStep(2)" class="btn-save" style="margin:10px 0 0;">التالي</button>
-                </div>
-                <div id="studioStep2" style="display:none;">
-                    <input type="text" id="studioCustName" placeholder="اسمك">
-                    <input type="tel" id="studioCustPhone" placeholder="رقم الواتساب للتأكيد قبل الطباعة" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-                    <button onclick="studioGoStep(3)" class="btn-save" style="margin:10px 0 0;">التالي</button>
-                </div>
-                <div id="studioStep3" style="display:none;">
-                    <button type="button" class="studio-opt" onclick="pickStudioDelivery('branch')"><i class="fa-solid fa-store"></i> استلام من الفرع</button>
-                    <button type="button" class="studio-opt" onclick="pickStudioDelivery('delivery')"><i class="fa-solid fa-motorcycle"></i> دليفري</button>
-                    <p id="studioDeliveryPicked" style="font-weight:800; margin:8px 0; color:var(--primary);"></p>
-                    <button onclick="studioGoStep(4)" class="btn-save" style="margin:10px 0 0;">التالي</button>
-                </div>
-                <div id="studioStep4" style="display:none;">
-                    <button type="button" class="studio-opt" onclick="pickStudioPay('wallet')"><i class="fa-solid fa-wallet"></i> تحويل محفظة</button>
-                    <button type="button" class="studio-opt" onclick="pickStudioPay('instapay')"><i class="fa-solid fa-building-columns"></i> إنستا باي</button>
-                    <div id="studioPayBox" style="display:none; background:#f8fafc; padding:12px; border-radius:12px; margin:10px 0;">
-                        <div style="font-size:13px; color:var(--text-gray);">حوّل على الرقم ده</div>
-                        <div id="studioPayNumber" style="font-size:22px; font-weight:900; letter-spacing:1px; direction:ltr; text-align:right;"></div>
-                        <button type="button" onclick="copyStudioPayNumber()" style="margin-top:8px; background:#111827; color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:800; cursor:pointer;">نسخ الرقم</button>
+                    <div class="st-head">
+                        <h2>تفاصيل <span>التصميم</span></h2>
+                        <p>ارفع الصور أو اكتب اللي عايزه يتطبع / يتحفر</p>
                     </div>
-                    <label style="font-weight:800; font-size:13px; display:block; margin:8px 0 6px;">رفع إيصال الدفع</label>
-                    <input type="file" id="studioReceiptInput" accept="image/*" onchange="handleStudioReceipt(event)">
-                    <img id="studioReceiptPreview" style="display:none; width:100%; max-height:160px; object-fit:contain; margin-top:8px; border-radius:10px;">
-                    <button onclick="submitStudioOrder()" class="btn-save" style="margin:12px 0 0; background:#25D366;">تأكيد الطلب</button>
+                    <div class="st-chip"><i class="fa-solid fa-print"></i> صور الطباعة (اختياري)</div>
+                    <div class="st-upload" onclick="document.getElementById('studioImagesInput').click()">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <b>اختيار الملفات</b>
+                        <div style="color:#94a3b8; font-size:12px; margin-top:4px;">يمكنك رفع أكثر من صورة</div>
+                        <div style="margin-top:6px; font-size:11px; color:#e11d2e; font-weight:800;">JPG · PNG · PDF</div>
+                    </div>
+                    <input type="file" id="studioImagesInput" accept="image/*,application/pdf" multiple onchange="handleStudioImages(event)" style="display:none;">
+                    <div id="studioImagesPreview" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;"></div>
+                    <div class="st-chip"><i class="fa-solid fa-pen-to-square"></i> اكتب الاسم أو الكلمة</div>
+                    <textarea id="studioNotes" rows="3" placeholder="اكتب الاسم أو الكلمة أو أي تفاصيل هتتطبع / تتحفر على المنتج"></textarea>
+                    <button onclick="studioGoStep(2)" class="st-next">التالي ‹</button>
                 </div>
-                <div id="studioStep5" style="display:none; text-align:center; padding:10px 0 6px;">
-                    <div style="font-size:46px; margin-bottom:8px;">✅</div>
-                    <h3 style="margin:0 0 8px;">طلبك قيد المراجعة</h3>
-                    <p style="color:var(--text-gray); font-weight:700; line-height:1.7;">سيتم التواصل معك عن طريق الواتساب الخاص بك لتأكيد التصميم قبل الطباعة.</p>
-                    <button onclick="closeModal('studioOrderModal')" class="btn-save" style="margin-top:10px;">تم</button>
+
+                <div id="studioStep2" style="display:none;">
+                    <div class="st-head">
+                        <h2>بيانات <span>التواصل</span></h2>
+                        <p>عشان نأكد التصميم معاك قبل الطباعة</p>
+                    </div>
+                    <div class="st-chip"><i class="fa-solid fa-user"></i> الاسم</div>
+                    <input type="text" id="studioCustName" placeholder="اكتب الاسم هنا">
+                    <div class="st-chip"><i class="fa-brands fa-whatsapp"></i> رقم تليفون الواتساب</div>
+                    <div class="phone-input-wrapper" style="margin-bottom:8px;">
+                        <span>+20</span>
+                        <input type="tel" id="studioCustPhone" placeholder="اكتب رقم واتسابك هنا" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                    </div>
+                    <div style="text-align:center; color:#94a3b8; font-size:12px; margin-top:6px;"><i class="fa-solid fa-lock"></i> بياناتك آمنة ولن نشاركها</div>
+                    <button onclick="studioGoStep(3)" class="st-next">التالي ‹</button>
+                </div>
+
+                <div id="studioStep3" style="display:none;">
+                    <div class="st-head">
+                        <h2><span>طريقة</span> الاستلام</h2>
+                        <p>استلم من الفرع أو دليفري</p>
+                    </div>
+                    <div class="st-cards">
+                        <button type="button" class="studio-opt" onclick="pickStudioDelivery('branch')">
+                            <div style="font-size:34px; margin-bottom:6px;">🏪</div>
+                            <div>استلام من الفرع</div>
+                            <small style="color:#94a3b8; font-weight:600;">زورنا في الفرع واستلم طلبك</small>
+                        </button>
+                        <button type="button" class="studio-opt" onclick="pickStudioDelivery('delivery')">
+                            <div style="font-size:34px; margin-bottom:6px;">🛵</div>
+                            <div>دليفري</div>
+                            <small style="color:#94a3b8; font-weight:600;">يوصل لك طلبك لحد باب البيت</small>
+                        </button>
+                    </div>
+                    <p id="studioDeliveryPicked" style="font-weight:800; margin:10px 0 0; color:#e11d2e; text-align:center;"></p>
+                    <button onclick="studioGoStep(4)" class="st-next">التالي ‹</button>
+                </div>
+
+                <div id="studioStep4" style="display:none;">
+                    <div class="st-head">
+                        <h2>طريقة <span>الدفع</span></h2>
+                        <p>حوّل ثم ارفع إيصال الدفع</p>
+                    </div>
+                    <div class="st-cards" style="margin-bottom:10px;">
+                        <button type="button" class="studio-opt" onclick="pickStudioPay('wallet')">
+                            <div style="font-size:28px;">👛</div>
+                            <div>محفظة</div>
+                        </button>
+                        <button type="button" class="studio-opt" onclick="pickStudioPay('instapay')">
+                            <div style="font-size:28px;">🏦</div>
+                            <div>إنستا باي</div>
+                        </button>
+                    </div>
+                    <div id="studioPayBox" style="display:none; background:#fdecee; padding:12px; border-radius:14px; margin:8px 0;">
+                        <div style="font-size:13px; color:#c81e2b; font-weight:800;">حوّل على الرقم ده</div>
+                        <div id="studioPayNumber" style="font-size:22px; font-weight:900; letter-spacing:1px; direction:ltr; text-align:right;"></div>
+                        <button type="button" onclick="copyStudioPayNumber()" style="margin-top:8px; background:#e11d2e; color:#fff; border:none; padding:8px 12px; border-radius:10px; font-weight:800; cursor:pointer; font-family:'Cairo';">نسخ الرقم</button>
+                    </div>
+                    <div class="st-chip"><i class="fa-solid fa-receipt"></i> رفع إيصال الدفع</div>
+                    <div class="st-upload" onclick="document.getElementById('studioReceiptInput').click()">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <b>اضغط لرفع الإيصال</b>
+                    </div>
+                    <input type="file" id="studioReceiptInput" accept="image/*" onchange="handleStudioReceipt(event)" style="display:none;">
+                    <img id="studioReceiptPreview" style="display:none; width:100%; max-height:160px; object-fit:contain; margin-top:8px; border-radius:10px;">
+                    <button onclick="submitStudioOrder()" class="st-next">تأكيد الطلب ‹</button>
+                </div>
+
+                <div id="studioStep5" style="display:none; text-align:center; padding:18px 6px 8px;">
+                    <div class="st-head">
+                        <h2 style="color:#16a34a;">تم استلام الطلب</h2>
+                    </div>
+                    <div class="st-ok"><i class="fa-solid fa-check"></i></div>
+                    <h3 style="margin:0 0 8px; font-size:22px;">طلبك قيد المراجعة</h3>
+                    <p style="color:#64748b; font-weight:700; line-height:1.7;">سيتم التواصل معك عن طريق الواتساب الخاص بك لتأكيد التصميم قبل الطباعة.</p>
+                    <button onclick="closeModal('studioOrderModal')" class="st-next green">تم ‹</button>
                 </div>
             </div>
         </div>
@@ -1843,7 +1915,7 @@
                 }
                 loadStoreData(currentStoreId);
                 setTimeout(function(){ try { startWelcomeSplash(isLoggedAsAdmin); } catch(e) {} }, 0);
-                if (!isLoggedAsAdmin) setTimeout(function(){ try { if (document.getElementById('buyGuide') && document.getElementById('buyGuide').style.display !== 'flex') showBuyGuide(); } catch(e) {} }, 3200);
+                if (!isLoggedAsAdmin) setTimeout(function(){ try { if (document.getElementById('buyGuide') && document.getElementById('buyGuide').style.display !== 'flex') showBuyGuide(); } catch(e) {} }, 9000);
             });
         } else {
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
@@ -2468,19 +2540,26 @@
             const bar = document.getElementById('wsBar');
             const pctEl = document.getElementById('wsPct');
             if (welcomeTimer) clearInterval(welcomeTimer);
+            const splashStart = Date.now();
             welcomeTimer = setInterval(() => {
                 try {
                     if (storeData && storeData.name) updateWelcomeBrand(storeData.name);
-                    pct = Math.min(100, pct + Math.floor(Math.random() * 14) + 6);
+                    const waited = Date.now() - splashStart;
+                    const ready = !!(window._productsReady && storeData);
+                    if (ready && waited > 2500) pct = Math.min(100, pct + 8);
+                    else pct = Math.min(92, pct + 3);
                     if (bar) bar.style.width = pct + '%';
-                    if (pctEl) pctEl.innerText = pct + '%';
-                    if (pct >= 100) {
+                    if (pctEl) pctEl.innerText = Math.min(99, pct) + '%';
+                    if ((ready && waited >= 4500) || waited >= 8000) {
+                        pct = 100;
+                        if (bar) bar.style.width = '100%';
+                        if (pctEl) pctEl.innerText = '100%';
                         clearInterval(welcomeTimer);
-                        setTimeout(hideWelcomeSplash, 350);
+                        setTimeout(hideWelcomeSplash, 400);
                     }
                 } catch(e) {}
             }, 220);
-            setTimeout(hideWelcomeSplash, 2800);
+            setTimeout(hideWelcomeSplash, 8500);
         }
         function updateWelcomeBrand(name) {
             const n = (name || '').trim();
@@ -2717,6 +2796,7 @@
             });
 
             function applyProductsSnapshot(snapshot) {
+                window._productsReady = true;
                 storeProducts = [];
                 snapshot.forEach(doc => {
                     let pData = doc.data() || {};
@@ -3921,8 +4001,10 @@
             db.collection("stores").doc(currentStoreId).collection("orders").orderBy("date", "desc").get().then(snap => {
                 list.innerHTML = '';
                 let has = false;
+                window.lastOrdersCache = window.lastOrdersCache || {};
                 snap.forEach(doc => {
                     const o = doc.data();
+                    window.lastOrdersCache[doc.id] = o;
                     if (onlyRemaining && (!o.remaining || o.remaining <= 0)) return;
                     has = true;
                     const payBtn = (o.remaining > 0) ? `<button onclick="markOrderPaidFull('${doc.id}', ${Number(o.total)||0})" style="margin-top:8px; width:100%; background:#22c55e; color:white; border:none; padding:8px 10px; border-radius:8px; font-weight:800; cursor:pointer; font-family:'Cairo'; font-size:13px;"><i class="fa-solid fa-circle-check"></i> تم دفع المبلغ بالكامل</button>` : '';
@@ -3958,12 +4040,71 @@
                                     </div>
                                     ${o.receipt ? `<div style="margin-top:8px;font-size:12px;font-weight:800;">إيصال الدفع:</div><img src="${o.receipt}" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;margin-top:4px;" onclick="window.open(this.src)">` : ''}
                                     ${o.customerPhone ? `<a href="https://wa.me/${('20'+(o.customerPhone||'').replace(/^0/,'').replace(/[^0-9]/g,''))}" target="_blank" style="display:block;margin-top:8px;background:#25D366;color:#fff;text-align:center;padding:8px;border-radius:8px;font-weight:800;text-decoration:none;">واتساب العميل</a>` : ''}
+                                    <button onclick="downloadStudioOrderPack('${doc.id}')" style="margin-top:8px;width:100%;background:#111827;color:#fff;border:none;padding:10px;border-radius:8px;font-weight:800;cursor:pointer;font-family:'Cairo';"><i class="fa-solid fa-download"></i> تحميل الصور وتفاصيل الطلب</button>
                                 </div>` : ''}
                             ${payBtn}
                         </div>`;
                 });
                 if (!has) list.innerHTML = '<p style="text-align:center; color:var(--text-gray);">لا توجد طلبات</p>';
             });
+        }
+
+        function dataUrlToBlob(dataUrl) {
+            if (!dataUrl) return null;
+            if (!String(dataUrl).startsWith('data:')) return null;
+            const parts = dataUrl.split(',');
+            const mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+            const bin = atob(parts[1] || '');
+            const arr = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+            return new Blob([arr], { type: mime });
+        }
+        function downloadStudioOrderPack(orderId) {
+            const o = (window.lastOrdersCache || {})[orderId];
+            if (!o) return alert('لا توجد بيانات للطلب');
+            if (typeof JSZip === 'undefined') return alert('أداة التحميل غير جاهزة، أعد تحميل الصفحة');
+            const zip = new JSZip();
+            const folderName = 'طلب-' + (o.customer || 'عميل').replace(/[\\/:*?"<>|]/g, '-');
+            const folder = zip.folder(folderName);
+            const items = Array.isArray(o.items) ? o.items : [];
+            const itemsTxt = items.map((i, idx) => `${idx+1}- ${i.name || ''} (${i.desc || ('×'+(i.qty||1))}) = ${i.total != null ? i.total : ((i.price||0)*(i.qty||1))} ج.م`).join('\n');
+            const txt = [
+                'تفاصيل الأوردر',
+                '================',
+                'العميل: ' + (o.customer || ''),
+                'واتساب: ' + (o.customerPhone || ''),
+                'الاستلام: ' + (o.delivery === 'delivery' ? 'دليفري' : 'من الفرع'),
+                'الدفع: ' + (o.paymentMethod === 'instapay' ? 'إنستا باي' : 'محفظة'),
+                'التاريخ: ' + new Date(o.date).toLocaleString('ar-EG'),
+                '',
+                'تفاصيل الفاتورة',
+                '================',
+                itemsTxt || 'لا توجد أصناف',
+                '',
+                'الإجمالي: ' + (o.total || 0) + ' ج.م',
+                'مدفوع: ' + (o.paid || 0) + ' ج.م',
+                'الباقي: ' + (o.remaining || 0) + ' ج.م',
+                '',
+                'ملاحظات التصميم / الكلمة',
+                '================',
+                o.notes || 'لا توجد ملاحظات'
+            ].join('\n');
+            folder.file('تفاصيل-الطلب.txt', txt);
+            (o.images || []).forEach((im, i) => {
+                const blob = dataUrlToBlob(im);
+                if (blob) folder.file('صورة-' + (i+1) + '.jpg', blob);
+            });
+            if (o.receipt) {
+                const rec = dataUrlToBlob(o.receipt);
+                if (rec) folder.file('ايصال-الدفع.jpg', rec);
+            }
+            zip.generateAsync({ type: 'blob' }).then(blob => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = folderName + '.zip';
+                a.click();
+                showToast('جاري تحميل فولدر الطلب');
+            }).catch(e => alert('فشل التحميل: ' + (e.message || e)));
         }
 
         function markOrderPaidFull(orderId, total) {
