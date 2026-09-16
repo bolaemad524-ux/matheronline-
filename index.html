@@ -1280,9 +1280,12 @@
                     </div>
                     <input type="file" id="studioImagesInput" accept="image/*,application/pdf" multiple onchange="handleStudioImages(event)" style="display:none;">
                     <div id="studioImagesPreview" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;"></div>
-                    <div class="st-chip"><i class="fa-solid fa-pen-to-square"></i> اكتب الاسم أو الكلمة</div>
-                    <textarea id="studioNotes" rows="3" placeholder="اكتب الاسم أو الكلمة أو أي تفاصيل هتتطبع / تتحفر على المنتج"></textarea>
-                    <button onclick="nextStudioProduct()" class="st-next" id="studioProductNextBtn">التالي ‹</button>
+                    <div class="st-chip"><i class="fa-solid fa-pen-to-square"></i> اكتب الجملة أو الكلام الذى تريده على المنتج إذا أحببت</div>
+                    <textarea id="studioNotes" rows="3" placeholder="اكتب الجملة أو الكلام الذى تريده على المنتج إذا أحببت"></textarea>
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <button type="button" onclick="prevStudioProduct()" id="studioProductBackBtn" style="flex:1; background:#f1f5f9; color:#334155; border:none; padding:14px; border-radius:16px; font-weight:900; font-size:15px; cursor:pointer; font-family:'Cairo'; display:none;">الرجوع للخلف</button>
+                        <button onclick="nextStudioProduct()" class="st-next" id="studioProductNextBtn" style="flex:1.4; margin-top:0;">التالي ‹</button>
+                    </div>
                 </div>
 
                 <div id="studioStep2" style="display:none;">
@@ -1298,7 +1301,10 @@
                         <input type="tel" id="studioCustPhone" placeholder="اكتب رقم واتسابك هنا" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                     </div>
                     <div style="text-align:center; color:#94a3b8; font-size:12px; margin-top:6px;"><i class="fa-solid fa-lock"></i> بياناتك آمنة ولن نشاركها</div>
-                    <button onclick="studioGoStep(3)" class="st-next">التالي ‹</button>
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <button type="button" onclick="studioGoStep(1); renderStudioProductStep();" style="flex:1; background:#f1f5f9; color:#334155; border:none; padding:14px; border-radius:16px; font-weight:900; font-size:15px; cursor:pointer; font-family:'Cairo';">الرجوع للخلف</button>
+                        <button onclick="studioGoStep(3)" class="st-next" style="flex:1.4; margin-top:0;">التالي ‹</button>
+                    </div>
                 </div>
 
                 <div id="studioStep3" style="display:none;">
@@ -3364,23 +3370,42 @@
             if (hint) hint.innerText = 'ضع هنا بيانات طلب (' + item.name + ') والصور الخاصة بيه';
             if (notes) notes.value = item.notes || '';
             if (document.getElementById('studioImagesInput')) document.getElementById('studioImagesInput').value = '';
-            if (preview) preview.innerHTML = (item.images || []).map(u => `<img src="${u}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #eee;">`).join('');
+            if (preview) preview.innerHTML = (item.images || []).map((u, i) => `<div style="position:relative;"><img src="${u}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #eee;"><button type="button" onclick="deleteStudioImage(${i})" style="position:absolute;top:-6px;left:-6px;width:22px;height:22px;border:none;border-radius:50%;background:#e11d2e;color:#fff;font-size:12px;cursor:pointer;">×</button></div>`).join('');
             const last = studioDraft.itemIndex >= studioDraft.designs.length - 1;
             if (nextBtn) nextBtn.innerText = last ? 'التالي لإتمام الطلب ‹' : 'التالي للمنتج التالي ‹';
+            const backBtn = document.getElementById('studioProductBackBtn');
+            if (backBtn) backBtn.style.display = studioDraft.itemIndex > 0 ? 'block' : 'none';
         }
         function saveCurrentStudioProduct() {
             const item = currentStudioItem();
             if (!item) return;
             item.notes = (document.getElementById('studioNotes') && document.getElementById('studioNotes').value || '').trim();
         }
+        function deleteStudioImage(i) {
+            const item = currentStudioItem();
+            if (!item || !item.images) return;
+            item.images.splice(i, 1);
+            renderStudioProductStep();
+        }
         function nextStudioProduct() {
             saveCurrentStudioProduct();
+            const item = currentStudioItem();
+            const hasImg = item && item.images && item.images.length;
+            const hasTxt = item && item.notes;
+            if (!hasImg && !hasTxt) return alert('ارفع صورة أو اكتب الجملة المطلوبة على المنتج');
             if (studioDraft.itemIndex < studioDraft.designs.length - 1) {
                 studioDraft.itemIndex++;
                 renderStudioProductStep();
                 return;
             }
             studioGoStep(2);
+        }
+        function prevStudioProduct() {
+            saveCurrentStudioProduct();
+            if (studioDraft.itemIndex > 0) {
+                studioDraft.itemIndex--;
+                renderStudioProductStep();
+            }
         }
         function compressToDataUrl(file, maxW, quality) {
             return new Promise((resolve, reject) => {
@@ -3460,7 +3485,7 @@
             if (!files.length) return;
             Promise.all(files.map(f => compressToDataUrl(f, 480, 0.62))).then(urls => {
                 const item = currentStudioItem();
-                if (item) item.images = urls;
+                if (item) item.images = (item.images || []).concat(urls).slice(0, 8);
                 const box = document.getElementById('studioImagesPreview');
                 box.innerHTML = urls.map(u => `<img src="${u}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #eee;">`).join('');
             }).catch(() => alert('فشل قراءة الصورة'));
@@ -4115,6 +4140,7 @@
                                     <button onclick="downloadStudioOrderPack('${doc.id}')" style="margin-top:8px;width:100%;background:#111827;color:#fff;border:none;padding:10px;border-radius:8px;font-weight:800;cursor:pointer;font-family:'Cairo';"><i class="fa-solid fa-download"></i> تحميل الصور وتفاصيل الطلب</button>
                                 </div>` : ''}
                             ${payBtn}
+                            <button onclick="deleteCustomerOrder('${doc.id}')" style="margin-top:6px;width:100%;background:#fee2e2;color:#b91c1c;border:none;padding:8px;border-radius:8px;font-weight:800;cursor:pointer;font-family:'Cairo';"><i class="fa-solid fa-trash"></i> حذف الطلب</button>
                         </div>`;
                 });
                 if (!has) list.innerHTML = '<p style="text-align:center; color:var(--text-gray);">لا توجد طلبات</p>';
@@ -4188,6 +4214,12 @@
             }).catch(e => alert('فشل التحميل: ' + (e.message || e)));
         }
 
+        function deleteCustomerOrder(orderId) {
+            if (!confirm('حذف الطلب نهائياً؟')) return;
+            db.collection("stores").doc(currentStoreId).collection("orders").doc(orderId).delete()
+                .then(() => { showToast('تم حذف الطلب'); loadOrders(lastOrdersOnlyRemaining); })
+                .catch(e => alert('تعذر الحذف: ' + (e.message || e)));
+        }
         function markOrderPaidFull(orderId, total) {
             if (!confirm("تأكيد استلام باقي المبلغ بالكامل؟")) return;
             db.collection("stores").doc(currentStoreId).collection("orders").doc(orderId).update({
