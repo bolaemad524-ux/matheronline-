@@ -1401,8 +1401,7 @@
                 <div style="display:flex; justify-content:space-between; font-weight:900; font-size:18px; background:#f8fafc; padding:12px; border-radius:12px; margin:10px 0;">
                     <span>الإجمالي</span><span id="cafeBillTotal">0 ج.م</span>
                 </div>
-                <label style="font-weight:800; font-size:13px;">رقم الترابيزة</label>
-                <input type="number" id="cafeTableInput" min="1" placeholder="رقم الترابيزة">
+                <p id="cafeTableFixed" style="text-align:center; font-weight:900; color:#b91c1c; margin:6px 0 10px;"></p>
                 <button onclick="submitCafeOrder()" class="st-next" style="margin-top:8px;">تأكيد الطلب</button>
             </div>
         </div>
@@ -1703,6 +1702,7 @@
             if (document.getElementById('heroSubtitle')) document.getElementById('heroSubtitle').innerText = heroSub;
             const heroBtnEl = document.querySelector('.hero-btn');
             if (heroBtnEl) heroBtnEl.innerText = heroBtn;
+            try { applyCafeLook(); } catch(e) {}
         }
 
         const STORE_SKINS = {
@@ -2589,6 +2589,12 @@
                 if (sub) sub.innerText = 'هنا يمكنك إدارة متجرك بسهولة وتطوير أعمالك معنا ♥';
                 if (loadTxt) loadTxt.innerText = 'جاري تحميل بيانات متجرك';
                 if (icon) icon.innerHTML = '<i class="fa-solid fa-shop"></i>';
+            } else if (storeData && storeData.cafeModeEnabled) {
+                if (hello) hello.innerText = 'مرحباً بك';
+                if (brand) brand.innerText = storeData.name || 'المطعم';
+                if (sub) sub.innerText = 'قائمة الطعام جاهزة لطلبك ♥';
+                if (loadTxt) loadTxt.innerText = 'جاري تجهيز قائمة المطعم';
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-utensils"></i>';
             } else {
                 if (hello) hello.innerText = 'مرحباً بك في متجر';
                 if (brand) brand.innerText = 'المتجر';
@@ -2629,6 +2635,10 @@
             const splash = document.getElementById('welcomeSplash');
             if (letter) letter.innerText = n.charAt(0);
             if (splash && splash.classList.contains('cust') && brand) brand.innerText = n;
+            if (splash && splash.classList.contains('cust') && storeData && storeData.cafeModeEnabled) {
+                const hello = document.getElementById('wsHello');
+                if (hello) hello.innerText = 'مرحباً بك';
+            }
             if (splash && splash.classList.contains('merch') && brand) {
                 brand.innerHTML = 'في لوحة التحكم<br>الخاصة بـ ' + n;
             }
@@ -3413,6 +3423,25 @@
             window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
         }
 
+        function applyCafeLook() {
+            if (!storeData || !storeData.cafeModeEnabled) return;
+            const name = storeData.name || 'المطعم';
+            const title = document.getElementById('heroTitle');
+            const sub = document.getElementById('heroSubtitle');
+            const btn = document.querySelector('#storeHeroBanner .hero-btn');
+            if (title) title.innerText = 'مرحباً بك ' + name;
+            if (sub) sub.innerText = 'قائمة الطعام والمشروبات — اطلب من ترابيزتك بسهولة';
+            if (btn) btn.innerText = 'اطلب الآن';
+            const tag = document.querySelector('.store-identity-text span');
+            if (tag) tag.innerText = currentTableNo ? ('مطعم وكافيه · ترابيزة ' + currentTableNo) : 'مطعم وكافيه';
+            const hello = document.getElementById('wsHello');
+            const brand = document.getElementById('wsBrand');
+            const splash = document.getElementById('welcomeSplash');
+            if (splash && splash.style.display !== 'none' && splash.classList.contains('cust')) {
+                if (hello) hello.innerText = 'مرحباً بك';
+                if (brand) brand.innerText = name;
+            }
+        }
         function updateTableBanner() {
             const ban = document.getElementById('tableBanner');
             if (!ban) return;
@@ -3460,13 +3489,14 @@
                 return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #eee;font-weight:700;"><span>${item.name} <small style="color:#64748b;">(${qty})</small></span><span>${line.toFixed(0)} ج</span></div>`;
             }).join('');
             document.getElementById('cafeBillTotal').innerText = (total || 0) + ' ج.م';
-            document.getElementById('cafeTableInput').value = currentTableNo || '';
+            const fixed = document.getElementById('cafeTableFixed');
+            if (fixed) fixed.innerText = currentTableNo ? ('الطلب على ترابيزة رقم ' + currentTableNo) : '';
             closeModal('cartModal');
             openModal('cafeOrderModal');
         }
         function submitCafeOrder() {
-            const tableNo = (document.getElementById('cafeTableInput').value || '').trim();
-            if (!tableNo) return alert('اكتب رقم الترابيزة');
+            const tableNo = (currentTableNo || '').toString().trim();
+            if (!tableNo) return alert('افتح القائمة من QR الترابيزة');
             const items = cart.map(item => ({
                 name: item.name,
                 qty: item.quantity,
