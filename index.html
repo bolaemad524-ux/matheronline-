@@ -903,6 +903,20 @@
                     <button onclick="saveStoreSettings()" class="btn-save" style="margin-bottom:0;">حفظ خاصية الاستوديو 💾</button>
                 </div>
                 <div class="dash-card">
+                    <h3 style="font-size:15px; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-utensils"></i> وضع المطعم والكافيه</h3>
+                    <label style="display:flex; align-items:center; gap:10px; font-weight:800; margin-bottom:12px;">
+                        <input type="checkbox" id="adminCafeEnabled" style="width:22px; height:22px;">
+                        تفعيل وضع المطعم والكافيه
+                    </label>
+                    <p style="font-size:12px; color:var(--text-gray); margin:0 0 10px;">العميل يسحب QR الترابيزة ويطلب، والطلب يظهر عندك تلقائي برقم الترابيزة والأصناف.</p>
+                    <label style="font-weight:bold; font-size:13px; color:var(--text-gray); display:block; margin-bottom:5px;">عدد الترابيزات:</label>
+                    <div style="display:flex; gap:8px; margin-bottom:10px;">
+                        <input type="number" id="adminCafeTables" min="1" max="80" placeholder="مثال: 12" style="margin-bottom:0;">
+                        <button type="button" onclick="saveStoreSettings(); setTimeout(renderCafeTables, 400);" style="background:var(--text-dark); color:#fff; border:none; border-radius:8px; padding:0 14px; font-weight:800; cursor:pointer; font-family:'Cairo';">حفظ</button>
+                    </div>
+                    <div id="cafeTablesList"></div>
+                </div>
+                <div class="dash-card">
                     <h3 style="font-size:15px; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-layer-group"></i> إدارة الأقسام</h3>
                     <div style="display:flex; gap:10px; margin-bottom:15px;">
                         <input type="text" id="newCategoryInput" placeholder="اسم قسم جديد" style="margin-bottom:0; background:white;">
@@ -1150,6 +1164,9 @@
                 </div>
                 <button class="search-contact-btn" onclick="openModal('socialModal')"><i class="fa-solid fa-headset"></i> تواصل معنا</button>
             </div>
+            <div id="tableBanner" style="display:none; margin:0 15px 12px; background:linear-gradient(135deg,#7f1d1d,#b91c1c); color:#fff; border-radius:14px; padding:10px 14px; font-weight:800; text-align:center;">
+                ترابيزة رقم <span id="tableBannerNo">-</span>
+            </div>
 
             <div class="hero-banner" id="storeHeroBanner">
                 <img id="heroLogo" src="" alt="logo" style="display:none; width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.7); box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-left: 15px; flex-shrink: 0;">
@@ -1375,6 +1392,37 @@
             </div>
         </div>
         
+        <div id="cafeOrderModal" class="modal">
+            <div class="modal-content" style="max-width:420px;">
+                <span class="close-btn" onclick="closeModal('cafeOrderModal')"><i class="fa-solid fa-xmark"></i></span>
+                <h2 style="margin:0 0 8px;">فاتورة الطلب</h2>
+                <p style="color:var(--text-gray); font-size:13px; margin:0 0 10px;">راجع الأصناف ثم أكّد الطلب</p>
+                <div id="cafeBillItems"></div>
+                <div style="display:flex; justify-content:space-between; font-weight:900; font-size:18px; background:#f8fafc; padding:12px; border-radius:12px; margin:10px 0;">
+                    <span>الإجمالي</span><span id="cafeBillTotal">0 ج.م</span>
+                </div>
+                <label style="font-weight:800; font-size:13px;">رقم الترابيزة</label>
+                <input type="number" id="cafeTableInput" min="1" placeholder="رقم الترابيزة">
+                <button onclick="submitCafeOrder()" class="st-next" style="margin-top:8px;">تأكيد الطلب</button>
+            </div>
+        </div>
+        <div id="cafeDoneModal" class="modal">
+            <div class="modal-content" style="max-width:400px; text-align:center;">
+                <span class="close-btn" onclick="closeModal('cafeDoneModal')"><i class="fa-solid fa-xmark"></i></span>
+                <div class="st-ok"><i class="fa-solid fa-check"></i></div>
+                <h3>تم إرسال الطلب</h3>
+                <p style="color:#64748b; font-weight:700;">هيظهر عند المطعم على ترابيزة رقم <b id="cafeDoneTable">-</b></p>
+                <button onclick="closeModal('cafeDoneModal')" class="st-next green">تم</button>
+            </div>
+        </div>
+        <div id="tableQrModal" class="modal">
+            <div class="modal-content" style="max-width:360px; text-align:center;">
+                <span class="close-btn" onclick="closeModal('tableQrModal')"><i class="fa-solid fa-xmark"></i></span>
+                <h3 id="tableQrTitle">ترابيزة</h3>
+                <div id="tableQrBox" style="display:flex; justify-content:center; margin:12px 0;"></div>
+                <p id="tableQrLink" style="font-size:12px; word-break:break-all; color:#64748b;"></p>
+            </div>
+        </div>
         <div id="socialModal" class="modal">
             <div class="modal-content" style="text-align: center;">
                 <span class="close-btn" onclick="closeModal('socialModal')"><i class="fa-solid fa-xmark"></i></span>
@@ -1468,6 +1516,7 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         let currentStoreId = urlParams.get('store');
+        let currentTableNo = urlParams.get('table');
         const isSuperAdmin = urlParams.get('super') === 'bola'; 
 
         let tempPhone = ""; let tempPass = ""; let tempCategory = ""; let selectedPlan = ""; let selectedPrice = 0; let receiptBase64 = "";
@@ -2726,6 +2775,7 @@
                     let storeNameDisplay = storeData.name || "متجري";
                     let isLoggedAsAdmin = sessionStorage.getItem('loggedStoreId') === storeId;
                     try { if (!isLoggedAsAdmin) setStorePageTitle(storeNameDisplay); } catch(e) {}
+                    try { updateTableBanner(); } catch(e) {}
                     
                     // واجهة العميل
                     if (document.getElementById('headerStoreName')) document.getElementById('headerStoreName').innerText = storeNameDisplay;
@@ -2774,6 +2824,9 @@
                         if(document.getElementById('adminStudioEnabled')) document.getElementById('adminStudioEnabled').checked = !!storeData.studioOrdersEnabled;
                         if(document.getElementById('adminStudioWallet')) document.getElementById('adminStudioWallet').value = storeData.studioWallet || "";
                         if(document.getElementById('adminStudioInstapay')) document.getElementById('adminStudioInstapay').value = storeData.studioInstapay || "";
+                        if(document.getElementById('adminCafeEnabled')) document.getElementById('adminCafeEnabled').checked = !!storeData.cafeModeEnabled;
+                        if(document.getElementById('adminCafeTables')) document.getElementById('adminCafeTables').value = storeData.cafeTables || '';
+                        try { renderCafeTables(); } catch(e) {}
                     }
                     
                     if (!storeData.slug && storeNameDisplay) {
@@ -2856,7 +2909,9 @@
                 locationLink: document.getElementById('adminLocationLink') ? document.getElementById('adminLocationLink').value : "",
                 studioOrdersEnabled: !!(document.getElementById('adminStudioEnabled') && document.getElementById('adminStudioEnabled').checked),
                 studioWallet: document.getElementById('adminStudioWallet') ? document.getElementById('adminStudioWallet').value.trim() : "",
-                studioInstapay: document.getElementById('adminStudioInstapay') ? document.getElementById('adminStudioInstapay').value.trim() : ""
+                studioInstapay: document.getElementById('adminStudioInstapay') ? document.getElementById('adminStudioInstapay').value.trim() : "",
+                cafeModeEnabled: !!(document.getElementById('adminCafeEnabled') && document.getElementById('adminCafeEnabled').checked),
+                cafeTables: Number((document.getElementById('adminCafeTables') || {}).value) || 0
             };
             const logoFile = document.getElementById('adminStoreLogo').files[0];
             if (logoFile) {
@@ -3336,6 +3391,10 @@
         
         function checkout() { 
             if (cart.length === 0) return alert("العربة فارغة!");
+            if (storeData && storeData.cafeModeEnabled) {
+                openCafeOrder();
+                return;
+            }
             if (storeData && storeData.studioOrdersEnabled) {
                 openStudioOrderWizard();
                 return;
@@ -3352,6 +3411,89 @@
             }); 
             msg += `\n*الإجمالي: ${total} ج.م*`; 
             window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
+        }
+
+        function updateTableBanner() {
+            const ban = document.getElementById('tableBanner');
+            if (!ban) return;
+            if (currentTableNo && storeData && storeData.cafeModeEnabled) {
+                ban.style.display = 'block';
+                const n = document.getElementById('tableBannerNo');
+                if (n) n.innerText = currentTableNo;
+            } else {
+                ban.style.display = 'none';
+            }
+        }
+        function getTableLink(n) {
+            return getStorePublicLink(currentStoreId) + '&table=' + n;
+        }
+        function renderCafeTables() {
+            const box = document.getElementById('cafeTablesList');
+            if (!box) return;
+            const count = Number((document.getElementById('adminCafeTables') || {}).value || (storeData && storeData.cafeTables) || 0);
+            if (!count) { box.innerHTML = ''; return; }
+            let html = '';
+            for (let i = 1; i <= count; i++) {
+                html += `<div class="admin-product-item" style="margin-bottom:8px;">
+                    <strong>ترابيزة ${i}</strong>
+                    <button onclick="showTableQr(${i})" style="background:var(--primary);color:#fff;border:none;padding:7px 12px;border-radius:8px;font-weight:800;cursor:pointer;font-family:'Cairo';">QR</button>
+                </div>`;
+            }
+            box.innerHTML = html;
+        }
+        function showTableQr(n) {
+            const link = getTableLink(n);
+            document.getElementById('tableQrTitle').innerText = 'ترابيزة رقم ' + n;
+            document.getElementById('tableQrLink').innerText = link;
+            const box = document.getElementById('tableQrBox');
+            box.innerHTML = '';
+            if (typeof QRCode !== 'undefined') {
+                new QRCode(box, { text: link, width: 180, height: 180 });
+            }
+            openModal('tableQrModal');
+        }
+        function openCafeOrder() {
+            const box = document.getElementById('cafeBillItems');
+            box.innerHTML = cart.map(item => {
+                const line = item.price * item.quantity;
+                const qty = item.qtyDesc || (item.isMeter ? item.quantity + ' متر' : item.quantity + ' قطعة');
+                return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #eee;font-weight:700;"><span>${item.name} <small style="color:#64748b;">(${qty})</small></span><span>${line.toFixed(0)} ج</span></div>`;
+            }).join('');
+            document.getElementById('cafeBillTotal').innerText = (total || 0) + ' ج.م';
+            document.getElementById('cafeTableInput').value = currentTableNo || '';
+            closeModal('cartModal');
+            openModal('cafeOrderModal');
+        }
+        function submitCafeOrder() {
+            const tableNo = (document.getElementById('cafeTableInput').value || '').trim();
+            if (!tableNo) return alert('اكتب رقم الترابيزة');
+            const items = cart.map(item => ({
+                name: item.name,
+                qty: item.quantity,
+                price: item.price,
+                total: item.price * item.quantity,
+                desc: item.qtyDesc || (item.isMeter ? item.quantity + ' متر' : item.quantity + ' قطعة')
+            }));
+            db.collection("stores").doc(currentStoreId).collection("orders").add({
+                type: 'cafe',
+                tableNo: tableNo,
+                customer: 'ترابيزة ' + tableNo,
+                items,
+                total: total,
+                paid: 0,
+                remaining: total,
+                date: Date.now(),
+                status: 'cafe_new'
+            }).then(() => {
+                db.collection("stores").doc(currentStoreId).update({
+                    ordersCount: firebase.firestore.FieldValue.increment(1)
+                }).catch(()=>{});
+                cart = [];
+                updateCartUI();
+                closeModal('cafeOrderModal');
+                document.getElementById('cafeDoneTable').innerText = tableNo;
+                openModal('cafeDoneModal');
+            }).catch(e => alert('تعذر إرسال الطلب: ' + (e.message || e)));
         }
 
         let studioDraft = { designs: [], itemIndex: 0, receipt: '', delivery: '', pay: '', name: '', phone: '', address: '' };
@@ -4090,7 +4232,8 @@
             const list = document.getElementById('ordersList');
             if (!list) return;
             list.innerHTML = '<p style="text-align:center;">جاري التحميل...</p>';
-            db.collection("stores").doc(currentStoreId).collection("orders").orderBy("date", "desc").get().then(snap => {
+            if (window._ordersUnsub) try { window._ordersUnsub(); } catch(e) {}
+            window._ordersUnsub = db.collection("stores").doc(currentStoreId).collection("orders").orderBy("date", "desc").onSnapshot(snap => {
                 list.innerHTML = '';
                 let has = false;
                 window.lastOrdersCache = window.lastOrdersCache || {};
@@ -4110,8 +4253,9 @@
                         </div>`;
                     }).join('') : '<div style="font-size:13px; color:#94a3b8;">لا توجد تفاصيل أصناف</div>';
                     list.innerHTML += `
-                        <div class="dash-card" style="border-right:4px solid ${o.remaining > 0 ? '#ef4444' : '#22c55e'};">
-                            <strong>${o.customer || 'عميل'}</strong>
+                        <div class="dash-card" style="border-right:4px solid ${o.type==='cafe' ? '#b91c1c' : (o.remaining > 0 ? '#ef4444' : '#22c55e')};">
+                            <strong>${o.type==='cafe' ? ('ترابيزة رقم ' + (o.tableNo || '-')) : (o.customer || 'عميل')}</strong>
+                            ${o.type==='cafe' ? '<div style="display:inline-block;background:#b91c1c;color:#fff;border-radius:999px;padding:2px 10px;font-size:12px;margin-right:6px;">طلب مطعم</div>' : ''}
                             <div style="background:#f8fafc; border-radius:10px; padding:8px 10px; margin:8px 0;">
                                 <div style="font-size:12px; color:#64748b; font-weight:800; margin-bottom:4px;">الأصناف في الفاتورة</div>
                                 ${itemsHtml}
