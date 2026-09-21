@@ -949,11 +949,20 @@
                         <input type="checkbox" id="adminCafeEnabled" style="width:22px; height:22px;">
                         تفعيل وضع المطعم والكافيه
                     </label>
-                    <p style="font-size:12px; color:var(--text-gray); margin:0 0 10px;">العميل يسحب QR الترابيزة ويطلب، والطلب يظهر عندك تلقائي برقم الترابيزة والأصناف.</p>
-                    <label style="font-weight:bold; font-size:13px; color:var(--text-gray); display:block; margin-bottom:5px;">عدد الترابيزات:</label>
+                    <p style="font-size:12px; color:var(--text-gray); margin:0 0 10px;">قسّم الصالة لمجموعات (A - B - C) وكل مجموعة ليها ترابيزاتها. العميل يسحب QR ترابيزة B-3 مثلاً والطلب يظهر عندك بالمجموعة والرقم.</p>
+                    <label style="font-weight:bold; font-size:13px; color:var(--text-gray); display:block; margin-bottom:5px;">عدد الترابيزات العام (لو مفيش مجموعات):</label>
                     <div style="display:flex; gap:8px; margin-bottom:10px;">
                         <input type="number" id="adminCafeTables" min="1" max="80" placeholder="مثال: 12" style="margin-bottom:0;">
-                        <button type="button" onclick="saveStoreSettings(); setTimeout(renderCafeTables, 400);" style="background:var(--text-dark); color:#fff; border:none; border-radius:8px; padding:0 14px; font-weight:800; cursor:pointer; font-family:'Cairo';">حفظ</button>
+                    </div>
+                    <label style="font-weight:bold; font-size:13px; color:var(--text-gray); display:block; margin-bottom:5px;">إضافة مجموعة / مكان:</label>
+                    <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+                        <input type="text" id="cafeAreaName" placeholder="اسم المجموعة مثل A أو صالة" style="margin-bottom:0; flex:1; min-width:120px;">
+                        <input type="number" id="cafeAreaCount" min="1" max="80" placeholder="عدد الترابيزات" style="margin-bottom:0; width:130px;">
+                        <button type="button" onclick="addCafeArea()" style="background:var(--text-dark); color:#fff; border:none; border-radius:8px; padding:0 14px; font-weight:800; cursor:pointer; font-family:'Cairo';">إضافة</button>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-bottom:10px;">
+                        <button type="button" onclick="quickCafeAreas('A,B,C')" style="background:#f1f5f9; border:1px solid #e2e8f0; border-radius:8px; padding:8px 12px; font-weight:800; cursor:pointer; font-family:'Cairo';">إضافة A-B-C</button>
+                        <button type="button" onclick="saveStoreSettings(); setTimeout(renderCafeTables, 400);" style="background:var(--primary); color:#fff; border:none; border-radius:8px; padding:8px 14px; font-weight:800; cursor:pointer; font-family:'Cairo';">حفظ المجموعات</button>
                     </div>
                     <div id="cafeTablesList"></div>
                 </div>
@@ -1206,7 +1215,7 @@
                 <button class="search-contact-btn" onclick="openModal('socialModal')"><i class="fa-solid fa-headset"></i> تواصل معنا</button>
             </div>
             <div id="tableBanner" style="display:none; margin:0 15px 12px; background:linear-gradient(135deg,#7f1d1d,#b91c1c); color:#fff; border-radius:14px; padding:10px 14px; font-weight:800; text-align:center;">
-                ترابيزة رقم <span id="tableBannerNo">-</span>
+                <span id="tableBannerNo">-</span>
             </div>
 
             <div class="hero-banner" id="storeHeroBanner">
@@ -1461,7 +1470,7 @@
                 <span class="close-btn" onclick="closeModal('cafeDoneModal')"><i class="fa-solid fa-xmark"></i></span>
                 <div class="st-ok"><i class="fa-solid fa-check"></i></div>
                 <h3>تم إرسال الطلب</h3>
-                <p style="color:#64748b; font-weight:700;">هيظهر عند المطعم على ترابيزة رقم <b id="cafeDoneTable">-</b></p>
+                <p style="color:#64748b; font-weight:700;">هيظهر عند المطعم على <b id="cafeDoneTable">-</b></p>
                 <button onclick="closeModal('cafeDoneModal')" class="st-next green">تم</button>
             </div>
         </div>
@@ -1567,6 +1576,10 @@
         const urlParams = new URLSearchParams(window.location.search);
         let currentStoreId = urlParams.get('store');
         let currentTableNo = urlParams.get('table');
+        if (urlParams.get('area') && currentTableNo && String(currentTableNo).indexOf('-') === -1) {
+            currentTableNo = String(urlParams.get('area')).toUpperCase() + '-' + currentTableNo;
+        }
+        let cafeAreasDraft = [];
         const isSuperAdmin = urlParams.get('super') === 'bola'; 
 
         let tempPhone = ""; let tempPass = ""; let tempCategory = ""; let selectedPlan = ""; let selectedPrice = 0; let receiptBase64 = "";
@@ -2888,6 +2901,7 @@
                         if(document.getElementById('adminStudioInstapay')) document.getElementById('adminStudioInstapay').value = storeData.studioInstapay || "";
                         if(document.getElementById('adminCafeEnabled')) document.getElementById('adminCafeEnabled').checked = !!storeData.cafeModeEnabled;
                         if(document.getElementById('adminCafeTables')) document.getElementById('adminCafeTables').value = storeData.cafeTables || '';
+                        cafeAreasDraft = Array.isArray(storeData.cafeAreas) ? storeData.cafeAreas.map(a => ({name: a.name, tables: Number(a.tables)||0})) : [];
                         try { renderCafeTables(); } catch(e) {}
                     }
                     
@@ -2973,7 +2987,8 @@
                 studioWallet: document.getElementById('adminStudioWallet') ? document.getElementById('adminStudioWallet').value.trim() : "",
                 studioInstapay: document.getElementById('adminStudioInstapay') ? document.getElementById('adminStudioInstapay').value.trim() : "",
                 cafeModeEnabled: !!(document.getElementById('adminCafeEnabled') && document.getElementById('adminCafeEnabled').checked),
-                cafeTables: Number((document.getElementById('adminCafeTables') || {}).value) || 0
+                cafeTables: Number((document.getElementById('adminCafeTables') || {}).value) || 0,
+                cafeAreas: getCafeAreasDraft()
             };
             const logoFile = document.getElementById('adminStoreLogo').files[0];
             if (logoFile) {
@@ -3496,7 +3511,7 @@
             const sec = document.getElementById('activeCategoryTitle');
             if (sec && currentCategory === 'الكل') sec.innerText = 'الأكثر طلباً';
             const tag = document.querySelector('.store-identity-text span');
-            if (tag) tag.innerText = currentTableNo ? ('مطعم وكافيه · ترابيزة ' + currentTableNo) : 'مطعم وكافيه';
+            if (tag) tag.innerText = currentTableNo ? ('مطعم وكافيه · ' + formatTableLabel(currentTableNo)) : 'مطعم وكافيه';
             const hello = document.getElementById('wsHello');
             const brand = document.getElementById('wsBrand');
             const splash = document.getElementById('welcomeSplash');
@@ -3515,37 +3530,107 @@
             if (g) g.style.display = 'none';
             pendingBuyGuide = false;
         }
+        function formatTableLabel(code) {
+            const p = parseTableCode(code);
+            if (!p.num) return '-';
+            if (p.area) return 'مجموعة ' + p.area + ' · ترابيزة ' + p.num;
+            return 'ترابيزة رقم ' + p.num;
+        }
+        function parseTableCode(code) {
+            const raw = String(code || '').trim().toUpperCase();
+            if (!raw) return { area: '', num: '' };
+            const m = raw.match(/^([A-Z\u0600-\u06FF]+)[\-\s]+(\d+)$/);
+            if (m) return { area: m[1], num: m[2] };
+            if (/^\d+$/.test(raw)) return { area: '', num: raw };
+            return { area: raw, num: '' };
+        }
+        function getCafeAreasDraft() {
+            if (Array.isArray(cafeAreasDraft) && cafeAreasDraft.length) return cafeAreasDraft;
+            if (storeData && Array.isArray(storeData.cafeAreas)) return storeData.cafeAreas;
+            return [];
+        }
+        function addCafeArea() {
+            const name = (document.getElementById('cafeAreaName').value || '').trim().toUpperCase();
+            const tables = Number(document.getElementById('cafeAreaCount').value) || 0;
+            if (!name) return alert('اكتب اسم المجموعة مثل A أو B');
+            if (tables < 1) return alert('حدد عدد ترابيزات المجموعة');
+            cafeAreasDraft = getCafeAreasDraft().filter(a => String(a.name).toUpperCase() !== name);
+            cafeAreasDraft.push({ name, tables });
+            document.getElementById('cafeAreaName').value = '';
+            document.getElementById('cafeAreaCount').value = '';
+            renderCafeTables();
+        }
+        function quickCafeAreas(list) {
+            const names = String(list || 'A,B,C').split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+            const fallback = Number((document.getElementById('adminCafeTables') || {}).value) || 6;
+            const exist = getCafeAreasDraft();
+            names.forEach(n => {
+                if (!exist.some(a => String(a.name).toUpperCase() === n)) exist.push({ name: n, tables: fallback });
+            });
+            cafeAreasDraft = exist;
+            renderCafeTables();
+        }
+        function removeCafeArea(name) {
+            cafeAreasDraft = getCafeAreasDraft().filter(a => String(a.name) !== String(name));
+            renderCafeTables();
+        }
+        function updateCafeAreaCount(name, val) {
+            cafeAreasDraft = getCafeAreasDraft().map(a => String(a.name) === String(name) ? { name: a.name, tables: Number(val)||0 } : a);
+        }
         function updateTableBanner() {
             const ban = document.getElementById('tableBanner');
             if (!ban) return;
             if (currentTableNo && storeData && storeData.cafeModeEnabled) {
                 ban.style.display = 'block';
                 const n = document.getElementById('tableBannerNo');
-                if (n) n.innerText = currentTableNo;
+                if (n) n.innerText = formatTableLabel(currentTableNo);
             } else {
                 ban.style.display = 'none';
             }
         }
-        function getTableLink(n) {
-            return getStorePublicLink(currentStoreId) + '&table=' + n;
+        function getTableLink(code) {
+            return getStorePublicLink(currentStoreId) + '&table=' + encodeURIComponent(code);
         }
         function renderCafeTables() {
             const box = document.getElementById('cafeTablesList');
             if (!box) return;
-            const count = Number((document.getElementById('adminCafeTables') || {}).value || (storeData && storeData.cafeTables) || 0);
-            if (!count) { box.innerHTML = ''; return; }
+            const areas = getCafeAreasDraft();
             let html = '';
-            for (let i = 1; i <= count; i++) {
-                html += `<div class="admin-product-item" style="margin-bottom:8px;">
-                    <strong>ترابيزة ${i}</strong>
-                    <button onclick="showTableQr(${i})" style="background:var(--primary);color:#fff;border:none;padding:7px 12px;border-radius:8px;font-weight:800;cursor:pointer;font-family:'Cairo';">QR</button>
-                </div>`;
+            if (areas.length) {
+                areas.forEach(area => {
+                    html += `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px;margin-bottom:10px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
+                            <strong>مجموعة ${area.name}</strong>
+                            <div style="display:flex;gap:6px;align-items:center;">
+                                <input type="number" min="1" max="80" value="${area.tables||0}" onchange="updateCafeAreaCount('${area.name}', this.value)" style="width:70px;margin:0;padding:6px;">
+                                <button type="button" onclick="removeCafeArea('${area.name}')" class="delete-btn" style="margin:0;"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>`;
+                    const count = Number(area.tables) || 0;
+                    for (let i = 1; i <= count; i++) {
+                        const code = area.name + '-' + i;
+                        html += `<div class="admin-product-item" style="margin-bottom:6px;">
+                            <strong>ترابيزة ${i} · ${area.name}</strong>
+                            <button onclick="showTableQr('${code}')" style="background:var(--primary);color:#fff;border:none;padding:7px 12px;border-radius:8px;font-weight:800;cursor:pointer;font-family:'Cairo';">QR</button>
+                        </div>`;
+                    }
+                    html += '</div>';
+                });
+            } else {
+                const count = Number((document.getElementById('adminCafeTables') || {}).value || (storeData && storeData.cafeTables) || 0);
+                if (!count) { box.innerHTML = '<p style="color:#94a3b8;font-size:13px;">أضف مجموعة مثل A وحدد عدد ترابيزاتها</p>'; return; }
+                for (let i = 1; i <= count; i++) {
+                    html += `<div class="admin-product-item" style="margin-bottom:8px;">
+                        <strong>ترابيزة ${i}</strong>
+                        <button onclick="showTableQr('${i}')" style="background:var(--primary);color:#fff;border:none;padding:7px 12px;border-radius:8px;font-weight:800;cursor:pointer;font-family:'Cairo';">QR</button>
+                    </div>`;
+                }
             }
             box.innerHTML = html;
         }
         function showTableQr(n) {
             const link = getTableLink(n);
-            document.getElementById('tableQrTitle').innerText = 'ترابيزة رقم ' + n;
+            document.getElementById('tableQrTitle').innerText = formatTableLabel(n);
             document.getElementById('tableQrLink').innerText = link;
             const box = document.getElementById('tableQrBox');
             box.innerHTML = '';
@@ -3563,7 +3648,7 @@
             }).join('');
             document.getElementById('cafeBillTotal').innerText = (total || 0) + ' ج.م';
             const fixed = document.getElementById('cafeTableFixed');
-            if (fixed) fixed.innerText = currentTableNo ? ('الطلب على ترابيزة رقم ' + currentTableNo) : '';
+            if (fixed) fixed.innerText = currentTableNo ? ('الطلب على ' + formatTableLabel(currentTableNo)) : '';
             closeModal('cartModal');
             openModal('cafeOrderModal');
         }
@@ -3580,7 +3665,8 @@
             db.collection("stores").doc(currentStoreId).collection("orders").add({
                 type: 'cafe',
                 tableNo: tableNo,
-                customer: 'ترابيزة ' + tableNo,
+                customer: formatTableLabel(tableNo),
+                tableArea: parseTableCode(tableNo).area,
                 items,
                 total: total,
                 paid: 0,
@@ -3594,7 +3680,7 @@
                 cart = [];
                 updateCartUI();
                 closeModal('cafeOrderModal');
-                document.getElementById('cafeDoneTable').innerText = tableNo;
+                document.getElementById('cafeDoneTable').innerText = formatTableLabel(tableNo);
                 openModal('cafeDoneModal');
             }).catch(e => alert('تعذر إرسال الطلب: ' + (e.message || e)));
         }
@@ -4357,7 +4443,7 @@
                     }).join('') : '<div style="font-size:13px; color:#94a3b8;">لا توجد تفاصيل أصناف</div>';
                     list.innerHTML += `
                         <div class="dash-card" style="border-right:4px solid ${o.type==='cafe' ? '#b91c1c' : (o.remaining > 0 ? '#ef4444' : '#22c55e')};">
-                            <strong>${o.type==='cafe' ? ('ترابيزة رقم ' + (o.tableNo || '-')) : (o.customer || 'عميل')}</strong>
+                            <strong>${o.type==='cafe' ? formatTableLabel(o.tableNo || o.customer || '') : (o.customer || 'عميل')}</strong>
                             ${o.type==='cafe' ? '<div style="display:inline-block;background:#b91c1c;color:#fff;border-radius:999px;padding:2px 10px;font-size:12px;margin-right:6px;">طلب مطعم</div>' : ''}
                             <div style="background:#f8fafc; border-radius:10px; padding:8px 10px; margin:8px 0;">
                                 <div style="font-size:12px; color:#64748b; font-weight:800; margin-bottom:4px;">الأصناف في الفاتورة</div>
