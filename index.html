@@ -1239,6 +1239,9 @@
 
             <div id="deal-container"></div>
             <div class="products-grid" id="products-container"></div>
+            <div id="loadMoreWrap" style="display:none; text-align:center; padding:6px 15px 20px;">
+                <button type="button" id="loadMoreBtn" onclick="loadMoreProducts()" style="background:var(--primary); color:#fff; border:none; border-radius:999px; padding:10px 22px; font-weight:800; font-family:'Cairo'; cursor:pointer;">عرض المزيد</button>
+            </div>
             <div class="cafe-dessert-banner" id="cafeDessertBanner">
                 <div>
                     <h3>الحلو دايماً يكمّل الِلمة الحلوة ♥</h3>
@@ -2951,10 +2954,9 @@
                 try { filterMerchantProducts(); } catch(e) {}
             }
             const productsRef = db.collection("stores").doc(storeId).collection("products");
+            if (window._productsUnsub) { try { window._productsUnsub(); } catch(e) {} }
             productsRef.get().then(applyProductsSnapshot).catch(()=>{});
-            productsRef.onSnapshot(applyProductsSnapshot, () => {});
-            setTimeout(() => { productsRef.get().then(applyProductsSnapshot).catch(()=>{}); }, 1600);
-            setTimeout(() => { productsRef.get().then(applyProductsSnapshot).catch(()=>{}); }, 4000);
+            window._productsUnsub = productsRef.onSnapshot(applyProductsSnapshot, () => {});
         }
 
         function updateSocialLinks() {
@@ -3054,10 +3056,18 @@
             db.collection("stores").doc(currentStoreId).update({ categories: storeData.categories }).then(() => showToast("تم الترتيب"));
         }
 
+        let visibleProductLimit = 24;
+        let lastRenderedList = [];
+        function loadMoreProducts() {
+            visibleProductLimit += 24;
+            renderProducts(lastRenderedList);
+        }
         function renderProducts(productsToRender) {
+            lastRenderedList = productsToRender || [];
             const dealContainer = document.getElementById('deal-container'); const gridContainer = document.getElementById('products-container'); const adminList = document.getElementById('admin-products-list');
             if(dealContainer) dealContainer.innerHTML = ''; if(gridContainer) gridContainer.innerHTML = ''; if(adminList) adminList.innerHTML = '';
-            if (productsToRender.length === 0) { if(gridContainer) gridContainer.innerHTML = '<div class="no-results">لا توجد منتجات حالياً.</div>'; return; }
+            const moreWrap = document.getElementById('loadMoreWrap');
+            if (productsToRender.length === 0) { if(gridContainer) gridContainer.innerHTML = '<div class="no-results">لا توجد منتجات حالياً.</div>'; if (moreWrap) moreWrap.style.display = 'none'; return; }
             const dealProduct = productsToRender.find(p => p.isDealOfDay); const regularProducts = productsToRender.filter(p => !p.isDealOfDay);
 
             if (dealProduct && dealContainer) { 
@@ -3065,12 +3075,13 @@
                 dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">عرض خاص</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${dealProduct.name}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Cairo';" onclick="addToCart('${dealProduct.id}', '${dealProduct.name}', ${dealProduct.price}, ${dealProduct.isMeter || false}, ${dealProduct.isArea || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button></div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
             }
 
-            regularProducts.forEach((product) => { 
-                const priceDisplay = product.isByGram ? `${product.price} ج.م (${product.grams || ''}ج)` : (product.isArea ? `${product.price} ج.م / م²` : (product.isMeter ? `${product.price} ج.م / م` : `${product.price} ج.م`)); 
-                if(gridContainer) gridContainer.innerHTML += `
-                    <div class="product-card">
+            const shown = regularProducts.slice(0, visibleProductLimit);
+            if (gridContainer) {
+                gridContainer.innerHTML = shown.map(product => {
+                    const priceDisplay = product.isByGram ? `${product.price} ج.م (${product.grams || ''}ج)` : (product.isArea ? `${product.price} ج.م / م²` : (product.isMeter ? `${product.price} ج.م / م` : `${product.price} ج.م`));
+                    return `<div class="product-card">
                         <div class="details-badge" onclick="showProductDetails('${product.id}')">التفاصيل</div>
-                        <img src="${product.image}" class="product-img">
+                        <img src="${product.image || ''}" class="product-img" loading="lazy" decoding="async">
                         <div class="product-info">
                             <span class="product-cat">${product.category}</span>
                             <h3 class="product-title">${product.name}</h3>
@@ -3079,8 +3090,10 @@
                                 <div class="product-price">${priceDisplay}</div>
                             </div>
                         </div>
-                    </div>`; 
-            });
+                    </div>`;
+                }).join('');
+            }
+            if (moreWrap) moreWrap.style.display = regularProducts.length > visibleProductLimit ? 'block' : 'none';
 
             productsToRender.forEach((product) => { 
                 const priceDisplay = product.isByGram ? `${product.price} ج (${product.grams || ''}ج)` : (product.isMeter ? `${product.price} ج/م` : `${product.price} ج`); const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);'; 
@@ -3088,7 +3101,7 @@
             });
         }
 
-        function filterProducts() { const searchTerm = document.getElementById('searchInput').value.toLowerCase(); const filtered = storeProducts.filter(p => { const matchCat = currentCategory === 'الكل' || p.category === currentCategory; const matchSearch = p.name.toLowerCase().includes(searchTerm); return matchCat && matchSearch; }); renderProducts(filtered); }
+        function filterProducts() { visibleProductLimit = 24; const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase(); const filtered = storeProducts.filter(p => { const matchCat = currentCategory === 'الكل' || p.category === currentCategory; const matchSearch = p.name.toLowerCase().includes(searchTerm); return matchCat && matchSearch; }); renderProducts(filtered); }
         function filterMerchantProducts() {
             const q = (document.getElementById('merchantProductSearch')?.value || '').trim().toLowerCase();
             const adminList = document.getElementById('admin-products-list');
@@ -3354,12 +3367,12 @@
                 img.onload = function() {
                     try {
                         const canvas = document.createElement('canvas');
-                        const maxW = 600;
+                        const maxW = 360;
                         const scale = img.width > maxW ? maxW / img.width : 1;
                         canvas.width = Math.round(img.width * scale);
                         canvas.height = Math.round(img.height * scale);
                         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                        saveProduct(canvas.toDataURL('image/jpeg', 0.55));
+                        saveProduct(canvas.toDataURL('image/jpeg', 0.42));
                     } catch (err) {
                         alert("خطأ في معالجة الصورة");
                         finishBtn(!!editingProductId);
@@ -3376,12 +3389,12 @@
                     img.onload = function() {
                         try {
                             const canvas = document.createElement('canvas');
-                            const maxW = 600;
+                            const maxW = 360;
                             const scale = img.width > maxW ? maxW / img.width : 1;
                             canvas.width = Math.round(img.width * scale);
                             canvas.height = Math.round(img.height * scale);
                             canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                            saveProduct(canvas.toDataURL('image/jpeg', 0.55));
+                            saveProduct(canvas.toDataURL('image/jpeg', 0.42));
                         } catch (err) {
                             alert("خطأ في معالجة الصورة");
                             finishBtn(!!editingProductId);
