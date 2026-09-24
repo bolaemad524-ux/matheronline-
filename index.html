@@ -866,6 +866,12 @@
                         <input type="number" id="newProductStock" placeholder="الكمية المتوفرة في المخزن" min="0">
                     </div>
 
+                    <div class="dash-card" style="padding:12px; margin-bottom:12px; border:1.5px dashed #fda4af; background:#fff1f2;">
+                        <label style="display:block; font-weight:800; color:#9f1239; margin-bottom:8px;"><i class="fa-solid fa-layer-group"></i> أقل كمية للطلب</label>
+                        <input type="number" id="newProductMinQty" placeholder="مثال: 25 — فاضي لو مفيش حد أدنى" min="1">
+                        <div style="font-size:12px; color:#9f1239; margin-top:6px;">لو كتبت رقم، العميل لما يضغط عربة الشراء يظهر له تنبيه بأقل كمية.</div>
+                    </div>
+
                     <div class="input-icon-wrapper">
                         <i class="fa-solid fa-list"></i>
                         <select id="newProductCategory">
@@ -1309,6 +1315,17 @@
                 <button id="detailsAddToCart" style="background:var(--primary); color:white; border:none; padding:15px; width:100%; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer;">
                     أضف للعربة <i class="fa-solid fa-cart-plus"></i>
                 </button>
+            </div>
+        </div>
+
+        <div id="minQtyModal" class="modal">
+            <div class="modal-content" style="text-align:center; max-width:420px;">
+                <span class="close-btn" onclick="closeModal('minQtyModal')"><i class="fa-solid fa-xmark"></i></span>
+                <div style="width:64px;height:64px;border-radius:50%;background:#fef2f2;color:#b91c1c;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3 style="margin:0 0 8px;color:#111;">تنبيه أقل كمية</h3>
+                <p id="minQtyText" style="color:#475569;font-size:15px;line-height:1.8;margin:0 0 14px;"></p>
+                <input type="number" id="minQtyInput" min="1" style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:18px;text-align:center;font-weight:800;margin-bottom:12px;">
+                <button onclick="confirmMinQtyAdd()" style="width:100%;background:var(--primary);color:#fff;border:none;padding:13px;border-radius:10px;font-weight:800;cursor:pointer;font-family:'Cairo';">تأكيد الإضافة للعربة</button>
             </div>
         </div>
 
@@ -2045,7 +2062,7 @@
                 }
                 loadStoreData(currentStoreId);
                 setTimeout(function(){ try { startWelcomeSplash(isLoggedAsAdmin); } catch(e) {} }, 0);
-                if (!isLoggedAsAdmin) setTimeout(function(){ try { if (storeData && storeData.cafeModeEnabled) return; if (document.getElementById('buyGuide') && document.getElementById('buyGuide').style.display !== 'flex') showBuyGuide(); } catch(e) {} }, 9000);
+                if (!isLoggedAsAdmin) setTimeout(function(){ try { if (storeData && storeData.cafeModeEnabled) return; const splash = document.getElementById('welcomeSplash'); if (splash && splash.style.display !== 'none') return; if (document.getElementById('buyGuide') && document.getElementById('buyGuide').style.display !== 'flex') showBuyGuide(); } catch(e) {} }, 12000);
             });
         } else {
             document.getElementById('loginApp').style.display = 'block'; document.getElementById('storeApp').style.display = 'none'; document.getElementById('merchantDashboardApp').style.display = 'none';
@@ -2643,9 +2660,12 @@
 
         let welcomeTimer = null;
         function startWelcomeSplash(isMerchant) {
+            window._productsReady = false;
+            window._storeReady = !!(storeData && storeData.name);
             pendingBuyGuide = !isMerchant && !(storeData && storeData.cafeModeEnabled);
             const el = document.getElementById('welcomeSplash');
             if (!el) return;
+            el.classList.remove('hide');
             el.className = isMerchant ? 'merch' : 'cust';
             el.style.display = 'flex';
             const hello = document.getElementById('wsHello');
@@ -2679,23 +2699,28 @@
             const splashStart = Date.now();
             welcomeTimer = setInterval(() => {
                 try {
-                    if (storeData && storeData.name) updateWelcomeBrand(storeData.name);
+                    if (storeData && storeData.name) {
+                        window._storeReady = true;
+                        updateWelcomeBrand(storeData.name);
+                    }
                     const waited = Date.now() - splashStart;
-                    const ready = !!(window._productsReady && storeData);
-                    if (ready && waited > 2500) pct = Math.min(100, pct + 8);
-                    else pct = Math.min(92, pct + 3);
+                    const ready = !!(window._productsReady && window._storeReady);
+                    if (!ready) pct = Math.min(90, pct + 1.2);
+                    else pct = Math.min(100, pct + 6);
                     if (bar) bar.style.width = pct + '%';
-                    if (pctEl) pctEl.innerText = Math.min(99, pct) + '%';
-                    if ((ready && waited >= 4500) || waited >= 8000) {
-                        pct = 100;
+                    if (pctEl) pctEl.innerText = Math.min(ready ? 100 : 99, Math.round(pct)) + '%';
+                    if (ready && pct >= 100 && waited >= 600) {
                         if (bar) bar.style.width = '100%';
                         if (pctEl) pctEl.innerText = '100%';
                         clearInterval(welcomeTimer);
-                        setTimeout(hideWelcomeSplash, 400);
+                        setTimeout(hideWelcomeSplash, 350);
+                    } else if (!ready && waited >= 28000) {
+                        if (loadTxt) loadTxt.innerText = 'الاتصال بطيء... جاري فتح المتجر';
+                        window._productsReady = true;
+                        window._storeReady = true;
                     }
                 } catch(e) {}
-            }, 220);
-            setTimeout(hideWelcomeSplash, 8500);
+            }, 180);
         }
         function updateWelcomeBrand(name) {
             const n = (name || '').trim();
@@ -2933,6 +2958,8 @@
                         }, 8000);
                     }
 
+                window._storeReady = true;
+                    try { updateWelcomeBrand(storeNameDisplay); } catch(e) {}
                 } else {
                     if (doc.metadata && doc.metadata.fromCache) return;
                     console.log('store doc missing, waiting retry', storeId);
@@ -2942,7 +2969,8 @@
             });
 
             function applyProductsSnapshot(snapshot) {
-                window._productsReady = true;
+                const fromServer = !(snapshot.metadata && snapshot.metadata.fromCache);
+                if (fromServer || (snapshot.size || 0) > 0) window._productsReady = true;
                 storeProducts = [];
                 snapshot.forEach(doc => {
                     let pData = doc.data() || {};
@@ -3085,6 +3113,7 @@
                     return `<div class="product-card">
                         <div class="details-badge" onclick="showProductDetails('${product.id}')">التفاصيل</div>
                         <img src="${product.image || ''}" class="product-img" loading="lazy" decoding="async">
+                        ${Number(product.minQty)>1 ? `<div class="details-badge" style="left:auto;right:8px;background:#b91c1c;">أقل كمية ${product.minQty}</div>` : ''}
                         <div class="product-info">
                             <span class="product-cat">${product.category}</span>
                             <h3 class="product-title">${product.name}</h3>
@@ -3118,7 +3147,7 @@
             list.forEach((product) => {
                 const priceDisplay = product.isByGram ? `${product.price} ج (${product.grams || ''}ج)` : (product.isMeter ? `${product.price} ج/م` : `${product.price} ج`);
                 const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);';
-                adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="downloadProductImage('${product.id}')" title="تحميل الصورة"><i class="fa-solid fa-download"></i></button><button class="icon-btn" onclick="copyProductDetails('${product.id}')" title="نسخ التفاصيل"><i class="fa-regular fa-copy"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`;
+                adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}${Number(product.minQty)>1 ? ' · أقل كمية '+product.minQty : ''}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="downloadProductImage('${product.id}')" title="تحميل الصورة"><i class="fa-solid fa-download"></i></button><button class="icon-btn" onclick="copyProductDetails('${product.id}')" title="نسخ التفاصيل"><i class="fa-regular fa-copy"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`;
             });
         }
         function toggleDealOfDay(id) { 
@@ -3167,6 +3196,7 @@
             document.getElementById('newProductCost').value = product.cost !== undefined ? product.cost : '';
             document.getElementById('newProductPrice').value = product.price || '';
             document.getElementById('newProductStock').value = product.stock !== undefined ? product.stock : '';
+            if (document.getElementById('newProductMinQty')) document.getElementById('newProductMinQty').value = product.minQty || '';
             document.getElementById('newProductCategory').value = product.category || 'الكل';
             document.getElementById('newProductDesc').value = product.description || '';
             document.getElementById('newProductIsMeter').checked = product.isMeter || false;
@@ -3269,6 +3299,7 @@
             document.getElementById('newProductCost').value = '';
             document.getElementById('newProductPrice').value = '';
             document.getElementById('newProductStock').value = '';
+            if (document.getElementById('newProductMinQty')) document.getElementById('newProductMinQty').value = '';
             document.getElementById('newProductDesc').value = '';
             document.getElementById('newProductImage').value = '';
             document.getElementById('newProductIsMeter').checked = false;
@@ -3296,6 +3327,7 @@
             const isByGram = document.getElementById('newProductIsByGram') ? document.getElementById('newProductIsByGram').checked : false;
             const grams = document.getElementById('newProductGrams') ? document.getElementById('newProductGrams').value : '';
             const stock = document.getElementById('newProductStock').value;
+            const minQty = document.getElementById('newProductMinQty') ? document.getElementById('newProductMinQty').value : '';
             const imageFile = document.getElementById('newProductImage').files[0]; 
             const btn = document.getElementById('addProductBtn');
             
@@ -3326,7 +3358,8 @@
                         isArea: !!isArea,
                         isByGram: !!isByGram,
                         grams: isByGram && grams !== "" ? Number(grams) : 0,
-                        stock: stock !== "" ? Number(stock) : 0
+                        stock: stock !== "" ? Number(stock) : 0,
+                        minQty: minQty !== "" ? Number(minQty) : 0
                     };
                     if (imageData) data.image = imageData;
 
@@ -3414,7 +3447,7 @@
 
         function showProductDetails(id) {
             const product = storeProducts.find(p => p.id === id); if(!product) return;
-            document.getElementById('detailsImg').src = product.image; document.getElementById('detailsName').innerText = product.name; document.getElementById('detailsPrice').innerText = product.isByGram ? `${product.price} ج.م (${product.grams || ''} جرام)` : (product.isMeter ? `${product.price} ج.م / متر` : `${product.price} ج.م`); document.getElementById('detailsDesc').innerText = product.description || "لا توجد تفاصيل إضافية.";
+            document.getElementById('detailsImg').src = product.image; document.getElementById('detailsName').innerText = product.name; document.getElementById('detailsPrice').innerText = product.isByGram ? `${product.price} ج.م (${product.grams || ''} جرام)` : (product.isMeter ? `${product.price} ج.م / متر` : `${product.price} ج.م`); document.getElementById('detailsDesc').innerText = (product.description || "لا توجد تفاصيل إضافية.") + (Number(product.minQty)>1 ? ("\nأقل كمية للطلب: " + product.minQty + " قطعة") : "");
             document.getElementById('detailsAddToCart').onclick = function() { addToCart(product.id, product.name, product.price, product.isMeter || false, product.isArea || false); closeModal('productDetailsModal'); }; openModal('productDetailsModal');
         }
 
@@ -3440,10 +3473,41 @@
             }; reader.readAsText(file);
         }
 
+        function productMinQty(id) {
+            const p = storeProducts.find(x => x.id === id);
+            if (!p) return 0;
+            const raw = Number(p.minQty || 0) || 0;
+            if (raw > 1) return raw;
+            if ((p.category || '') === 'دروع خشب' || String(p.name || '').indexOf('درع ') === 0) return 25;
+            return 0;
+        }
+        let pendingMinQtyItem = null;
+        function confirmMinQtyAdd() {
+            if (!pendingMinQtyItem) return;
+            const minQty = pendingMinQtyItem.minQty;
+            const qty = Number(document.getElementById('minQtyInput').value);
+            if (!qty || qty <= 0) return alert('أدخل كمية صحيحة');
+            if (qty < minQty) return alert('لا يمكن طلب أقل من ' + minQty + ' قطعة من هذا المنتج');
+            const it = pendingMinQtyItem;
+            pendingMinQtyItem = null;
+            closeModal('minQtyModal');
+            cart.push({ id: it.id, name: it.name, price: it.price, quantity: qty, isMeter: false, isArea: false, qtyDesc: '(' + qty + ' قطعة)' });
+            updateCartUI();
+            showToast('تمت الإضافة للسلة: ' + qty + ' قطعة');
+        }
         function addToCart(id, name, price, isMeter, isArea) { 
             let quantity = 1;
             let qtyDesc = '';
-            if (isArea) {
+            const minQty = productMinQty(id);
+            if (minQty > 1 && !isArea && !isMeter) {
+                pendingMinQtyItem = { id, name, price, minQty };
+                const box = document.getElementById('minQtyText');
+                if (box) box.innerText = 'المنتج "' + name + '" لا يُباع بقطعة واحدة.\nأقل عدد للطلب هو ' + minQty + ' قطعة.';
+                const inp = document.getElementById('minQtyInput');
+                if (inp) inp.value = String(minQty);
+                openModal('minQtyModal');
+                return;
+            } else if (isArea) {
                 let len = prompt(`أدخل الطول (متر) للمنتج "${name}":`, "1");
                 if (len === null || len.trim() === "" || isNaN(len) || Number(len) <= 0) return;
                 let wid = prompt(`أدخل العرض (متر) للمنتج "${name}":`, "1");
@@ -3486,8 +3550,19 @@
             document.getElementById('cart-total').innerText = total.toFixed(0); 
         }
         
+        function validateCartMinQty() {
+            for (const item of cart) {
+                const minQty = productMinQty(item.id);
+                if (minQty > 1 && Number(item.quantity) < minQty) {
+                    alert('المنتج "' + item.name + '" أقل كمية للطلب ' + minQty + ' قطعة');
+                    return false;
+                }
+            }
+            return true;
+        }
         function checkout() { 
             if (cart.length === 0) return alert("العربة فارغة!");
+            if (!validateCartMinQty()) return;
             if (storeData && storeData.cafeModeEnabled) {
                 openCafeOrder();
                 return;
