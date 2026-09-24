@@ -872,6 +872,12 @@
                         <div style="font-size:12px; color:#9f1239; margin-top:6px;">لو كتبت رقم، العميل لما يضغط عربة الشراء يظهر له تنبيه بأقل كمية.</div>
                     </div>
 
+                    <div class="dash-card" style="padding:12px; margin-bottom:12px; border:1.5px dashed #5eead4; background:#f0fdfa;">
+                        <label style="display:block; font-weight:800; color:#0f766e; margin-bottom:8px;"><i class="fa-brands fa-whatsapp"></i> رقم واتساب المستورد</label>
+                        <input type="tel" id="newProductImporterPhone" placeholder="مثال: 010xxxxxxxx" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                        <div style="font-size:12px; color:#0f766e; margin-top:6px;">لما تطلب من متجر المستورد، الأوردر يتبعت على الرقم ده بأسعار الشراء.</div>
+                    </div>
+
                     <div class="input-icon-wrapper">
                         <i class="fa-solid fa-list"></i>
                         <select id="newProductCategory">
@@ -1037,6 +1043,10 @@
                     <button onclick="switchDashView('dash-themes', null)" class="dash-card" style="text-align:center; padding:20px; cursor:pointer; border:2px solid #7c3aed;">
                         <i class="fa-solid fa-palette" style="font-size:28px; color:#7c3aed; margin-bottom:8px;"></i>
                         <div style="font-weight:800; color:var(--text-dark);">ثيمات</div>
+                    </button>
+                    <button onclick="openImporterStore()" class="dash-card" style="text-align:center; padding:20px; cursor:pointer; border:2px solid #0f766e;">
+                        <i class="fa-solid fa-truck-field" style="font-size:28px; color:#0f766e; margin-bottom:8px;"></i>
+                        <div style="font-weight:800; color:var(--text-dark);">متجر المستورد</div>
                     </button>
                 </div>
 
@@ -2611,16 +2621,35 @@
         }
 
         function previewAsCustomer() { 
+            window.importerMode = false;
             document.getElementById('merchantDashboardApp').style.display = 'none'; 
             document.getElementById('storeApp').style.display = 'block'; 
             document.getElementById('exitPreviewBtn').style.display = 'flex'; 
             showToast("وضع معاينة العميل 👀"); 
         }
+        function openImporterStore() {
+            window.importerMode = true;
+            cart = [];
+            try { updateCartUI(); } catch(e) {}
+            document.getElementById('merchantDashboardApp').style.display = 'none';
+            document.getElementById('storeApp').style.display = 'block';
+            const btn = document.getElementById('exitPreviewBtn');
+            if (btn) { btn.style.display = 'flex'; btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> العودة من متجر المستورد'; }
+            const title = document.getElementById('headerStoreName');
+            if (title) title.innerText = 'متجر المستورد';
+            try { filterProducts(); } catch(e) {}
+            showToast('متجر المستورد — الأسعار هي سعر الشراء');
+        }
 
         function exitPreview() { 
+            window.importerMode = false;
+            cart = [];
+            try { updateCartUI(); } catch(e) {}
             document.getElementById('storeApp').style.display = 'none'; 
             document.getElementById('merchantDashboardApp').style.display = 'block'; 
-            document.getElementById('exitPreviewBtn').style.display = 'none'; 
+            const btn = document.getElementById('exitPreviewBtn');
+            if (btn) { btn.style.display = 'none'; btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> العودة للوحة التحكم'; }
+            if (storeData && document.getElementById('headerStoreName')) document.getElementById('headerStoreName').innerText = storeData.name || 'متجري';
             showToast("العودة للوحة الإدارة ⚙️"); 
         }
         
@@ -3093,6 +3122,10 @@
             visibleProductLimit += 24;
             renderProducts(lastRenderedList);
         }
+        function sellOrCost(product) {
+            if (window.importerMode) return Number(product.cost || 0);
+            return Number(product.price || 0);
+        }
         function renderProducts(productsToRender) {
             lastRenderedList = productsToRender || [];
             const dealContainer = document.getElementById('deal-container'); const gridContainer = document.getElementById('products-container'); const adminList = document.getElementById('admin-products-list');
@@ -3102,14 +3135,16 @@
             const dealProduct = productsToRender.find(p => p.isDealOfDay); const regularProducts = productsToRender.filter(p => !p.isDealOfDay);
 
             if (dealProduct && dealContainer) { 
-                const priceDisplay = dealProduct.isByGram ? `${dealProduct.price} ج.م (${dealProduct.grams || ''}ج)` : (dealProduct.isArea ? `${dealProduct.price} ج.م/م²` : (dealProduct.isMeter ? `${dealProduct.price} ج.م/متر` : `${dealProduct.price} ج.م`)); 
-                dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">عرض خاص</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${dealProduct.name}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Cairo';" onclick="addToCart('${dealProduct.id}', '${dealProduct.name}', ${dealProduct.price}, ${dealProduct.isMeter || false}, ${dealProduct.isArea || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button></div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
+                const dp = sellOrCost(dealProduct);
+                const priceDisplay = dealProduct.isByGram ? `${dp} ج.م (${dealProduct.grams || ''}ج)` : (dealProduct.isArea ? `${dp} ج.م/م²` : (dealProduct.isMeter ? `${dp} ج.م/متر` : `${dp} ج.م`)); 
+                dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">${window.importerMode ? 'سعر المستورد' : 'عرض خاص'}</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${dealProduct.name}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Cairo';" onclick="addToCart('${dealProduct.id}', '${dealProduct.name}', ${dp}, ${dealProduct.isMeter || false}, ${dealProduct.isArea || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button></div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
             }
 
             const shown = regularProducts.slice(0, visibleProductLimit);
             if (gridContainer) {
                 gridContainer.innerHTML = shown.map(product => {
-                    const priceDisplay = product.isByGram ? `${product.price} ج.م (${product.grams || ''}ج)` : (product.isArea ? `${product.price} ج.م / م²` : (product.isMeter ? `${product.price} ج.م / م` : `${product.price} ج.م`));
+                    const dp = sellOrCost(product);
+                    const priceDisplay = product.isByGram ? `${dp} ج.م (${product.grams || ''}ج)` : (product.isArea ? `${dp} ج.م / م²` : (product.isMeter ? `${dp} ج.م / م` : `${dp} ج.م`));
                     return `<div class="product-card">
                         <div class="details-badge" onclick="showProductDetails('${product.id}')">التفاصيل</div>
                         <img src="${product.image || ''}" class="product-img" loading="lazy" decoding="async">
@@ -3118,7 +3153,7 @@
                             <span class="product-cat">${product.category}</span>
                             <h3 class="product-title">${product.name}</h3>
                             <div class="product-action-row">
-                                <button class="cart-circle-btn" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, ${product.isMeter || false}, ${product.isArea || false})"><i class="fa-solid fa-plus"></i></button>
+                                <button class="cart-circle-btn" onclick="addToCart('${product.id}', '${product.name}', ${dp}, ${product.isMeter || false}, ${product.isArea || false})"><i class="fa-solid fa-plus"></i></button>
                                 <div class="product-price">${priceDisplay}</div>
                             </div>
                         </div>
@@ -3197,6 +3232,7 @@
             document.getElementById('newProductPrice').value = product.price || '';
             document.getElementById('newProductStock').value = product.stock !== undefined ? product.stock : '';
             if (document.getElementById('newProductMinQty')) document.getElementById('newProductMinQty').value = product.minQty || '';
+            if (document.getElementById('newProductImporterPhone')) document.getElementById('newProductImporterPhone').value = product.importerPhone || '';
             document.getElementById('newProductCategory').value = product.category || 'الكل';
             document.getElementById('newProductDesc').value = product.description || '';
             document.getElementById('newProductIsMeter').checked = product.isMeter || false;
@@ -3300,6 +3336,7 @@
             document.getElementById('newProductPrice').value = '';
             document.getElementById('newProductStock').value = '';
             if (document.getElementById('newProductMinQty')) document.getElementById('newProductMinQty').value = '';
+            if (document.getElementById('newProductImporterPhone')) document.getElementById('newProductImporterPhone').value = '';
             document.getElementById('newProductDesc').value = '';
             document.getElementById('newProductImage').value = '';
             document.getElementById('newProductIsMeter').checked = false;
@@ -3328,6 +3365,7 @@
             const grams = document.getElementById('newProductGrams') ? document.getElementById('newProductGrams').value : '';
             const stock = document.getElementById('newProductStock').value;
             const minQty = document.getElementById('newProductMinQty') ? document.getElementById('newProductMinQty').value : '';
+            const importerPhone = document.getElementById('newProductImporterPhone') ? document.getElementById('newProductImporterPhone').value.trim() : '';
             const imageFile = document.getElementById('newProductImage').files[0]; 
             const btn = document.getElementById('addProductBtn');
             
@@ -3359,7 +3397,8 @@
                         isByGram: !!isByGram,
                         grams: isByGram && grams !== "" ? Number(grams) : 0,
                         stock: stock !== "" ? Number(stock) : 0,
-                        minQty: minQty !== "" ? Number(minQty) : 0
+                        minQty: minQty !== "" ? Number(minQty) : 0,
+                        importerPhone: importerPhone || ""
                     };
                     if (imageData) data.image = imageData;
 
@@ -3447,8 +3486,9 @@
 
         function showProductDetails(id) {
             const product = storeProducts.find(p => p.id === id); if(!product) return;
-            document.getElementById('detailsImg').src = product.image; document.getElementById('detailsName').innerText = product.name; document.getElementById('detailsPrice').innerText = product.isByGram ? `${product.price} ج.م (${product.grams || ''} جرام)` : (product.isMeter ? `${product.price} ج.م / متر` : `${product.price} ج.م`); document.getElementById('detailsDesc').innerText = (product.description || "لا توجد تفاصيل إضافية.") + (Number(product.minQty)>1 ? ("\nأقل كمية للطلب: " + product.minQty + " قطعة") : "");
-            document.getElementById('detailsAddToCart').onclick = function() { addToCart(product.id, product.name, product.price, product.isMeter || false, product.isArea || false); closeModal('productDetailsModal'); }; openModal('productDetailsModal');
+            const detPrice = sellOrCost(product);
+            document.getElementById('detailsImg').src = product.image; document.getElementById('detailsName').innerText = product.name; document.getElementById('detailsPrice').innerText = product.isByGram ? `${detPrice} ج.م (${product.grams || ''} جرام)` : (product.isMeter ? `${detPrice} ج.م / متر` : `${detPrice} ج.م`); document.getElementById('detailsDesc').innerText = (product.description || "لا توجد تفاصيل إضافية.") + (Number(product.minQty)>1 ? ("\nأقل كمية للطلب: " + product.minQty + " قطعة") : "");
+            document.getElementById('detailsAddToCart').onclick = function() { addToCart(product.id, product.name, sellOrCost(product), product.isMeter || false, product.isArea || false); closeModal('productDetailsModal'); }; openModal('productDetailsModal');
         }
 
         function exportStoreProducts() { if(storeProducts.length === 0) return alert("لا توجد منتجات لحفظها."); const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storeProducts)); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", `store_backup_${currentStoreId}.json`); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); showToast("تم التحميل! 📥"); }
@@ -3560,8 +3600,41 @@
             }
             return true;
         }
+        function normalizeWaPhone(p) {
+            p = String(p || '').replace(/[^0-9]/g, '');
+            if (p.startsWith('00')) p = p.slice(2);
+            if (p.startsWith('0') && p.length >= 10) p = '20' + p.slice(1);
+            if (p.length === 10) p = '20' + p;
+            return p;
+        }
+        function sendImporterOrder() {
+            if (!cart.length) return alert('العربة فارغة');
+            const groups = {};
+            cart.forEach(item => {
+                const prod = storeProducts.find(x => x.id === item.id) || {};
+                const phone = normalizeWaPhone(prod.importerPhone || (storeData && storeData.importerPhone) || '');
+                if (!groups[phone]) groups[phone] = { items: [], total: 0 };
+                const line = Number(item.price) * Number(item.quantity);
+                groups[phone].items.push({ name: item.name, qty: item.quantity, desc: item.qtyDesc || '', line: line });
+                groups[phone].total += line;
+            });
+            if (groups['']) {
+                return alert('في أصناف من غير رقم مستورد. اكتب رقم واتساب المستورد في تعديل الصنف.');
+            }
+            Object.keys(groups).forEach(phone => {
+                const g = groups[phone];
+                let msg = '*طلب من متجر المستورد*\nالمتجر: ' + ((storeData && storeData.name) || '') + '\n\n';
+                g.items.forEach((it, i) => {
+                    msg += (i + 1) + '- ' + it.name + ' ' + (it.desc || ('× ' + it.qty)) + ' = ' + it.line.toFixed(0) + ' ج.م\n';
+                });
+                msg += '\n*الإجمالي: ' + g.total.toFixed(0) + ' ج.م*';
+                window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
+            });
+            showToast('تم فتح واتساب المستورد بالطلب');
+        }
         function checkout() { 
             if (cart.length === 0) return alert("العربة فارغة!");
+            if (window.importerMode) { sendImporterOrder(); return; }
             if (!validateCartMinQty()) return;
             if (storeData && storeData.cafeModeEnabled) {
                 openCafeOrder();
