@@ -3122,6 +3122,14 @@
             visibleProductLimit += 24;
             renderProducts(lastRenderedList);
         }
+        function productHasImporterPhone(product) {
+            return !!(String((product && product.importerPhone) || '').replace(/[^0-9]/g, ''));
+        }
+        function productVisibleInCurrentMode(product) {
+            if (!product) return false;
+            if (window.importerMode) return productHasImporterPhone(product);
+            return !product.importerOnly;
+        }
         function sellOrCost(product) {
             if (window.importerMode) return Number(product.cost || 0);
             return Number(product.price || 0);
@@ -3164,11 +3172,11 @@
 
             productsToRender.forEach((product) => { 
                 const priceDisplay = product.isByGram ? `${product.price} ج (${product.grams || ''}ج)` : (product.isMeter ? `${product.price} ج/م` : `${product.price} ج`); const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);'; 
-                if(adminList) adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="downloadProductImage('${product.id}')" title="تحميل الصورة"><i class="fa-solid fa-download"></i></button><button class="icon-btn" onclick="copyProductDetails('${product.id}')" title="نسخ التفاصيل"><i class="fa-regular fa-copy"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`; 
+                if(adminList) adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" style="${product.importerOnly ? 'color:#0f766e;' : 'color:var(--text-gray);'}" onclick="toggleImporterOnly('${product.id}')" title="${product.importerOnly ? 'ظاهر للمستورد فقط — اضغط للإظهار للعملاء' : 'إخفاء عن العملاء وإظهاره في متجر المستورد فقط'}"><i class="fa-solid fa-eye"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="downloadProductImage('${product.id}')" title="تحميل الصورة"><i class="fa-solid fa-download"></i></button><button class="icon-btn" onclick="copyProductDetails('${product.id}')" title="نسخ التفاصيل"><i class="fa-regular fa-copy"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`; 
             });
         }
 
-        function filterProducts() { visibleProductLimit = 24; const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase(); const filtered = storeProducts.filter(p => { const matchCat = currentCategory === 'الكل' || p.category === currentCategory; const matchSearch = p.name.toLowerCase().includes(searchTerm); return matchCat && matchSearch; }); renderProducts(filtered); }
+        function filterProducts() { visibleProductLimit = 24; const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase(); const filtered = storeProducts.filter(p => { if (!productVisibleInCurrentMode(p)) return false; const matchCat = currentCategory === 'الكل' || p.category === currentCategory; const matchSearch = (p.name || '').toLowerCase().includes(searchTerm); return matchCat && matchSearch; }); renderProducts(filtered); }
         function filterMerchantProducts() {
             const q = (document.getElementById('merchantProductSearch')?.value || '').trim().toLowerCase();
             const adminList = document.getElementById('admin-products-list');
@@ -3182,8 +3190,16 @@
             list.forEach((product) => {
                 const priceDisplay = product.isByGram ? `${product.price} ج (${product.grams || ''}ج)` : (product.isMeter ? `${product.price} ج/م` : `${product.price} ج`);
                 const starStyle = product.isDealOfDay ? 'color:var(--primary);' : 'color:var(--text-gray);';
-                adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}${Number(product.minQty)>1 ? ' · أقل كمية '+product.minQty : ''}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="downloadProductImage('${product.id}')" title="تحميل الصورة"><i class="fa-solid fa-download"></i></button><button class="icon-btn" onclick="copyProductDetails('${product.id}')" title="نسخ التفاصيل"><i class="fa-regular fa-copy"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`;
+                adminList.innerHTML += `<div class="admin-product-item"><span style="font-weight:bold; font-size:14px;">${product.name} <br> <small style="color:var(--secondary);">${priceDisplay}${Number(product.minQty)>1 ? ' · أقل كمية '+product.minQty : ''}</small></span><div style="display:flex; gap:6px;"><button class="icon-btn" style="${starStyle}" onclick="toggleDealOfDay('${product.id}')" title="عرض مميز"><i class="fa-solid fa-star"></i></button><button class="icon-btn" style="${product.importerOnly ? 'color:#0f766e;' : 'color:var(--text-gray);'}" onclick="toggleImporterOnly('${product.id}')" title="${product.importerOnly ? 'ظاهر للمستورد فقط — اضغط للإظهار للعملاء' : 'إخفاء عن العملاء وإظهاره في متجر المستورد فقط'}"><i class="fa-solid fa-eye"></i></button><button class="icon-btn" onclick="editProduct('${product.id}')" title="تعديل"><i class="fa-solid fa-pen"></i></button><button class="icon-btn" onclick="downloadProductImage('${product.id}')" title="تحميل الصورة"><i class="fa-solid fa-download"></i></button><button class="icon-btn" onclick="copyProductDetails('${product.id}')" title="نسخ التفاصيل"><i class="fa-regular fa-copy"></i></button><button class="icon-btn" onclick="moveProductUp('${product.id}')"><i class="fa-solid fa-arrow-up"></i></button><button class="icon-btn" onclick="moveProductDown('${product.id}')"><i class="fa-solid fa-arrow-down"></i></button><button class="delete-btn" onclick="deleteProduct('${product.id}')"><i class="fa-solid fa-trash"></i></button></div></div>`;
             });
+        }
+        function toggleImporterOnly(id) {
+            const product = storeProducts.find(p => p.id === id);
+            if (!product) return;
+            const next = !product.importerOnly;
+            db.collection("stores").doc(currentStoreId).collection("products").doc(id).set({ importerOnly: next }, { merge: true })
+            .then(() => showToast(next ? "ظاهر لمتجر المستورد فقط 👁️" : "ظهر للعملاء مرة أخرى"))
+            .catch(e => alert("خطأ: " + e.message));
         }
         function toggleDealOfDay(id) { 
             const product = storeProducts.find(p => p.id === id); 
@@ -3398,7 +3414,8 @@
                         grams: isByGram && grams !== "" ? Number(grams) : 0,
                         stock: stock !== "" ? Number(stock) : 0,
                         minQty: minQty !== "" ? Number(minQty) : 0,
-                        importerPhone: importerPhone || ""
+                        importerPhone: importerPhone || "",
+                        importerOnly: !!(editingProductId && (storeProducts.find(p => p.id === editingProductId) || {}).importerOnly)
                     };
                     if (imageData) data.image = imageData;
 
