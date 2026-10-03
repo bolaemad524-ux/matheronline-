@@ -2129,42 +2129,24 @@
                 return;
             }
 
-            // تسجيل الدخول: Firebase Auth هو المصدر الوحيد للباسورد
-            auth.signInWithEmailAndPassword(fakeEmail, authPass)
-            .then(() => findDoc().then(snap => {
+            // الدخول من الرقم السري المخزن أولاً، من غير ما Firebase يوقف التاجر
+            findDoc().then(snap => {
                 if (snap.empty) {
-                    resetBtn(); auth.signOut();
+                    resetBtn();
                     alert("هذا الحساب غير مسجل.\nاضغط «إنشاء حساب جديد» لتسجيل متجرك.");
                     return;
                 }
-                finish(snap.docs[0]);
-            }))
-            .catch(err => {
-                const badCred = ['auth/user-not-found', 'auth/invalid-credential', 'auth/wrong-password', 'auth/invalid-login-credentials'];
-                if (badCred.indexOf(err.code) === -1) {
-                    resetBtn();
-                    alert(err.code === 'auth/too-many-requests' ? "محاولات كتير، جرّب بعد شوية." : "حدث خطأ في الاتصال: " + (err.message || "تحقق من الإنترنت"));
+                const doc = snap.docs[0];
+                const legacy = String((doc.data() && doc.data().password) || '');
+                const typed = String(tempPass || '');
+                if (legacy && (legacy === typed || legacy === merchantAuthPass(typed))) {
+                    finish(doc);
                     return;
                 }
-                // ترحيل مؤقت: حسابات قديمة لسه باسوردها في قاعدة البيانات
-                findDoc().then(snap => {
-                    if (snap.empty) { resetBtn(); alert("هذا الحساب غير مسجل.\nاضغط «إنشاء حساب جديد» لتسجيل متجرك."); return; }
-                    const doc = snap.docs[0];
-                    const legacy = String((doc.data() && doc.data().password) || '');
-                    const typed = String(tempPass || '');
-                    if (legacy && (legacy === typed || legacy === merchantAuthPass(typed))) {
-                        auth.createUserWithEmailAndPassword(fakeEmail, authPass)
-                        .then(() => finish(doc))
-                        .catch(e => {
-                            resetBtn();
-                            if (e && e.code === 'auth/email-already-in-use') alert("الحساب موجود بكلمة سر مختلفة. تواصل مع الإدارة لإعادة ضبطها.");
-                            else alert("تعذر تفعيل الدخول: " + ((e && e.message) || "حاول تاني"));
-                        });
-                    } else {
-                        resetBtn(); alert("الرقم السري غير صحيح!");
-                    }
-                }).catch(() => { resetBtn(); alert("الرقم السري غير صحيح!"); });
-            });
+                auth.signInWithEmailAndPassword(fakeEmail, authPass)
+                .then(() => finish(doc))
+                .catch(() => { resetBtn(); alert("الرقم السري غير صحيح!"); });
+            }).catch(() => { resetBtn(); alert("تعذر الاتصال. حاول تاني."); });
         }
 
         function processLoginSuccess(doc) {
