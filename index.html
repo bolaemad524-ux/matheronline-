@@ -1634,11 +1634,17 @@
         function esc(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
         function jsAttr(v) { return String(v == null ? '' : v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/[\r\n]+/g,' '); }
         function localDateStr(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+        function merchantAuthPass(pass) {
+            pass = String(pass || '');
+            if (pass.length >= 6) return pass;
+            return (pass + '000000').slice(0, 6);
+        }
         function ensureMerchantAuth(email, pass) {
+            const authPass = merchantAuthPass(pass);
             const u = firebase.auth().currentUser;
             if (u && u.email === email) return Promise.resolve(u);
-            return firebase.auth().createUserWithEmailAndPassword(email, pass).catch(e => {
-                if (e.code === 'auth/email-already-in-use') return firebase.auth().signInWithEmailAndPassword(email, pass);
+            return firebase.auth().createUserWithEmailAndPassword(email, authPass).catch(e => {
+                if (e.code === 'auth/email-already-in-use') return firebase.auth().signInWithEmailAndPassword(email, authPass);
                 throw e;
             });
         }
@@ -1649,7 +1655,7 @@
         }
         function createMerchantAuthViaAdmin(phone, pass) {
             const a = getSecondaryAuth();
-            return a.createUserWithEmailAndPassword(phone + '@bola-stores.com', pass).then(() => a.signOut());
+            return a.createUserWithEmailAndPassword(phone + '@bola-stores.com', merchantAuthPass(pass)).then(() => a.signOut());
         }
         function generateShortId() {
             return Math.random().toString(36).substring(2, 8);
@@ -2075,6 +2081,8 @@
             
             tempPhone = "20" + rawPhone;
             let fakeEmail = tempPhone + "@bola-stores.com";
+            const authPass = merchantAuthPass(tempPass);
+            if (tempPass.length < 4) return alert("الرقم السري 4 أرقام على الأقل.");
             
             const btn = document.querySelector('#authStep1 .main-btn');
             let originalText = btn ? btn.innerText : "دخول";
@@ -2100,12 +2108,12 @@
 
             if (mode === 'signup') {
                 // إنشاء حساب Auth هو نفسه فحص التكرار
-                auth.createUserWithEmailAndPassword(fakeEmail, tempPass)
+                auth.createUserWithEmailAndPassword(fakeEmail, authPass)
                 .then(startSignupFlow)
                 .catch(err => {
                     if (err.code === 'auth/email-already-in-use') {
                         // يا إما مسجل فعلاً، يا إما حساب ناقص (اتعمل ومكملش)
-                        auth.signInWithEmailAndPassword(fakeEmail, tempPass)
+                        auth.signInWithEmailAndPassword(fakeEmail, authPass)
                         .then(() => findDoc())
                         .then(snap => {
                             if (snap.empty) { startSignupFlow(); }
@@ -2113,7 +2121,7 @@
                         })
                         .catch(() => { resetBtn(); alert("هذا الرقم مسجل بالفعل.\nاستخدم تسجيل الدخول."); });
                     } else if (err.code === 'auth/weak-password') {
-                        resetBtn(); alert("الباسورد ضعيف، لازم 6 حروف أو أرقام على الأقل.");
+                        resetBtn(); alert("الرقم السري قصير. اكتب 4 أرقام على الأقل.");
                     } else {
                         resetBtn(); alert("حدث خطأ: " + (err.message || "تحقق من الإنترنت"));
                     }
@@ -2122,7 +2130,7 @@
             }
 
             // تسجيل الدخول: Firebase Auth هو المصدر الوحيد للباسورد
-            auth.signInWithEmailAndPassword(fakeEmail, tempPass)
+            auth.signInWithEmailAndPassword(fakeEmail, authPass)
             .then(() => findDoc().then(snap => {
                 if (snap.empty) {
                     resetBtn(); auth.signOut();
@@ -2142,11 +2150,16 @@
                 findDoc().then(snap => {
                     if (snap.empty) { resetBtn(); alert("هذا الحساب غير مسجل.\nاضغط «إنشاء حساب جديد» لتسجيل متجرك."); return; }
                     const doc = snap.docs[0];
-                    const legacy = doc.data().password;
-                    if (legacy && legacy === tempPass) {
-                        auth.createUserWithEmailAndPassword(fakeEmail, tempPass)
+                    const legacy = String((doc.data() && doc.data().password) || '');
+                    const typed = String(tempPass || '');
+                    if (legacy && (legacy === typed || legacy === merchantAuthPass(typed))) {
+                        auth.createUserWithEmailAndPassword(fakeEmail, authPass)
                         .then(() => finish(doc))
-                        .catch(() => { resetBtn(); alert("الرقم السري غير صحيح!"); });
+                        .catch(e => {
+                            resetBtn();
+                            if (e && e.code === 'auth/email-already-in-use') alert("الحساب موجود بكلمة سر مختلفة. تواصل مع الإدارة لإعادة ضبطها.");
+                            else alert("تعذر تفعيل الدخول: " + ((e && e.message) || "حاول تاني"));
+                        });
                     } else {
                         resetBtn(); alert("الرقم السري غير صحيح!");
                     }
@@ -2318,9 +2331,9 @@
                     if (typeof m.password !== 'string' || !m.password) { nothing++; continue; }
                     const email = m.phone + '@bola-stores.com';
                     try {
-                        try { await a.createUserWithEmailAndPassword(email, m.password); created++; }
+                        try { await a.createUserWithEmailAndPassword(email, merchantAuthPass(m.password)); created++; }
                         catch (e) {
-                            if (e.code === 'auth/email-already-in-use') { await a.signInWithEmailAndPassword(email, m.password); existed++; }
+                            if (e.code === 'auth/email-already-in-use') { await a.signInWithEmailAndPassword(email, merchantAuthPass(m.password)); existed++; }
                             else throw e;
                         }
                         await a.signOut();
@@ -2331,7 +2344,7 @@
                     }
                 }
                 out.innerText = 'تم ✅\nحسابات جديدة: ' + created + '\nحسابات كانت موجودة: ' + existed + '\nبدون باسورد مخزن: ' + nothing +
-                    (failed.length ? '\n⚠️ فشل (' + failed.length + '):\n' + failed.join('\n') + '\n(الباسورد أقل من 6 حروف أو مختلف عن حساب موجود، غيّره مع التاجر)' : '');
+                    (failed.length ? '\n⚠️ فشل (' + failed.length + '):\n' + failed.join('\n') : '');
             } catch (e) {
                 out.innerText = 'حدث خطأ: ' + (e.message || e);
             }
