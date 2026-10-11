@@ -170,6 +170,9 @@
         .product-price { font-size: 16px; font-weight: 800; color: var(--primary); }
         .cart-circle-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white; border: none; display: flex; justify-content: center; align-items: center; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 3px 8px rgba(13,110,253,0.3); }
         .cart-circle-btn:hover { transform: scale(1.08); }
+        .design-own-btn { width: 100%; margin-top: 10px; padding: 9px 10px; border: 1px solid var(--primary); border-radius: 10px; background: transparent; color: var(--primary); font-family: 'Cairo'; font-size: 12px; font-weight: 800; cursor: pointer; transition: .2s; }
+        .design-own-btn:hover { background: var(--primary); color: #fff; }
+        .deal-design-btn { width: auto; margin: 10px 0 0; padding: 7px 14px; }
         .details-badge { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.95); color: var(--text-dark); padding: 5px 11px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.06); backdrop-filter: blur(4px); }
         
         .no-results { text-align: center; color: var(--text-gray); font-size: 15px; grid-column: 1 / -1; padding: 40px 0; font-weight: 500; }
@@ -3174,6 +3177,22 @@
             if (window.importerMode) return Number(product.cost || 0);
             return Number(product.price || 0);
         }
+        function isBolaEmadStore() {
+            const phone = String((storeData && (storeData.phone || storeData.whatsapp || '')) || '').replace(/[^0-9]/g, '');
+            return phone.endsWith('12859035') || phone.endsWith('01285957035') || String(storeData && storeData.name || '').toLowerCase().includes('bola');
+        }
+        function designSizeForProduct(product) {
+            const name = String(product && product.name || '');
+            if (/مج/.test(name)) return '20×9 سم بالعرض';
+            const match = name.match(/(\d+)\s*[x×*]\s*(\d+)/i);
+            return match ? `${match[1]}×${match[2]} سم` : 'حسب المنتج';
+        }
+        function openDesignChat(productId) {
+            const product = storeProducts.find(p => p.id === productId);
+            if (!product) return;
+            const params = new URLSearchParams({ design: '1', product: product.name, size: designSizeForProduct(product), whatsapp: '01285957035' });
+            window.open(`https://printai-6avwhdxm.manus.space/chat/bola-emad?${params.toString()}`, '_blank', 'noopener,noreferrer');
+        }
         function renderProducts(productsToRender) {
             lastRenderedList = productsToRender || [];
             const dealContainer = document.getElementById('deal-container'); const gridContainer = document.getElementById('products-container'); const adminList = document.getElementById('admin-products-list');
@@ -3185,7 +3204,7 @@
             if (dealProduct && dealContainer) { 
                 const dp = sellOrCost(dealProduct);
                 const priceDisplay = dealProduct.isByGram ? `${dp} ج.م (${dealProduct.grams || ''}ج)` : (dealProduct.isArea ? `${dp} ج.م/م²` : (dealProduct.isMeter ? `${dp} ج.م/متر` : `${dp} ج.م`)); 
-                dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">${window.importerMode ? 'سعر المستورد' : 'عرض خاص'}</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${esc(dealProduct.name)}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Cairo';" onclick="addToCart('${dealProduct.id}', '${jsAttr(dealProduct.name)}', ${dp}, ${dealProduct.isMeter || false}, ${dealProduct.isArea || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button></div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
+                dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">${window.importerMode ? 'سعر المستورد' : 'عرض خاص'}</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${esc(dealProduct.name)}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Cairo';" onclick="addToCart('${dealProduct.id}', '${jsAttr(dealProduct.name)}', ${dp}, ${dealProduct.isMeter || false}, ${dealProduct.isArea || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button>${isBolaEmadStore() && !window.importerMode ? `<button class="design-own-btn deal-design-btn" onclick="openDesignChat('${dealProduct.id}')"><i class="fa-solid fa-wand-magic-sparkles"></i> صمم بنفسك</button>` : ''}</div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`; 
             }
 
             const shown = regularProducts.slice(0, visibleProductLimit);
@@ -3204,6 +3223,7 @@
                                 <button class="cart-circle-btn" onclick="addToCart('${product.id}', '${jsAttr(product.name)}', ${dp}, ${product.isMeter || false}, ${product.isArea || false})"><i class="fa-solid fa-plus"></i></button>
                                 <div class="product-price">${priceDisplay}</div>
                             </div>
+                            ${isBolaEmadStore() && !window.importerMode ? `<button class="design-own-btn" onclick="openDesignChat('${product.id}')"><i class="fa-solid fa-wand-magic-sparkles"></i> صمم بنفسك</button>` : ''}
                         </div>
                     </div>`;
                 }).join('');
