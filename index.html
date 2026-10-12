@@ -3185,7 +3185,7 @@
             const name = String(product && product.name || '');
             if (/مج\s*ابيض|مج\s*سحري/.test(name)) return { size: '9×20 سم بالعرض', orientation: 'عرض', textOnly: false };
             if (/بايركس/.test(name)) return { size: '4×6 سم بالعرض', orientation: 'عرض', textOnly: true };
-            if (/حراري/.test(name)) return { size: '16×5 سم بالعرض', orientation: 'عرض', textOnly: true };
+            if (/حرار[يى]/.test(name)) return { size: '16×5 سم بالعرض', orientation: 'عرض', textOnly: true };
             if (/تابلوه|برواز/.test(name)) { const match = name.match(/(\d+)\s*[x×*]\s*(\d+)/i); return { size: match ? `${match[1]}×${match[2]} سم` : 'حسب المقاس المكتوب على المنتج', needsOrientation: true }; }
             if (/مدليه\s*مستطيله/i.test(name)) return { size: '4×6 سم بالطول', orientation: 'طول' };
             if (/ساعه/.test(name)) return { size: '30×40 سم', orientation: 'عرض', note: 'اترك دائرة بيضاء في منتصف التصميم قطرها 5 مم، ولا تضع وجوه الأشخاص أو تفاصيل مهمة داخلها لأنها مكان خرم العقارب.' };
