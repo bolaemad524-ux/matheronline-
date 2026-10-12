@@ -7,6 +7,10 @@
     <meta property="og:title" id="ogTitle" content="متجر">
     <meta property="og:description" id="ogDesc" content="">
     <meta name="description" id="metaDesc" content="">
+    <meta name="theme-color" content="#0d6efd">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.webmanifest">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Changa:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -172,6 +176,27 @@
         .cart-circle-btn:hover { transform: scale(1.08); }
         .design-own-btn { width: 100%; margin-top: 10px; padding: 9px 10px; border: 1px solid var(--primary); border-radius: 10px; background: transparent; color: var(--primary); font-family: 'Cairo'; font-size: 12px; font-weight: 800; cursor: pointer; transition: .2s; }
         .design-own-btn:hover { background: var(--primary); color: #fff; }
+        .design-studio-modal { position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; padding:14px; background:rgba(15,23,42,.68); }
+        .design-studio-modal.open { display:flex; }
+        .design-studio-card { width:min(560px,100%); max-height:92vh; overflow:auto; background:#fff; border-radius:22px; padding:18px; box-shadow:0 20px 70px rgba(0,0,0,.28); direction:rtl; }
+        .design-studio-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+        .design-studio-head h2 { color:#0f172a; font-size:20px; }
+        .design-close { border:0; background:#f1f5f9; color:#475569; border-radius:50%; width:36px; height:36px; cursor:pointer; font-size:18px; }
+        .design-studio-card label { display:block; color:#334155; font-weight:800; font-size:13px; margin:10px 0 6px; }
+        .design-studio-card input[type=text], .design-studio-card textarea { width:100%; border:1px solid #dbe3ef; border-radius:12px; padding:11px; font-family:Cairo; font-size:14px; }
+        .design-studio-card textarea { min-height:70px; resize:vertical; }
+        .design-studio-card input[type=file] { width:100%; padding:10px; border:1px dashed #94a3b8; border-radius:12px; background:#f8fafc; }
+        .design-studio-meta { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
+        .design-studio-pill { background:#eff6ff; color:#1d4ed8; border-radius:999px; padding:5px 10px; font-size:12px; font-weight:800; }
+        .design-studio-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+        .design-studio-actions button { flex:1; min-width:140px; border:0; border-radius:11px; padding:11px; cursor:pointer; font-family:Cairo; font-weight:900; background:#e2e8f0; color:#334155; }
+        .design-studio-actions button.primary { background:#0d6efd; color:#fff; }
+        .design-studio-preview { margin-top:14px; text-align:center; background:#f8fafc; border-radius:14px; padding:10px; }
+        .design-studio-preview img { max-width:100%; max-height:420px; border-radius:10px; object-fit:contain; background:#fff; }
+        .install-banner { position:fixed; left:12px; right:12px; bottom:14px; z-index:9999; display:none; align-items:center; gap:10px; padding:12px 14px; background:#0f172a; color:#fff; border-radius:15px; box-shadow:0 10px 28px rgba(0,0,0,.25); }
+        .install-banner.show { display:flex; }
+        .install-banner span { flex:1; font-size:12px; font-weight:700; }
+        .install-banner button { border:0; border-radius:9px; padding:8px 12px; background:#d4af37; color:#111827; font-family:Cairo; font-weight:900; cursor:pointer; }
         .deal-design-btn { width: auto; margin: 10px 0 0; padding: 7px 14px; }
         .details-badge { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.95); color: var(--text-dark); padding: 5px 11px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.06); backdrop-filter: blur(4px); }
         
@@ -450,6 +475,21 @@
     </style>
 </head>
 <body>
+
+    <div id="designStudioModal" class="design-studio-modal" aria-hidden="true">
+        <div class="design-studio-card">
+            <div class="design-studio-head"><h2><i class="fa-solid fa-wand-magic-sparkles"></i> صمم منتجك بنفسك</h2><button class="design-close" onclick="closeDesignStudio()">×</button></div>
+            <div id="designStudioProduct" class="design-studio-meta"></div>
+            <label for="designStudioImages">الصور (يمكن اختيار أكثر من صورة)</label>
+            <input id="designStudioImages" type="file" accept="image/*" multiple>
+            <label for="designStudioText">العبارة أو الاسم (اختياري)</label>
+            <textarea id="designStudioText" placeholder="اكتب العبارة كما تريدها بالضبط..."></textarea>
+            <div class="design-studio-actions"><button class="primary" onclick="renderStoreDesign()">إنشاء التصميم</button><button onclick="clearStoreDesignText()">مسح العبارة</button></div>
+            <div id="designStudioPreview" class="design-studio-preview" style="display:none;"></div>
+            <div id="designStudioResultActions" class="design-studio-actions" style="display:none;"><button onclick="renderStoreDesign()">تغيير الشكل</button><button class="primary" onclick="downloadStoreDesign()">تحميل التصميم</button><button onclick="shareStoreDesign()">جاهز لإرسال التصميم</button></div>
+        </div>
+    </div>
+    <div id="installBanner" class="install-banner"><span>ثبّت متجر بولا عماد على موبايلك وافتحه مثل أي تطبيق</span><button onclick="installStoreApp()">تثبيت التطبيق</button><button aria-label="إغلاق" onclick="dismissInstallBanner()">×</button></div>
 
     <div id="welcomeSplash">
         <div class="ws-wrap">
@@ -3202,14 +3242,48 @@
         function isDesignableProduct(product) {
             return !!designSpecForProduct(product);
         }
+        let activeDesignProduct = null;
+        let activeDesignSpec = null;
+        let latestStoreDesignDataUrl = '';
+        let installPromptEvent = null;
         function openDesignChat(productId) {
             const product = storeProducts.find(p => p.id === productId);
             if (!product) return;
             const spec = designSpecForProduct(product);
             if (!spec) return;
-            const params = new URLSearchParams({ design: '1', product: product.name, size: spec.size, orientation: spec.orientation || '', shape: spec.shape || '', textOnly: spec.textOnly ? '1' : '', specNote: spec.note || '', needsOrientation: spec.needsOrientation ? '1' : '', whatsapp: '01285957035' });
-            window.open(`https://printai-6avwhdxm.manus.space/chat/bola-emad?${params.toString()}`, '_blank', 'noopener,noreferrer');
+            activeDesignProduct = product; activeDesignSpec = spec; latestStoreDesignDataUrl = '';
+            const meta = document.getElementById('designStudioProduct');
+            if (meta) meta.innerHTML = `<span class="design-studio-pill">${esc(product.name)}</span><span class="design-studio-pill">${esc(spec.size)}</span>${spec.orientation ? `<span class="design-studio-pill">${esc(spec.orientation)}</span>` : ''}`;
+            const preview = document.getElementById('designStudioPreview'); if (preview) { preview.style.display='none'; preview.innerHTML=''; }
+            const actions = document.getElementById('designStudioResultActions'); if (actions) actions.style.display='none';
+            const text = document.getElementById('designStudioText'); if (text) text.value='';
+            const files = document.getElementById('designStudioImages'); if (files) files.value='';
+            const modal = document.getElementById('designStudioModal'); if (modal) { modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); }
         }
+        function closeDesignStudio() { const modal=document.getElementById('designStudioModal'); if(modal){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');} }
+        function clearStoreDesignText() { const el=document.getElementById('designStudioText'); if(el) el.value=''; }
+        function fitStoreImage(ctx, img, x, y, w, h) { const scale=Math.max(w/img.width,h/img.height); const nw=img.width*scale, nh=img.height*scale; ctx.drawImage(img,x+(w-nw)/2,y+(h-nh)/2,nw,nh); }
+        function storeDesignCanvasSize() { const raw=(activeDesignSpec&&activeDesignSpec.size||'20×20').match(/(\d+)\s*[×x*]\s*(\d+)/i); if(!raw) return {w:1200,h:1200}; let a=Number(raw[1]),b=Number(raw[2]); if(activeDesignSpec.orientation==='طول' && a>b) [a,b]=[b,a]; if(activeDesignSpec.orientation==='عرض' && a<b) [a,b]=[b,a]; const ratio=a/b; return ratio>=1 ? {w:1200,h:Math.max(400,Math.round(1200/ratio))} : {w:Math.max(400,Math.round(1200*ratio)),h:1200}; }
+        function renderStoreDesign() {
+            if (!activeDesignProduct) return;
+            const text=(document.getElementById('designStudioText')||{}).value||'';
+            const input=document.getElementById('designStudioImages'); const files=Array.from((input&&input.files)||[]).slice(0,5); const size=storeDesignCanvasSize();
+            const canvas=document.createElement('canvas'); canvas.width=size.w; canvas.height=size.h; const ctx=canvas.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,size.w,size.h);
+            const urls=files.map(file=>URL.createObjectURL(file));
+            Promise.all(urls.map(url=>new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>resolve(null);img.src=url;}))).then(images=>{
+                const valid=images.filter(Boolean); const gap=Math.round(Math.min(size.w,size.h)*.025); const cols=valid.length<=1?1:valid.length<=4?2:3; const rows=Math.max(1,Math.ceil(valid.length/cols)); const cellW=(size.w-gap*(cols+1))/cols; const cellH=(size.h-gap*(rows+1))/rows;
+                valid.forEach((img,i)=>{const col=i%cols,row=Math.floor(i/cols),x=gap+col*(cellW+gap),y=gap+row*(cellH+gap);ctx.save();ctx.beginPath();ctx.roundRect(x,y,cellW,cellH,18);ctx.clip();fitStoreImage(ctx,img,x,y,cellW,cellH);ctx.restore();});
+                if (text.trim()) { ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fillRect(0,size.h-130,size.w,130); ctx.fillStyle='#111827'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.direction='rtl'; ctx.font=`700 ${Math.max(34,Math.round(Math.min(size.w,size.h)/12))}px Cairo, Arial`; ctx.fillText(text.trim().slice(0,80),size.w/2,size.h-65); }
+                if (activeDesignSpec.shape==='دائرة') { ctx.globalCompositeOperation='destination-in'; ctx.beginPath(); ctx.arc(size.w/2,size.h/2,Math.min(size.w,size.h)/2,0,Math.PI*2); ctx.fill(); ctx.globalCompositeOperation='source-over'; }
+                latestStoreDesignDataUrl=canvas.toDataURL('image/png'); const preview=document.getElementById('designStudioPreview'); if(preview){preview.style.display='block';preview.innerHTML=`<img src="${latestStoreDesignDataUrl}" alt="التصميم النهائي"><div style="font-size:12px;color:#64748b;margin-top:6px;">${esc(activeDesignProduct.name)} — ${esc(activeDesignSpec.size)}</div>`;} const actions=document.getElementById('designStudioResultActions'); if(actions) actions.style.display='flex'; urls.forEach(URL.revokeObjectURL);
+            });
+        }
+        function downloadStoreDesign() { if(!latestStoreDesignDataUrl)return; const a=document.createElement('a');a.href=latestStoreDesignDataUrl;a.download=(activeDesignProduct&&activeDesignProduct.name||'design').replace(/\s+/g,'-')+'.png';a.click(); }
+        async function shareStoreDesign() { if(!latestStoreDesignDataUrl)return; downloadStoreDesign(); const phone='2012859035'; const msg=`جاهز لإرسال تصميمي\nالمنتج: ${(activeDesignProduct&&activeDesignProduct.name)||''}\nالمقاس: ${(activeDesignSpec&&activeDesignSpec.size)||''}\nتم تحميل التصميم، سأرفقه هنا.`; window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank','noopener,noreferrer'); }
+        window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installPromptEvent=event; const banner=document.getElementById('installBanner'); if(banner) banner.classList.add('show'); });
+        async function installStoreApp(){ if(!installPromptEvent){ alert('على أندرويد اضغط تثبيت من إشعار المتصفح أو من قائمة ⋮ ثم إضافة إلى الشاشة الرئيسية. على آيفون اضغط مشاركة ثم إضافة إلى الشاشة الرئيسية.'); return; } installPromptEvent.prompt(); await installPromptEvent.userChoice; installPromptEvent=null; dismissInstallBanner(); }
+        function dismissInstallBanner(){const banner=document.getElementById('installBanner');if(banner)banner.classList.remove('show');}
+        if ('serviceWorker' in navigator) window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); setTimeout(()=>{ if(!window.matchMedia('(display-mode: standalone)').matches && !installPromptEvent){ const banner=document.getElementById('installBanner'); if(banner) banner.classList.add('show'); } },4000); });
         function renderProducts(productsToRender) {
             lastRenderedList = productsToRender || [];
             const dealContainer = document.getElementById('deal-container'); const gridContainer = document.getElementById('products-container'); const adminList = document.getElementById('admin-products-list');
