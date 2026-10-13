@@ -10,7 +10,18 @@
     <meta name="theme-color" content="#0d6efd">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="manifest.webmanifest">
+    <script>
+    (function(){try{
+        var I192='data:image/png;base64,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',I512='data:image/png;base64,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',IMASK='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAANQklEQVR4nO3dO5ccRxnH4bd9KsUxoNWFEOkc+DhIEZZMjD+Lcyw7g4+DzDGpdbNN7Bw3kRBH62Vv3VXV83+ekGOva5qZrt+8M1u7/OLP/14LAIjSarX/A0Caj0YvAADoTwAAQCABAACBBAAABBIAABBIAABAIAEAAIFalXMAACCNCQAABBIAABBIAABAoLaMXgEA0J0JAAAEEgAAEEgAAEAgAQAAgVqtDgICgDQmAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIHaUs4BAIA0JgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABGq1OggIANKYAABAIAEAAIEEAAAEasvoFQAA3ZkAAEAgAQAAgQQAAARqVc4BAIA0JgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABGrL6iAgAEhjAgAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABCoVTkHAADSmAAAQCABAACBBAAABGrL6BUAAN2ZAABAIAEAAIEEAAAEEgAAEKjV6iAgAEhjAgAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABCoLeUcAABIYwIAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQKBWq4OAACCNCQAABBIAABBIAABAoLaMXgEA0J0JAAAEEgAAEEgAAECgVuUcAABIYwIAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQKC2rA4CAoA0JgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBWpVzAAAgjQkAAAQSAAAQSAAAQCABAACB2jJ6BQBAdyYAABBIAABAIAEAAIFarQ4CAoA0JgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACB/C0AAAjUqhwEBABpfAQAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQqNXqHAAASGMCAACBBAAABBIAABDIHwMCgEAmAAAQSAAAQCABAACBBAAABGpVDgICgDQmAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIHasjoHAADSmAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEKhVOQgIANKYAABAIAEAAIEEAAAEasvoFQAA3ZkAAEAgAQAAgQQAAARqtToHAADSmAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEKgt5SAgAEhjAgAAgdroBQD7evuXX97o3zv70782Xgkwk+XOpz/4DABOxE03+6sSBXA6BAAc3N6b/kXEABybAIADGrXpX0QMwPEIADiQ2Tb+DwkBOA4BAAcw+8b/ISEA81vuPPteAMCk3n7xq9FLuJWzT38YvQTgAgIAJnT0jf9DQgDm4yAgmMypbf5Vp/mY4OhMAGASKZukaQDMYTkTADDcm5DN/527IgCG8xEADJa2+VdlPmaYjQCAgZI3wuTHDjMQADCIDdA1gJEEAAxg43vPtYAxlrNn3/kSIHT05otfj17ClO5++v3oJUAUEwDoyOZ/MdcG+jIBgE5GbnDXfXd9pLUCNyMAoIPeG+rWm+jR1w+cJwBgZz03z703zlN6LJBOAMCOem2YvTfLU31ckKSNXgBwc6M2yHf/XV/cg+MyAYCd7Lk5zvbOOOmxwqlY7j59KwBgY6+f39ntZ9979t1uP/s2Eh8zHJlzAOBAZt4IZ14bcJ4JAGxsj3fCR9tcXQOYnwkATO6IG98R1wxpBABsaOt3vkfeSLde+57fMYBEAgAAAgkA2Ih3/+eZAsC8BABM6BQ2/3dO6bHAKREAsIEt35me4oa55WMyBYBttCq/BQhz8Zq8nGsEt2UCALf0+vnZZj/r3rO3m/2s2Wz52La85pBKAMAkTnnzfyfhMcJRCAAACLTce/rGh2lwQ682GkXfD3tn7LrBeCYAABBIAABAIAEAgyWOsRMfM8ym1eorAHATr768u80P8hq8sVfPz+r+0zejlwGHZAIAAIEEAAyU/O41+bHDDAQAAAQSAAAQSADADWz2BUBuzf8XcDMCAAbxGbhrACMJAAAIJAAAIFBbyiEkMILX3nZcS7g+EwAACCQAACDQcv+TV2ZnHNLLL++NXgJUVdWDp69HLwGuTQBwGDZ8jkAMcBQCgOnZ+DkqMcDMBADTsvFzKoQAM/IlQKZk8+eUeD4zo+X+H1+aADCNl1/dH70E2NWDT16NXgJUlQkAE7H5k8DznFkIAKbgpkgSz3dmIAAYzs2QRJ73jCYAGMpNkGSe/4y0PPAlQAb51s0PqqrqN74YyAAmAAAQSAAwhHf/8J7XAyMIALpzs4PzvC7orVX5CgDAHNyP6ccEgK6+/erB6CXAtLw+6EkAAEAgAUA33t3A5bxO6EUAAEAgAQAAgQQAAAQSAHThc024Oq8XemjL6BUAcI57M3trtTp4AmA67s3szEcAABBIAABAoDZ6AXB0H3/208/+7z9+rq+34PrCPgQA3MBFm9JF/4zN6npcX9ifVw1c01U2py3+nVSuL/QhAOAabrPR2KQu5/pCPwIArmiLDcYmdTHXF/pqVX7XFC6z5cby8Wc/+cz6A67vz3FvZl+n8CoBAK5JAMAl9hgrG1W/5/rCGAIAAAL5Y0AAE3JvZm8mAAAQSAAAQCABAACBBAAABGq1OmwC/p8fP/9o818rO42Darbh+l7AvZmdncCrBAC4LgEAV7DlO8qTeHe6MdcX+vNKgSvaYmOxOV3M9YW+vFrgGm6zwdicLuf6Qj9eMXBNN9lobE5X5/pCH230AuCI/nfDuegb7Dalm3N9YX8CAG7JRrQv1xf20Zbyu6YAs3FvZm/SGgACCQAACCQAACCQAACAQAIAAAIJAAAIJAAAIJAAAIBArVaHTQBMx72ZnZkAAEAgAQAAgQQAAARqy+gVAHCOezN7MwEAgEACAAACCQAACNSq/K4pwHzcm9mXCQAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgdqyOmwCYDbuzezNBAAAAgkAAAgkAAAgkAAAgEACAAACCQAACCQAACBQq/K7pgDzcW9mXyYAABBIAABAIAEAAIHaMnoFAJzj3szeTAAAIJAAAIBAAgAAAgkAAAjUanXYBMB03JvZmQkAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAoLaU3zUFmI17M3szAQCAQAIAAAIJAAAIJAAAIJAAAIBAAgAAAgkAAAgkAAAgUKvVYRMA03FvZmcmAAAQSAAAQCABAACB2jJ6BQCc497M3kwAACCQAACAQAIAAAK1Kr9rCjAf92b2ZQIAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQKC2rA6bAJiNezN7MwEAgEACgC4ePvnH6CXAYXi90IMAAIBAAgAAAgkAujHWhMt5ndCLAACAQAIAAAItv338wi+b0tU///q70UuAKT188vXoJRDEBAAAAgkAuvMuB87zuqA3AcAQbnbwntcDIwgAgIFs/ozSltErINajJ1/XN74QSDj3YEYxAWCoR979EMzzn5EEAMO5CZLI857RBABTcDMkiec7M1ge/uHvDgJiGt/87fejlwC7efT4xeglwH+ZADCVR49fuElykjyvmY0AYEpulpwSz2dm5CMApudjAY7Kxs/MBACHIQQ4Aps+RyEAOCxBwCxs+hyRAACAQL4ECACB/C0AAAjUqnwCAABpfAQAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQqNXqHAAASGMCAACBBAAABBIAABDIHwMCgEAmAAAQSAAAQCABAACBBAAABGpVDgICgDQmAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIHasjoHAADSmAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEKhVOQgIANKYAABAIAEAAIEEAAAEasvoFQAA3ZkAAEAgAQAAgQQAAARqtToHAADSmAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEKgt5SAgAEhjAgAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABCo1eocAABIYwIAAIEEAAAEEgAAEKgto1cAAHRnAgAAgQQAAAQSAAAQSAAAQKBW5SAgAEhjAgAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABCoLatzAAAgjQkAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIFalYOAACCNCQAABBIAABBIAABAoLaMXgEA0J0JAAAEEgAAEEgAAECgVqtzAAAgjQkAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIHaUg4CAoA0JgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBWq3OAQCANCYAABBIAABAIAEAAIEEAAAEasvoFQAA3ZkAAEAgAQAAgQQAAARqVQ4CAoA0JgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACB/gPlfhDdmNFalAAAAABJRU5ErkJggg==';
+        var scope=location.origin+location.pathname.replace(/[^\/]*$/,'');
+        var m={name:'BOLA EMAD - متجر',short_name:'BOLA EMAD',description:'تسوق واطلب مباشرة على واتساب',id:scope,start_url:location.origin+location.pathname+location.search,scope:scope,display:'standalone',orientation:'portrait',background_color:'#ffffff',theme_color:'#0d6efd',lang:'ar',dir:'rtl',
+          icons:[{src:I192,sizes:'192x192',type:'image/png',purpose:'any'},{src:I512,sizes:'512x512',type:'image/png',purpose:'any'},{src:IMASK,sizes:'512x512',type:'image/png',purpose:'maskable'}]};
+        var l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}));document.head.appendChild(l);
+        var i=document.createElement('link');i.rel='icon';i.type='image/png';i.href=I192;document.head.appendChild(i);
+        var a=document.createElement('link');a.rel='apple-touch-icon';a.href=I192;document.head.appendChild(a);
+    }catch(e){}})();
+    try{var _q=new URLSearchParams(location.search),_s=_q.get('store');if(_s){localStorage.setItem('lastStore',_s);}else if((window.matchMedia('(display-mode: standalone)').matches||navigator.standalone)&&!_q.get('super')&&localStorage.getItem('lastStore')){location.replace(location.pathname+'?store='+encodeURIComponent(localStorage.getItem('lastStore')));}}catch(e){}
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Changa:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -197,6 +208,12 @@
         .install-banner.show { display:flex; }
         .install-banner span { flex:1; font-size:12px; font-weight:700; }
         .install-banner button { border:0; border-radius:9px; padding:8px 12px; background:#d4af37; color:#111827; font-family:Cairo; font-weight:900; cursor:pointer; }
+        .design-chips { display:flex; flex-wrap:wrap; gap:6px; }
+        .design-chip { border:1.5px solid #dbe3ef; background:#f8fafc; color:#334155; border-radius:999px; padding:7px 12px; font-family:Cairo; font-weight:800; font-size:13px; cursor:pointer; }
+        .design-chip.on { background:#0d6efd; border-color:#0d6efd; color:#fff; }
+        .design-note { background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; border-radius:10px; padding:8px 10px; font-size:12px; font-weight:700; margin:6px 0; }
+        .design-progress { margin-top:10px; background:#eff6ff; color:#1d4ed8; border-radius:10px; padding:10px; font-size:13px; font-weight:800; text-align:center; }
+        .design-studio-actions button:disabled { opacity:.6; cursor:wait; }
         .deal-design-btn { width: auto; margin: 10px 0 0; padding: 7px 14px; }
         .details-badge { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.95); color: var(--text-dark); padding: 5px 11px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.06); backdrop-filter: blur(4px); }
         
@@ -476,17 +493,30 @@
 </head>
 <body>
 
-    <div id="designStudioModal" class="design-studio-modal" aria-hidden="true">
+    <div id="designStudioModal" class="design-studio-modal" aria-hidden="true" onclick="if(event.target===this)closeDesignStudio()">
         <div class="design-studio-card">
             <div class="design-studio-head"><h2><i class="fa-solid fa-wand-magic-sparkles"></i> صمم منتجك بنفسك</h2><button class="design-close" onclick="closeDesignStudio()">×</button></div>
             <div id="designStudioProduct" class="design-studio-meta"></div>
-            <label for="designStudioImages">الصور (يمكن اختيار أكثر من صورة)</label>
-            <input id="designStudioImages" type="file" accept="image/*" multiple>
-            <label for="designStudioText">العبارة أو الاسم (اختياري)</label>
+            <div id="designNote" class="design-note" style="display:none;"></div>
+            <label>اختر ستايل التصميم</label>
+            <div id="designStyleChips" class="design-chips"></div>
+            <div id="designOrientBox" style="display:none;">
+                <label>اتجاه التصميم</label>
+                <div id="designOrientChips" class="design-chips"></div>
+                <input id="designCustomSize" type="text" placeholder="المقاس بالسم (اختياري) مثال: 50×70" style="margin-top:8px;">
+            </div>
+            <div id="designPhotosBox">
+                <label for="designStudioImages">صورك (حتى 5 صور)</label>
+                <input id="designStudioImages" type="file" accept="image/*" multiple>
+            </div>
+            <label for="designStudioText">الاسم أو العبارة (كل سطر لوحده)</label>
             <textarea id="designStudioText" placeholder="اكتب العبارة كما تريدها بالضبط..."></textarea>
-            <div class="design-studio-actions"><button class="primary" onclick="renderStoreDesign()">إنشاء التصميم</button><button onclick="clearStoreDesignText()">مسح العبارة</button></div>
+            <label for="designIdea">فكرة إضافية للذكاء الاصطناعي (اختياري)</label>
+            <input id="designIdea" type="text" placeholder="مثال: ورد أحمر وفراشات، أو ملعب كرة">
+            <div class="design-studio-actions"><button id="designStudioGenBtn" class="primary" onclick="renderStoreDesign()">✨ إنشاء التصميم بالذكاء الاصطناعي</button><button onclick="clearStoreDesignText()">مسح العبارة</button></div>
+            <div id="designProgress" class="design-progress" style="display:none;"></div>
             <div id="designStudioPreview" class="design-studio-preview" style="display:none;"></div>
-            <div id="designStudioResultActions" class="design-studio-actions" style="display:none;"><button onclick="renderStoreDesign()">تغيير الشكل</button><button class="primary" onclick="downloadStoreDesign()">تحميل التصميم</button><button onclick="shareStoreDesign()">جاهز لإرسال التصميم</button></div>
+            <div id="designStudioResultActions" class="design-studio-actions" style="display:none;"><button onclick="renderStoreDesign()">🔄 تصميم تاني</button><button class="primary" onclick="downloadStoreDesign()">تحميل التصميم</button><button onclick="shareStoreDesign()">جاهز لإرسال التصميم</button></div>
         </div>
     </div>
     <div id="installBanner" class="install-banner"><span>ثبّت متجر بولا عماد على موبايلك وافتحه مثل أي تطبيق</span><button onclick="installStoreApp()">تثبيت التطبيق</button><button aria-label="إغلاق" onclick="dismissInstallBanner()">×</button></div>
@@ -987,6 +1017,8 @@
                     <input type="url" id="adminInstagram" placeholder="رابط انستجرام">
                     <input type="url" id="adminTiktok" placeholder="رابط تيك توك">
                     <label style="font-weight:bold; font-size:13px; color:var(--text-gray); margin-bottom:5px; display:block;">معلومات المساعد الذكي (يظهر للعملاء):</label>
+                    <label style="font-weight:bold; font-size:13px; color:var(--text-gray); margin-bottom:5px; display:block;">مفتاح الذكاء الاصطناعي لتصميم المنتجات (اختياري):</label>
+                    <input type="text" id="adminAiKey" dir="ltr" placeholder="pk_... (من enter.pollinations.ai)" autocomplete="off">
                     <textarea id="adminAssistantInfo" rows="3" placeholder="مثال: نحن متخصصون في الهدايا... التوصيل خلال 24 ساعة... الأسعار شاملة الشحن داخل القاهرة..."></textarea>
                     <label style="font-weight:bold; font-size:13px; color:var(--text-gray); margin-bottom:5px; display:block;">لوجو المتجر:</label>
                     <input type="file" id="adminStoreLogo" accept="image/*" style="padding:10px; background:white;">
@@ -1675,7 +1707,10 @@
 
         // ===== دوال مساعدة للأمان والتاريخ =====
         function esc(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-        function jsAttr(v) { return String(v == null ? '' : v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/[\r\n]+/g,' '); }
+        function jsAttr(v) { return String(v == null ? '' : v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/[\r\n]+/g,' ').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        function safeImg(u) { u = String(u == null ? '' : u).trim(); return /^(https?:\/\/|data:image\/|blob:)/i.test(u) ? u : ''; }
+        function safeLink(u) { u = String(u == null ? '' : u).trim(); return /^https?:\/\//i.test(u) ? u : ''; }
+        function openImageSrc(src) { if (!src) return; if (/^data:/i.test(src)) { fetch(src).then(r => r.blob()).then(b => window.open(URL.createObjectURL(b), '_blank')).catch(() => {}); } else window.open(src, '_blank'); }
         function localDateStr(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
         function merchantAuthPass(pass) {
             pass = String(pass || '');
@@ -2084,6 +2119,7 @@
         } else if (currentStoreId) {
             if (!sessionStorage.getItem('bootReload')) {
                 sessionStorage.setItem('bootReload', '1');
+                window._bootReloading = true;
                 location.reload();
             }
             document.getElementById('loginApp').style.display = 'none';
@@ -2099,7 +2135,7 @@
                     document.getElementById('merchantDashboardApp').style.display = 'none';
                     let d = new Date();
                     let todayStr = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
-                    db.collection("stores").doc(currentStoreId).update({ 
+                    if (!window._bootReloading) db.collection("stores").doc(currentStoreId).update({ 
                         visitors: firebase.firestore.FieldValue.increment(1),
                         [`dailyVisits.${todayStr}`]: firebase.firestore.FieldValue.increment(1)
                     }).catch(e => console.log("تحديث الزوار:", e));
@@ -2125,7 +2161,7 @@
             tempPhone = "20" + rawPhone;
             let fakeEmail = tempPhone + "@bola-stores.com";
             const authPass = merchantAuthPass(tempPass);
-            if (tempPass.length < 4) return alert("الرقم السري 4 أرقام على الأقل.");
+            if (tempPass.length < (mode === 'signup' ? 6 : 4)) return alert(mode === 'signup' ? "الرقم السري 6 أحرف أو أرقام على الأقل." : "الرقم السري 4 أرقام على الأقل.");
             
             const btn = document.querySelector('#authStep1 .main-btn');
             let originalText = btn ? btn.innerText : "دخول";
@@ -2419,32 +2455,32 @@
             createMerchantAuthViaAdmin(phone, pass).then(() => db.collection("platform_merchants").doc(storeId).set({ storeName: name, phone: phone, storeType: type, status: 'active', expiryDate: expiry, createdAt: new Date() })).then(() => { return db.collection("stores").doc(storeId).set({ name: name, address: "العنوان / الوصف", phone: phone, facebook: "", instagram: "", logo: null, categories: getDefaultCategories(type), storeType: type, visitors: 0, ordersCount: 0 }); }).then(() => seedSampleProducts(storeId, type)).then(() => { alert("تم الإنشاء بمنتجات تجريبية!\nالرابط:\n" + window.location.origin + window.location.pathname + "?store=" + storeId); }).catch(e => alert("حدث خطأ: " + ((e && e.message) || e)));
         }
 
-        function viewAdminReceipt(imgBase64) { document.getElementById('adminReceiptDisplay').src = imgBase64; openModal('adminReceiptModal'); }
+        function viewAdminReceipt(id) { const src = safeImg((window._adminReceipts || {})[id]); if (!src) return alert('لا يوجد إيصال مرفق'); document.getElementById('adminReceiptDisplay').src = src; openModal('adminReceiptModal'); }
 
         function loadAllMerchantsAdmin() {
             db.collection("platform_merchants").orderBy("createdAt", "desc").onSnapshot(snapshot => {
                 const pList = document.getElementById('pendingMerchantsList'); const aList = document.getElementById('merchantsList'); pList.innerHTML = ''; aList.innerHTML = ''; let hasP = false; let hasA = false;
                 snapshot.forEach(doc => {
-                    const data = doc.data(); const link = window.location.origin + window.location.pathname + "?store=" + doc.id; let displayPhone = data.phone; if(displayPhone.startsWith("20")) displayPhone = "0" + displayPhone.substring(2);
+                    const data = doc.data(); const link = window.location.origin + window.location.pathname + "?store=" + doc.id; let displayPhone = String(data.phone || ''); if(displayPhone.startsWith("20")) displayPhone = "0" + displayPhone.substring(2); displayPhone = esc(displayPhone);
                     
                     if (data.status === 'pending' || data.renewalStatus === 'pending') {
                         hasP = true; 
                         let isRenewal = data.renewalStatus === 'pending';
                         let planName = 'باقة';
                         const planLabels = { 'store': 'فتح المتجر', '1_month': 'شهري', '2_months': 'شهرين', '3_months': '3 شهور', '1_year': 'سنوي', 'trial': 'تجريبي' };
-                        if (isRenewal) planName = planLabels[data.renewalPlan] || data.renewalPlan || 'باقة';
-                        else planName = planLabels[data.plan] || data.plan || 'باقة';
-                        let theReceipt = isRenewal ? data.renewalReceipt : data.receipt;
-                        let actionBtn = isRenewal ? `<button onclick="approveRenewal('${doc.id}', '${data.renewalPlan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل التجديد</button>` : `<button onclick="approveMerchant('${doc.id}', '${data.phone}', '${data.storeType}', '${data.plan}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل</button>`;
+                        if (isRenewal) planName = esc(planLabels[data.renewalPlan] || data.renewalPlan || 'باقة');
+                        else planName = esc(planLabels[data.plan] || data.plan || 'باقة');
+                        let theReceipt = isRenewal ? data.renewalReceipt : data.receipt; window._adminReceipts = window._adminReceipts || {}; window._adminReceipts[doc.id] = theReceipt;
+                        let actionBtn = isRenewal ? `<button onclick="approveRenewal('${jsAttr(doc.id)}', '${jsAttr(data.renewalPlan)}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل التجديد</button>` : `<button onclick="approveMerchant('${jsAttr(doc.id)}', '${jsAttr(data.phone)}', '${jsAttr(data.storeType)}', '${jsAttr(data.plan)}')" style="background:#25D366; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; margin-top:5px;">✅ تفعيل</button>`;
                         
-                        let pendWa = (data.phone || '').replace(/[^0-9]/g, '');
+                        let pendWa = normalizeWaPhone(data.phone);
                         if (pendWa && !pendWa.startsWith('20')) pendWa = pendWa.startsWith('0') ? '20'+pendWa.substring(1) : '20'+pendWa;
                         let pendWaBtn = pendWa ? `<a href="https://wa.me/${pendWa}" target="_blank" style="background:#25D366; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px; font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:4px; margin:5px 0;"><i class="fa-brands fa-whatsapp"></i> واتساب</a>` : '';
                         pList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid ${isRenewal? '#fb8500':'#e63946'}; background: #fff;">
                             <strong>رقم: ${displayPhone} ${isRenewal ? '<span style="color:#fb8500; font-size:11px;">(طلب تجديد)</span>' : ''}</strong>
                             <span style="font-size:13px; color:var(--text-gray);">الباقة: ${planName}</span>
                             <div style="display:flex; gap:6px; flex-wrap:wrap; margin:5px 0;">
-                                <button onclick="viewAdminReceipt('${theReceipt}')" class="view-receipt-btn" style="background:#007185; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px;"><i class="fa-solid fa-receipt"></i> عرض الإيصال</button>
+                                <button onclick="viewAdminReceipt('${jsAttr(doc.id)}')" class="view-receipt-btn" style="background:#007185; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px;"><i class="fa-solid fa-receipt"></i> عرض الإيصال</button>
                                 ${pendWaBtn}
                             </div>
                             ${actionBtn}
@@ -2454,7 +2490,7 @@
                         if(data.expiryDate) { let remainingDays = Math.ceil((data.expiryDate - Date.now()) / (1000 * 60 * 60 * 24)); if(remainingDays > 0) { expiryText = `متبقي ${remainingDays} يوم`; } else { expiryText = "انتهت الباقة"; isExpired = true; } }
                         let statusColor = data.status === 'suspended' ? '#e63946' : (isExpired ? '#fb8500' : '#2a9d8f'); let statusLabel = data.status === 'suspended' ? ' <span style="color:#e63946; font-size:12px;">(موقوف)</span>' : '';
                         let toggleBtn = data.status === 'suspended' ? `<button onclick="toggleStoreStatus('${doc.id}', 'active')" style="background:#2a9d8f; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">▶️ تفعيل</button>` : `<button onclick="toggleStoreStatus('${doc.id}', 'suspended')" style="background:#fb8500; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">⏸️ إيقاف</button>`;
-                        let waPhone = (data.phone || '').replace(/[^0-9]/g, '');
+                        let waPhone = normalizeWaPhone(data.phone);
                         if (waPhone.startsWith('20')) waPhone = waPhone; else if (waPhone.startsWith('0')) waPhone = '20' + waPhone.substring(1); else if (waPhone) waPhone = '20' + waPhone;
                         let waBtn = waPhone ? `<a href="https://wa.me/${waPhone}" target="_blank" style="background:#25D366; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i class="fa-brands fa-whatsapp"></i> واتساب</a>` : '';
                         aList.innerHTML += `<div class="admin-product-item" style="flex-direction:column; align-items:flex-start; border-right: 4px solid ${statusColor}; background: #fff;"><strong>متجر: ${displayPhone} ${statusLabel} ${isTrial ? '<span style="color:#0d6efd; font-size:11px;">(تجربة)</span>' : ''}</strong><span style="font-size:12px; color:var(--text-gray); margin-bottom:5px;">الصلاحية: <span style="${isExpired ? 'color:red; font-weight:bold;' : 'color:var(--primary); font-weight:bold;'}">${expiryText}</span></span><div style="display:flex; gap:5px; margin-top:5px; flex-wrap:wrap; width:100%;">${waBtn}${toggleBtn}<button onclick="renewStoreTime('${doc.id}')" style="background:#0d6efd; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🔄 تجديد</button><button onclick="deleteStoreComplete('${doc.id}')" style="background:#e63946; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🗑️ حذف نهائي</button></div><a href="${link}" target="_blank" style="color:var(--text-dark); background:var(--light-bg); padding:5px; border-radius:5px; font-size:12px; margin-top:8px; font-weight:bold; text-decoration:none; display:inline-block; border:1px solid #ddd;">🔗 فتح المتجر</a></div>`;
@@ -2467,7 +2503,22 @@
         function approveRenewal(merchantId, plan) { if(confirm("تأكيد التجديد وتفعيل المتجر؟")) { let newExpiry = getExpiryTimestamp(plan); db.collection("platform_merchants").doc(merchantId).update({ expiryDate: newExpiry, plan: plan, status: 'active', renewalStatus: firebase.firestore.FieldValue.delete(), renewalPlan: firebase.firestore.FieldValue.delete(), renewalPrice: firebase.firestore.FieldValue.delete(), renewalReceipt: firebase.firestore.FieldValue.delete() }).then(() => { showToast("تم تجديد الباقة بنجاح 🎉"); }); } }
         function toggleStoreStatus(id, newStatus) { if(confirm(newStatus === 'active' ? "تأكيد تفعيل المتجر مرة أخرى؟" : "تأكيد إيقاف المتجر عن العمل؟")) { db.collection("platform_merchants").doc(id).update({ status: newStatus }).then(() => showToast("تم تحديث حالة المتجر!")); } }
         function renewStoreTime(id) { let days = prompt("أدخل عدد الأيام لتجديد الباقة (مثلاً 30 لشهر):", "30"); if(days && !isNaN(days) && parseInt(days) > 0) { db.collection("platform_merchants").doc(id).get().then(docSnap => { if (!docSnap.exists) return showToast('المتجر غير موجود'); let currentExpiry = Number(docSnap.data().expiryDate) || Date.now(); if(currentExpiry < Date.now()) currentExpiry = Date.now(); let newExpiry = currentExpiry + (parseInt(days) * 24 * 60 * 60 * 1000); db.collection("platform_merchants").doc(id).update({ expiryDate: newExpiry, status: 'active' }).then(() => showToast("تم تجديد الباقة بنجاح! ⏱️")); }); } }
-        function deleteStoreComplete(id) { if(confirm("⚠️ هل أنت متأكد من حذف هذا المتجر نهائياً بكل بياناته؟ (لا يمكن التراجع!)")) { db.collection("platform_merchants").doc(id).delete().then(() => { db.collection("stores").doc(id).delete().then(() => showToast("تم الحذف بنجاح 🗑️")); }); } }
+        async function deleteSubcollection(storeId, name) {
+            const ref = db.collection("stores").doc(storeId).collection(name);
+            for (let guard = 0; guard < 50; guard++) {
+                const snap = await ref.limit(400).get(); if (snap.empty) break;
+                const batch = db.batch(); snap.docs.forEach(d => batch.delete(d.ref)); await batch.commit();
+            }
+        }
+        async function deleteStoreComplete(id) {
+            if (!confirm("⚠️ هل أنت متأكد من حذف هذا المتجر نهائياً بكل بياناته؟ (لا يمكن التراجع!)")) return;
+            try {
+                for (const n of ['products', 'orders', 'expenses']) await deleteSubcollection(id, n);
+                await db.collection("stores").doc(id).delete();
+                await db.collection("platform_merchants").doc(id).delete();
+                showToast("تم الحذف بنجاح 🗑️");
+            } catch (e) { alert("تعذر حذف كل البيانات: " + (e.message || e)); }
+        }
 
         // دوال التجديد من داخل لوحة التاجر
         let renewPlanSelected = ""; let renewPrice = 0; let renewReceiptBase64 = "";
@@ -2902,6 +2953,7 @@
                     
                     if(mData.expiryDate) {
                         let remainingDays = Math.ceil((mData.expiryDate - Date.now()) / (1000 * 60 * 60 * 24));
+                        if (window._renewalShown && remainingDays > 0 && !mData.renewalStatus) { window._renewalShown = false; location.reload(); return; }
                         
                         // إضافة شريط التجربة المجانية إذا كان المتجر في فترة التجربة
                         let dashHome = document.getElementById('dash-home');
@@ -2944,8 +2996,8 @@
                                         <div id="renewalPaymentBox" style="display:none; text-align:right;">
                                             <h3 style="text-align:center; margin-bottom:15px; color:var(--primary);">إتمام الدفع</h3>
                                             <div class="payment-methods-logos" style="justify-content: center; display: flex; gap: 15px; margin-bottom: 15px;">
-                                                <img src="https://www.aljawalat.com/blog/wp-content/uploads/2022/04/unnamed-1280x720.jpg" class="payment-logo instapay-logo" style="width:60px; height:60px; border-radius:10px;">
-                                                <img src="https://png.pngtree.com/thumb_back/fh260/background/20220821/pngtree-wallet-icon-ecommerce-money-account-photo-image_19623402.jpg" class="payment-logo wallet-logo" style="width:60px; height:60px; border-radius:10px;">
+                                                <div class="payment-logo instapay-logo" style="width:60px; height:60px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:11px; color:#6a1b9a;">InstaPay</div>
+                                                <div class="payment-logo wallet-logo" style="width:60px; height:60px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#e60000; font-size:26px;"><i class="fa-solid fa-wallet"></i></div>
                                             </div>
                                             <div class="payment-number-box" style="padding:20px; background: linear-gradient(135deg, #f0f6ff 0%, #e2edff 100%); border: 2px dashed var(--primary); border-radius: 15px; text-align:center;">
                                                 <span class="payment-amount" style="font-size:18px; font-weight:bold; display:block; margin-bottom:10px;">مبلغ التجديد: <span id="renewPriceTxt" style="color:#e63946; font-size:24px; font-weight:900;"></span></span>
@@ -2967,7 +3019,7 @@
                                 }
 
                                 if (document.getElementById('merchantDashboardApp')) {
-                                    document.getElementById('merchantDashContent').innerHTML = renewalHtml;
+                                    window._renewalShown = true; document.getElementById('merchantDashContent').innerHTML = renewalHtml;
                                     document.getElementById('dashBottomNav').style.display = 'none';
                                 }
                             } else {
@@ -3036,7 +3088,7 @@
                     
                     if(document.getElementById('adminStoreName')){
                         document.getElementById('adminStoreName').value = storeData.name || ""; document.getElementById('adminStoreAddress').value = storeData.address || ""; document.getElementById('adminPhone').value = p; document.getElementById('adminFacebook').value = storeData.facebook || ""; document.getElementById('adminInstagram').value = storeData.instagram || ""; if(document.getElementById('adminTiktok')) document.getElementById('adminTiktok').value = storeData.tiktok || "";
-                        if(document.getElementById('adminAssistantInfo')) document.getElementById('adminAssistantInfo').value = storeData.assistantInfo || "";
+                        if(document.getElementById('adminAssistantInfo')) document.getElementById('adminAssistantInfo').value = storeData.assistantInfo || ""; if(document.getElementById('adminAiKey')) document.getElementById('adminAiKey').value = storeData.aiDesignKey || "";
                         if(document.getElementById('adminFullAddress')) document.getElementById('adminFullAddress').value = storeData.fullAddress || "";
                         if(document.getElementById('adminLocationLink')) document.getElementById('adminLocationLink').value = storeData.locationLink || "";
                         if(document.getElementById('adminStudioEnabled')) document.getElementById('adminStudioEnabled').checked = !!storeData.studioOrdersEnabled;
@@ -3105,27 +3157,41 @@
         function updateSocialLinks() {
             const container = document.getElementById('socialLinksContainer'); container.style.flexDirection = 'column'; container.style.gap = '15px'; let html = "";
             const btnStyle = "display: flex; align-items: center; justify-content: center; gap: 12px; color: white; text-decoration: none; padding: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%;";
-            if (storeData.fullAddress) html += `<div style="background:#f8f9fa; padding:12px 15px; border-radius:12px; text-align:right; font-size:14px; color:var(--text-dark); margin-bottom:5px;"><i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> <strong>العنوان:</strong><br>${storeData.fullAddress}</div>`;
-            if (storeData.locationLink) html += `<a href="${storeData.locationLink}" target="_blank" style="${btnStyle} background:#EA4335;"><i class="fa-solid fa-map-location-dot" style="font-size: 24px;"></i> فتح اللوكيشن على الخريطة</a>`;
-            if (storeData.facebook) html += `<a href="${storeData.facebook}" target="_blank" style="${btnStyle} background:#1877F2;"><i class="fa-brands fa-facebook-f" style="font-size: 24px;"></i> صفحة فيسبوك</a>`;
-            if (storeData.instagram) html += `<a href="${storeData.instagram}" target="_blank" style="${btnStyle} background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);"><i class="fa-brands fa-instagram" style="font-size: 24px;"></i> حساب إنستجرام</a>`;
-            if (storeData.tiktok) html += `<a href="${storeData.tiktok}" target="_blank" style="${btnStyle} background:#000000;"><i class="fa-brands fa-tiktok" style="font-size: 24px;"></i> تيك توك</a>`;
-            if (storeData.phone) html += `<a href="https://wa.me/${storeData.phone}" target="_blank" style="${btnStyle} background:#25D366;"><i class="fa-brands fa-whatsapp" style="font-size: 24px;"></i> محادثة واتساب</a>`;
+            if (storeData.fullAddress) html += `<div style="background:#f8f9fa; padding:12px 15px; border-radius:12px; text-align:right; font-size:14px; color:var(--text-dark); margin-bottom:5px;"><i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> <strong>العنوان:</strong><br>${esc(storeData.fullAddress)}</div>`;
+            if (safeLink(storeData.locationLink)) html += `<a href="${esc(safeLink(storeData.locationLink))}" target="_blank" rel="noopener" style="${btnStyle} background:#EA4335;"><i class="fa-solid fa-map-location-dot" style="font-size: 24px;"></i> فتح اللوكيشن على الخريطة</a>`;
+            if (safeLink(storeData.facebook)) html += `<a href="${esc(safeLink(storeData.facebook))}" target="_blank" rel="noopener" style="${btnStyle} background:#1877F2;"><i class="fa-brands fa-facebook-f" style="font-size: 24px;"></i> صفحة فيسبوك</a>`;
+            if (safeLink(storeData.instagram)) html += `<a href="${esc(safeLink(storeData.instagram))}" target="_blank" rel="noopener" style="${btnStyle} background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);"><i class="fa-brands fa-instagram" style="font-size: 24px;"></i> حساب إنستجرام</a>`;
+            if (safeLink(storeData.tiktok)) html += `<a href="${esc(safeLink(storeData.tiktok))}" target="_blank" rel="noopener" style="${btnStyle} background:#000000;"><i class="fa-brands fa-tiktok" style="font-size: 24px;"></i> تيك توك</a>`;
+            if (storeData.phone) html += `<a href="https://wa.me/${normalizeWaPhone(storeData.phone)}" target="_blank" rel="noopener" style="${btnStyle} background:#25D366;"><i class="fa-brands fa-whatsapp" style="font-size: 24px;"></i> محادثة واتساب</a>`;
             if(html === "") html = "<p style='color:var(--text-gray); font-size:16px;'>لا توجد حسابات مضافة حالياً.</p>";
             container.innerHTML = html;
         }
 
+        function ensureUniqueSlug() {
+            if (!currentStoreId) return;
+            db.collection("stores").doc(currentStoreId).get().then(d => {
+                if (!d.exists) return; const s = d.data().slug; if (!s) return;
+                return db.collection("stores").where("slug", "==", s).limit(5).get().then(q => {
+                    if (q.docs.some(x => x.id !== currentStoreId)) return db.collection("stores").doc(currentStoreId).update({ slug: s + '-' + currentStoreId });
+                });
+            }).catch(() => {});
+        }
         function saveStoreSettings() {
-            let pVal = document.getElementById('adminPhone').value.trim(); let finalP = pVal ? "20" + pVal : "";
+            saveStoreSettingsRaw();
+            setTimeout(ensureUniqueSlug, 3000);
+        }
+        function saveStoreSettingsRaw() {
+            let pVal = document.getElementById('adminPhone').value.trim(); let finalP = pVal ? normalizeWaPhone(pVal) : "";
             const updates = { 
                 name: document.getElementById('adminStoreName').value, 
-                slug: makeStoreSlug(document.getElementById('adminStoreName').value), 
+                slug: ((storeData && storeData.slug && String(storeData.slug).indexOf(makeStoreSlug(document.getElementById('adminStoreName').value)) === 0) ? storeData.slug : makeStoreSlug(document.getElementById('adminStoreName').value)), 
                 address: document.getElementById('adminStoreAddress').value, 
                 phone: finalP, 
                 facebook: document.getElementById('adminFacebook').value, 
                 instagram: document.getElementById('adminInstagram').value, 
                 tiktok: document.getElementById('adminTiktok') ? document.getElementById('adminTiktok').value : "", 
                 assistantInfo: document.getElementById('adminAssistantInfo') ? document.getElementById('adminAssistantInfo').value : "",
+                aiDesignKey: document.getElementById('adminAiKey') ? document.getElementById('adminAiKey').value.trim() : (storeData.aiDesignKey || ""),
                 fullAddress: document.getElementById('adminFullAddress') ? document.getElementById('adminFullAddress').value : "",
                 locationLink: document.getElementById('adminLocationLink') ? document.getElementById('adminLocationLink').value : "",
                 studioOrdersEnabled: !!(document.getElementById('adminStudioEnabled') && document.getElementById('adminStudioEnabled').checked),
@@ -3217,71 +3283,488 @@
             if (window.importerMode) return Number(product.cost || 0);
             return Number(product.price || 0);
         }
+        // ===== دوال مساعدة عامة (تنظيف + صور) =====
         function isBolaEmadStore() {
             const phone = String((storeData && (storeData.phone || storeData.whatsapp || '')) || '').replace(/[^0-9]/g, '');
-            return phone.endsWith('12859035') || phone.endsWith('01285957035') || String(storeData && storeData.name || '').toLowerCase().includes('bola');
+            return !!(storeData && storeData.designStudioEnabled === true) || phone.endsWith('1285957035') || String(storeData && storeData.name || '').toLowerCase().includes('bola');
+        }
+        function normalizeAr(s) {
+            return String(s || '').replace(/[\u064B-\u0652\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي').toLowerCase();
+        }
+        function toEnDigits(s) { return String(s || '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)); }
+        function sizeFromName(name) {
+            const m = toEnDigits(name).match(/(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)/i);
+            return m ? { a: m[1], b: m[2] } : null;
         }
         function designSpecForProduct(product) {
-            const name = String(product && product.name || '');
-            if (/مج\s*ابيض|مج\s*سحري/.test(name)) return { size: '9×20 سم بالعرض', orientation: 'عرض', textOnly: false };
-            if (/بايركس/.test(name)) return { size: '4×6 سم بالعرض', orientation: 'عرض', textOnly: true };
-            if (/حرار[يى]/.test(name)) return { size: '16×5 سم بالعرض', orientation: 'عرض', textOnly: true };
-            if (/تابلوه|برواز/.test(name)) { const match = name.match(/(\d+)\s*[x×*]\s*(\d+)/i); return { size: match ? `${match[1]}×${match[2]} سم` : 'حسب المقاس المكتوب على المنتج', needsOrientation: true }; }
-            if (/مدليه\s*مستطيله/i.test(name)) return { size: '4×6 سم بالطول', orientation: 'طول' };
-            if (/ساعه/.test(name)) return { size: '30×40 سم', orientation: 'عرض', note: 'اترك دائرة بيضاء في منتصف التصميم قطرها 5 مم، ولا تضع وجوه الأشخاص أو تفاصيل مهمة داخلها لأنها مكان خرم العقارب.' };
-            if (/سلسله/.test(name)) return { size: '4×6 سم', orientation: 'عرض' };
-            if (/قلم مضئ/.test(name)) return { size: '1×8 سم بالعرض', orientation: 'عرض', textOnly: true };
-            if (/محفظه/.test(name)) return { size: '8×9 سم بالعرض', orientation: 'عرض', textOnly: true };
-            if (/مرايه سحريه/.test(name)) return { size: '20×20 سم داخل دائرة', shape: 'دائرة' };
-            if (/منديل كتب كتاب/.test(name)) return { size: '30×30 سم', orientation: 'مربع' };
-            if (/بنر/.test(name)) return { size: 'حسب المقاس المطلوب', needsOrientation: true, note: 'اسأل العميل عن مقاس البنر وبيانات اليافطة أو الدعاية.' };
-            if (/استيكر مدارس?/.test(name)) return { size: '5×8 سم بالعرض', orientation: 'عرض', note: 'تصميم استيكر مدرسة بالعرض يحتوي صورة الطالب والاسم والفصل والمدرسة والمادة.' };
-            if (/رول\s*اب/.test(name)) { const match = name.match(/(\d+)\s*[x×*]\s*(\d+)/i); return { size: match ? `${match[1]}×${match[2]} سم` : 'حسب المقاس', orientation: 'طول' }; }
+            const rawName = String(product && product.name || '');
+            const n = normalizeAr(rawName);
+            const sz = sizeFromName(rawName);
+            if (/(مج|ماج)\s*(ابيض|سحري)/.test(n)) return { kind: 'mug', size: '9×20 سم بالعرض', orientation: 'عرض', textOnly: false };
+            if (/بايركس/.test(n)) return { kind: 'pyrex', size: '4×6 سم بالعرض', orientation: 'عرض', textOnly: true };
+            if (/حراري/.test(n)) return { kind: 'thermal', size: '16×5 سم بالعرض', orientation: 'عرض', textOnly: true };
+            if (/(تابلوه|تابلو|برواز)/.test(n)) return { kind: 'frame', size: sz ? `${sz.a}×${sz.b} سم` : 'حسب المقاس المكتوب على المنتج', needsOrientation: !sz };
+            if (/مدليه\s*مستطيله/.test(n)) return { kind: 'pendant', size: '4×6 سم بالطول', orientation: 'طول' };
+            if (/ساعه/.test(n)) return { kind: 'clock', size: '30×40 سم', orientation: 'عرض', note: 'مكان خرم العقارب في منتصف التصميم (5 مم): بنحط عليه زخرفة تلقائياً، فلا تضع وجوه أشخاص في المنتصف.' };
+            if (/سلسله/.test(n)) return { kind: 'necklace', size: '4×6 سم', orientation: 'عرض' };
+            if (/قلم\s*مضي/.test(n)) return { kind: 'pen', size: '1×8 سم بالعرض', orientation: 'عرض', textOnly: true };
+            if (/محفظه/.test(n)) return { kind: 'wallet', size: '8×9 سم بالعرض', orientation: 'عرض', textOnly: true };
+            if (/(مرايه|مراه|مرايا)\s*سحري/.test(n)) return { kind: 'mirror', size: '20×20 سم داخل دائرة', shape: 'دائرة' };
+            if (/منديل\s*كتب\s*كتاب/.test(n)) return { kind: 'napkin', size: '30×30 سم', orientation: 'مربع' };
+            if (/بنر/.test(n)) return { kind: 'banner', size: sz ? `${sz.a}×${sz.b} سم` : 'حسب المقاس المطلوب', needsOrientation: !sz, note: 'اكتب مقاس البنر بالسم (مثال 100×200) واسم الشركة أو العبارة الدعائية.' };
+            if (/استيكر\s*مدارس?/.test(n)) return { kind: 'sticker', size: '5×8 سم بالعرض', orientation: 'عرض', school: true, note: 'اكتب كل بيان في سطر: الاسم ثم الفصل ثم المدرسة ثم المادة.' };
+            if (/رول\s*اب/.test(n)) return { kind: 'rollup', size: sz ? `${sz.a}×${sz.b} سم` : 'حسب المقاس', orientation: 'طول' };
             return null;
         }
         function isDesignableProduct(product) {
             return !!designSpecForProduct(product);
         }
+
+        // ===== استوديو التصميم بالذكاء الاصطناعي =====
+        // رابط توليد الصور. للإنتاج الاحترافي يمكنك استبداله برابط Cloud Function خاص بك يحمل مفتاح الذكاء الاصطناعي،
+        // بشرط أن يقبل المتغيرات {prompt} {w} {h} {seed} ويرجع صورة.
+        const AI_API_KEY = ''; // اختياري: مفتاح Pollinations من enter.pollinations.ai لجودة وسرعة أفضل (ممكن كمان تضيفه في بيانات المتجر باسم aiDesignKey)
+        const AI_URL_TEMPLATES = [
+            'https://gen.pollinations.ai/image/{prompt}?width={w}&height={h}&seed={seed}&model=flux&nologo=true{key}',
+            'https://image.pollinations.ai/prompt/{prompt}?width={w}&height={h}&seed={seed}&model=flux&nologo=true{key}'
+        ];
+        const DESIGN_STYLES = {
+            luxury:   { label: 'فاخر ذهبي', icon: '👑', font: 'Cairo', prompt: 'luxury black and gold abstract background, elegant golden glitter, art deco ornaments, premium glossy texture', pal: { a: '#0b0b10', b: '#2b1f08', acc: '#d4af37', txt: '#f6e7b2', dark: true, gold: true } },
+            romantic: { label: 'رومانسي', icon: '🌹', font: 'Cairo', prompt: 'romantic soft pink and cream watercolor roses and peonies background, dreamy bokeh hearts, delicate', pal: { a: '#ffe4ec', b: '#f8b6c8', acc: '#c2185b', txt: '#6b1d3a', dark: false } },
+            modern:   { label: 'عصري', icon: '◼️', font: 'Cairo', prompt: 'modern minimal geometric abstract background, clean soft gradient shapes, contemporary design', pal: { a: '#eef4ff', b: '#bcd4ff', acc: '#0d6efd', txt: '#0f2a5c', dark: false } },
+            kids:     { label: 'أطفال', icon: '🎈', font: 'Changa', prompt: 'cute colorful playful kids background, pastel balloons stars clouds rainbow, cartoon illustration', pal: { a: '#fff3c4', b: '#ffd0e0', acc: '#ff6b9a', txt: '#5a2a6e', dark: false } },
+            sport:    { label: 'رياضي', icon: '⚽', font: 'Changa', prompt: 'dynamic sports energy background, bold diagonal stripes, light streaks, stadium lights, motion', pal: { a: '#08142e', b: '#0d47a1', acc: '#ffb300', txt: '#ffffff', dark: true } },
+            islamic:  { label: 'إسلامي', icon: '🕌', font: 'Cairo', prompt: 'elegant islamic geometric arabesque pattern background, mosque silhouette, emerald green and gold, ornate', pal: { a: '#052e2b', b: '#0f5a4e', acc: '#e0b84c', txt: '#fdf3cf', dark: true, gold: true } },
+            youth:    { label: 'شبابي', icon: '⚡', font: 'Changa', prompt: 'vibrant neon gradient pop art background, streetwear graffiti shapes, bold colorful', pal: { a: '#1a0b3d', b: '#ff2d87', acc: '#00e5ff', txt: '#ffffff', dark: true } },
+            nature:   { label: 'طبيعة', icon: '🌿', font: 'Cairo', prompt: 'fresh nature background, lush green leaves, soft sunlight, botanical watercolor', pal: { a: '#e8f5e1', b: '#a5d6a7', acc: '#2e7d32', txt: '#173d1a', dark: false } }
+        };
+        const DESIGN_KIND_HINT = {
+            mug: 'wide panoramic wrap-around mug print', clock: 'round wall clock face inspired', mirror: 'circular pocket mirror print',
+            frame: 'wall art poster', banner: 'advertising banner', rollup: 'tall roll-up banner', sticker: 'school sticker label',
+            napkin: 'wedding handkerchief print', pendant: 'small pendant print', necklace: 'photo necklace print',
+            pyrex: 'small glass print', thermal: 'thermal strip print', pen: 'thin pen print', wallet: 'wallet print'
+        };
         let activeDesignProduct = null;
         let activeDesignSpec = null;
         let latestStoreDesignDataUrl = '';
+        let latestStoreDesignBlob = null;
+        let designBusy = false;
+        let designState = { style: 'luxury', seed: 1, orient: 'عرض' };
         let installPromptEvent = null;
+
+        function designRand(seed) { let t = (seed + 0x6D2B79F5) >>> 0; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+        function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+        function rrPath(ctx, x, y, w, h, r) {
+            r = Math.max(0, Math.min(r, w / 2, h / 2));
+            ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+        }
+        function coverImage(ctx, img, x, y, w, h, fy) {
+            const s = Math.max(w / img.width, h / img.height); const nw = img.width * s, nh = img.height * s;
+            ctx.drawImage(img, x + (w - nw) / 2, y + (h - nh) * (fy == null ? 0.5 : fy), nw, nh);
+        }
+        function fitStoreImage(ctx, img, x, y, w, h) { coverImage(ctx, img, x, y, w, h, 0.5); }
+
+        function storeDesignCanvasSize() {
+            const LONG = 2400; const spec = activeDesignSpec || {};
+            let a = 1, b = 1;
+            let m = String(spec.size || '').match(/(\d+(?:\.\d+)?)\s*[×x*]\s*(\d+(?:\.\d+)?)/i);
+            if (!m) { const cs = document.getElementById('designCustomSize'); if (cs && cs.value) m = toEnDigits(cs.value).match(/(\d+(?:\.\d+)?)\s*[×x*\s,-]+\s*(\d+(?:\.\d+)?)/i); }
+            if (m) { a = Number(m[1]); b = Number(m[2]); }
+            let orient = spec.orientation;
+            if (spec.needsOrientation || !m) orient = designState.orient || 'عرض';
+            if (orient === 'مربع') { b = a = 1; }
+            else if (orient === 'طول' && a > b) { const t = a; a = b; b = t; }
+            else if (orient === 'عرض' && a < b) { const t = a; a = b; b = t; }
+            if (!m && orient === 'عرض') { a = 3; b = 2; } else if (!m && orient === 'طول') { a = 2; b = 3; }
+            const ratio = Math.min(8, Math.max(0.125, a / b));
+            return ratio >= 1 ? { w: LONG, h: Math.max(240, Math.round(LONG / ratio)) } : { w: Math.max(240, Math.round(LONG * ratio)), h: LONG };
+        }
+
         function openDesignChat(productId) {
             const product = storeProducts.find(p => p.id === productId);
             if (!product) return;
             const spec = designSpecForProduct(product);
             if (!spec) return;
-            activeDesignProduct = product; activeDesignSpec = spec; latestStoreDesignDataUrl = '';
+            activeDesignProduct = product; activeDesignSpec = spec; latestStoreDesignDataUrl = ''; latestStoreDesignBlob = null; designBusy = false;
+            designState = { style: designState.style || 'luxury', seed: 1, orient: spec.orientation === 'طول' ? 'طول' : 'عرض' };
             const meta = document.getElementById('designStudioProduct');
             if (meta) meta.innerHTML = `<span class="design-studio-pill">${esc(product.name)}</span><span class="design-studio-pill">${esc(spec.size)}</span>${spec.orientation ? `<span class="design-studio-pill">${esc(spec.orientation)}</span>` : ''}`;
-            const preview = document.getElementById('designStudioPreview'); if (preview) { preview.style.display='none'; preview.innerHTML=''; }
-            const actions = document.getElementById('designStudioResultActions'); if (actions) actions.style.display='none';
-            const text = document.getElementById('designStudioText'); if (text) text.value='';
-            const files = document.getElementById('designStudioImages'); if (files) files.value='';
-            const modal = document.getElementById('designStudioModal'); if (modal) { modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); }
+            const note = document.getElementById('designNote'); if (note) { note.textContent = spec.note || ''; note.style.display = spec.note ? 'block' : 'none'; }
+            const chips = document.getElementById('designStyleChips');
+            if (chips) chips.innerHTML = Object.keys(DESIGN_STYLES).map(k => `<button type="button" class="design-chip${k === designState.style ? ' on' : ''}" data-style="${k}" onclick="pickDesignStyle('${k}')">${DESIGN_STYLES[k].icon} ${DESIGN_STYLES[k].label}</button>`).join('');
+            const ob = document.getElementById('designOrientBox');
+            if (ob) {
+                ob.style.display = spec.needsOrientation ? 'block' : 'none';
+                const oc = document.getElementById('designOrientChips');
+                if (oc) oc.innerHTML = ['عرض', 'طول', 'مربع'].map(o => `<button type="button" class="design-chip${o === designState.orient ? ' on' : ''}" onclick="pickDesignOrient('${o}')">${o}</button>`).join('');
+                const cs = document.getElementById('designCustomSize'); if (cs) cs.value = '';
+            }
+            const pb = document.getElementById('designPhotosBox'); if (pb) pb.style.display = spec.textOnly ? 'none' : 'block';
+            const preview = document.getElementById('designStudioPreview'); if (preview) { preview.style.display = 'none'; preview.innerHTML = ''; }
+            const actions = document.getElementById('designStudioResultActions'); if (actions) actions.style.display = 'none';
+            ['designStudioText', 'designIdea'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+            const files = document.getElementById('designStudioImages'); if (files) files.value = '';
+            const prog = document.getElementById('designProgress'); if (prog) { prog.style.display = 'none'; prog.textContent = ''; }
+            const gb = document.getElementById('designStudioGenBtn'); if (gb) { gb.disabled = false; gb.innerHTML = '✨ إنشاء التصميم بالذكاء الاصطناعي'; }
+            const modal = document.getElementById('designStudioModal'); if (modal) { modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false'); }
         }
-        function closeDesignStudio() { const modal=document.getElementById('designStudioModal'); if(modal){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');} }
-        function clearStoreDesignText() { const el=document.getElementById('designStudioText'); if(el) el.value=''; }
-        function fitStoreImage(ctx, img, x, y, w, h) { const scale=Math.max(w/img.width,h/img.height); const nw=img.width*scale, nh=img.height*scale; ctx.drawImage(img,x+(w-nw)/2,y+(h-nh)/2,nw,nh); }
-        function storeDesignCanvasSize() { const raw=(activeDesignSpec&&activeDesignSpec.size||'20×20').match(/(\d+)\s*[×x*]\s*(\d+)/i); if(!raw) return {w:1200,h:1200}; let a=Number(raw[1]),b=Number(raw[2]); if(activeDesignSpec.orientation==='طول' && a>b) [a,b]=[b,a]; if(activeDesignSpec.orientation==='عرض' && a<b) [a,b]=[b,a]; const ratio=a/b; return ratio>=1 ? {w:1200,h:Math.max(400,Math.round(1200/ratio))} : {w:Math.max(400,Math.round(1200*ratio)),h:1200}; }
-        function renderStoreDesign() {
-            if (!activeDesignProduct) return;
-            const text=(document.getElementById('designStudioText')||{}).value||'';
-            const input=document.getElementById('designStudioImages'); const files=Array.from((input&&input.files)||[]).slice(0,5); const size=storeDesignCanvasSize();
-            const canvas=document.createElement('canvas'); canvas.width=size.w; canvas.height=size.h; const ctx=canvas.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,size.w,size.h);
-            const urls=files.map(file=>URL.createObjectURL(file));
-            Promise.all(urls.map(url=>new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>resolve(null);img.src=url;}))).then(images=>{
-                const valid=images.filter(Boolean); const gap=Math.round(Math.min(size.w,size.h)*.025); const cols=valid.length<=1?1:valid.length<=4?2:3; const rows=Math.max(1,Math.ceil(valid.length/cols)); const cellW=(size.w-gap*(cols+1))/cols; const cellH=(size.h-gap*(rows+1))/rows;
-                valid.forEach((img,i)=>{const col=i%cols,row=Math.floor(i/cols),x=gap+col*(cellW+gap),y=gap+row*(cellH+gap);ctx.save();ctx.beginPath();ctx.roundRect(x,y,cellW,cellH,18);ctx.clip();fitStoreImage(ctx,img,x,y,cellW,cellH);ctx.restore();});
-                if (text.trim()) { ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fillRect(0,size.h-130,size.w,130); ctx.fillStyle='#111827'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.direction='rtl'; ctx.font=`700 ${Math.max(34,Math.round(Math.min(size.w,size.h)/12))}px Cairo, Arial`; ctx.fillText(text.trim().slice(0,80),size.w/2,size.h-65); }
-                if (activeDesignSpec.shape==='دائرة') { ctx.globalCompositeOperation='destination-in'; ctx.beginPath(); ctx.arc(size.w/2,size.h/2,Math.min(size.w,size.h)/2,0,Math.PI*2); ctx.fill(); ctx.globalCompositeOperation='source-over'; }
-                latestStoreDesignDataUrl=canvas.toDataURL('image/png'); const preview=document.getElementById('designStudioPreview'); if(preview){preview.style.display='block';preview.innerHTML=`<img src="${latestStoreDesignDataUrl}" alt="التصميم النهائي"><div style="font-size:12px;color:#64748b;margin-top:6px;">${esc(activeDesignProduct.name)} — ${esc(activeDesignSpec.size)}</div>`;} const actions=document.getElementById('designStudioResultActions'); if(actions) actions.style.display='flex'; urls.forEach(URL.revokeObjectURL);
+        function pickDesignStyle(k) {
+            if (!DESIGN_STYLES[k]) return; designState.style = k;
+            document.querySelectorAll('#designStyleChips .design-chip').forEach(b => b.classList.toggle('on', b.getAttribute('data-style') === k));
+        }
+        function pickDesignOrient(o) {
+            designState.orient = o;
+            document.querySelectorAll('#designOrientChips .design-chip').forEach(b => b.classList.toggle('on', b.textContent.trim() === o));
+        }
+        function closeDesignStudio() { const modal = document.getElementById('designStudioModal'); if (modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); } }
+        function clearStoreDesignText() { const el = document.getElementById('designStudioText'); if (el) el.value = ''; }
+
+        function buildAiPrompt() {
+            const st = DESIGN_STYLES[designState.style] || DESIGN_STYLES.luxury;
+            const hint = DESIGN_KIND_HINT[(activeDesignSpec || {}).kind] || 'print';
+            const idea = ((document.getElementById('designIdea') || {}).value || '').trim().slice(0, 160);
+            return `${st.prompt}, ${idea ? idea + ', ' : ''}${hint} artwork, professional graphic design, ultra detailed, high resolution, balanced composition with calm space in the middle, no text, no letters, no words, no logos, no watermark, no border, no people faces`;
+        }
+        function fetchAiImage(url, ms) {
+            const ctrl = ('AbortController' in window) ? new AbortController() : null;
+            let timedOut = false; const timer = setTimeout(() => { timedOut = true; if (ctrl) ctrl.abort(); }, ms);
+            return fetch(url, ctrl ? { signal: ctrl.signal } : undefined)
+                .then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.blob(); })
+                .then(b => { if (!/^image\//.test(b.type) && b.size < 2000) throw new Error('not image'); return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('img')); im.src = URL.createObjectURL(b); }); })
+                .then(v => { clearTimeout(timer); return v; })
+                .catch(() => {
+                    clearTimeout(timer); if (timedOut) return null;
+                    return new Promise(res => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = () => res(null); im.src = url; setTimeout(() => res(null), 20000); });
+                });
+        }
+        async function loadAiBackground(prompt, w, h, seed) {
+            const key = String((storeData && storeData.aiDesignKey) || AI_API_KEY || '').trim(); const keyQ = key ? '&key=' + encodeURIComponent(key) : '';
+            for (let i = 0; i < AI_URL_TEMPLATES.length; i++) {
+                const url = AI_URL_TEMPLATES[i].replace('{prompt}', encodeURIComponent(prompt)).replace('{w}', w).replace('{h}', h).replace('{seed}', seed).replace('{key}', keyQ);
+                const im = await fetchAiImage(url, 55000); if (im) return im;
+            }
+            return null;
+        }
+
+        // ---- خلفية احتياطية تُرسم محلياً لو الذكاء الاصطناعي تعذر ----
+        function drawMotif(ctx, type, x, y, s, color) {
+            ctx.save(); ctx.translate(x, y); ctx.fillStyle = color;
+            if (type === 'heart') { ctx.beginPath(); ctx.moveTo(0, s * 0.35); ctx.bezierCurveTo(-s, -s * 0.2, -s * 0.5, -s * 0.9, 0, -s * 0.35); ctx.bezierCurveTo(s * 0.5, -s * 0.9, s, -s * 0.2, 0, s * 0.35); ctx.fill(); }
+            else if (type === 'star') { ctx.beginPath(); for (let i = 0; i < 10; i++) { const r = i % 2 ? s * 0.42 : s; const a = -Math.PI / 2 + i * Math.PI / 5; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); } ctx.closePath(); ctx.fill(); }
+            else if (type === 'diamond') { ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(s * 0.6, 0); ctx.lineTo(0, s); ctx.lineTo(-s * 0.6, 0); ctx.closePath(); ctx.fill(); }
+            else if (type === 'leaf') { ctx.rotate(-0.6); ctx.beginPath(); ctx.ellipse(0, 0, s * 0.45, s, 0, 0, Math.PI * 2); ctx.fill(); }
+            else { ctx.beginPath(); ctx.arc(0, 0, s, 0, Math.PI * 2); ctx.fill(); }
+            ctx.restore();
+        }
+        // ---- رسومات الخلفية الاحتياطية (بتتستخدم لو الذكاء الاصطناعي ما ردّش) ----
+        function bokeh(ctx, x, y, r, color, a) {
+            const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, color); g.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        }
+        function sparkle(ctx, x, y, s, color, a) {
+            ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = color; ctx.translate(x, y); ctx.beginPath(); ctx.moveTo(0, -s);
+            ctx.quadraticCurveTo(0, 0, s, 0); ctx.quadraticCurveTo(0, 0, 0, s); ctx.quadraticCurveTo(0, 0, -s, 0); ctx.quadraticCurveTo(0, 0, 0, -s); ctx.fill(); ctx.restore();
+        }
+        function hexToRgba(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+        function edgePoint(rnd, W, H, inset) {
+            // نقطة عشوائية قريبة من الحواف عشان نسيب المنتصف هادي للصور والكتابة
+            const side = Math.floor(rnd() * 4), t = rnd(), d = rnd() * inset;
+            return side === 0 ? [t * W, d] : side === 1 ? [t * W, H - d] : side === 2 ? [d, t * H] : [W - d, t * H];
+        }
+        function artLuxury(ctx, W, H, pal, rnd, S) {
+            for (let i = 0; i < 7; i++) {
+                ctx.save(); ctx.strokeStyle = hexToRgba('#d4af37', 0.1 + rnd() * 0.2); ctx.lineWidth = Math.max(1.5, S * (0.0015 + rnd() * 0.003)); ctx.beginPath();
+                const y0 = rnd() * H; ctx.moveTo(-10, y0); ctx.bezierCurveTo(W * 0.3, y0 + (rnd() - 0.5) * H * 0.6, W * 0.65, y0 + (rnd() - 0.5) * H * 0.6, W + 10, rnd() * H); ctx.stroke(); ctx.restore();
+            }
+            for (let i = 0; i < 16; i++) { const p = edgePoint(rnd, W, H, S * 0.3); bokeh(ctx, p[0], p[1], S * (0.04 + rnd() * 0.09), '#f3d27a', 0.18 + rnd() * 0.25); }
+            for (let i = 0; i < 46; i++) sparkle(ctx, rnd() * W, rnd() * H, S * (0.008 + rnd() * 0.026), '#ffe9a8', 0.35 + rnd() * 0.6);
+        }
+        function artIslamic(ctx, W, H, pal, rnd, S) {
+            ctx.save(); ctx.strokeStyle = pal.acc; ctx.globalAlpha = 0.16; ctx.lineWidth = Math.max(1.5, S * 0.003); const step = S * 0.14;
+            for (let y = 0; y < H + step; y += step) for (let x = 0; x < W + step; x += step) { ctx.save(); ctx.translate(x, y); for (let k = 0; k < 2; k++) { ctx.rotate(Math.PI / 4); ctx.strokeRect(-step * 0.34, -step * 0.34, step * 0.68, step * 0.68); } ctx.restore(); }
+            ctx.restore();
+            // هلال ونجمة
+            const cx = W * 0.86, cy = H * 0.15, r = S * 0.1; ctx.save(); ctx.fillStyle = pal.acc; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.arc(cx + r * 0.38, cy - r * 0.1, r * 0.82, 0, Math.PI * 2, true); ctx.fill('evenodd'); ctx.restore();
+            sparkle(ctx, cx - r * 0.55, cy + r * 0.2, r * 0.3, '#fff3c4', 0.95);
+            // فوانيس
+            [[0.1, 0.16], [0.2, 0.1], [0.93, 0.62]].forEach((l, i) => {
+                const x = W * l[0], top = 0, len = H * l[1] * (i === 2 ? 0 : 1), s = S * 0.045;
+                if (i === 2) return;
+                ctx.save(); ctx.strokeStyle = pal.acc; ctx.lineWidth = Math.max(2, S * 0.003); ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, len); ctx.stroke();
+                const g = ctx.createLinearGradient(x, len, x, len + s * 3); g.addColorStop(0, '#ffe08a'); g.addColorStop(1, pal.acc); ctx.fillStyle = g;
+                ctx.beginPath(); ctx.moveTo(x - s * 0.5, len); ctx.lineTo(x + s * 0.5, len); ctx.lineTo(x + s, len + s * 2.2); ctx.lineTo(x + s * 0.4, len + s * 3); ctx.lineTo(x - s * 0.4, len + s * 3); ctx.lineTo(x - s, len + s * 2.2); ctx.closePath(); ctx.fill();
+                bokeh(ctx, x, len + s * 1.6, s * 3.2, '#ffd770', 0.35); ctx.restore();
             });
+            for (let i = 0; i < 24; i++) sparkle(ctx, rnd() * W, rnd() * H, S * (0.006 + rnd() * 0.014), '#fff3c4', 0.3 + rnd() * 0.5);
         }
-        function downloadStoreDesign() { if(!latestStoreDesignDataUrl)return; const a=document.createElement('a');a.href=latestStoreDesignDataUrl;a.download=(activeDesignProduct&&activeDesignProduct.name||'design').replace(/\s+/g,'-')+'.png';a.click(); }
-        async function shareStoreDesign() { if(!latestStoreDesignDataUrl)return; downloadStoreDesign(); const phone='2012859035'; const msg=`جاهز لإرسال تصميمي\nالمنتج: ${(activeDesignProduct&&activeDesignProduct.name)||''}\nالمقاس: ${(activeDesignSpec&&activeDesignSpec.size)||''}\nتم تحميل التصميم، سأرفقه هنا.`; window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank','noopener,noreferrer'); }
+        function artRomantic(ctx, W, H, pal, rnd, S) {
+            for (let i = 0; i < 14; i++) { const p = edgePoint(rnd, W, H, S * 0.35); bokeh(ctx, p[0], p[1], S * (0.05 + rnd() * 0.1), '#ffffff', 0.5); }
+            for (let i = 0; i < 34; i++) {
+                const p = rnd() < 0.8 ? edgePoint(rnd, W, H, S * 0.3) : [rnd() * W, rnd() * H]; const s = S * (0.018 + rnd() * 0.05);
+                ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate((rnd() - 0.5) * 0.8); ctx.globalAlpha = 0.35 + rnd() * 0.5;
+                const g = ctx.createLinearGradient(0, -s, 0, s); g.addColorStop(0, rnd() > 0.4 ? '#ff8fb1' : '#ffc2d4'); g.addColorStop(1, pal.acc); drawMotif(ctx, 'heart', 0, 0, s, g); ctx.restore();
+            }
+            for (let i = 0; i < 26; i++) { const p = edgePoint(rnd, W, H, S * 0.28); ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(rnd() * 6); ctx.globalAlpha = 0.5; ctx.fillStyle = rnd() > 0.5 ? '#f48fb1' : '#f8bbd0'; ctx.beginPath(); ctx.ellipse(0, 0, S * 0.02, S * 0.04, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+            for (let i = 0; i < 28; i++) sparkle(ctx, rnd() * W, rnd() * H, S * (0.006 + rnd() * 0.012), '#ffffff', 0.5 + rnd() * 0.4);
+        }
+        function artKids(ctx, W, H, pal, rnd, S) {
+            const cols = ['#ff6b6b', '#ffd93d', '#6bcB77', '#4d96ff', '#c77dff', '#ff9f1c'];
+            for (let i = 0; i < 5; i++) { const p = edgePoint(rnd, W, H, S * 0.2); const cx = p[0], cy = p[1], r = S * (0.04 + rnd() * 0.035); const c = cols[Math.floor(rnd() * cols.length)];
+                for (let k = 0; k < 4; k++) { ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.beginPath(); ctx.arc(cx + (k - 1.5) * r * 0.9, cy + (k % 2 ? 0 : -r * 0.3), r * (k === 1 || k === 2 ? 1.1 : 0.8), 0, Math.PI * 2); ctx.fill(); } }
+            for (let i = 0; i < 9; i++) {
+                const p = edgePoint(rnd, W, H, S * 0.22), r = S * (0.035 + rnd() * 0.03), c = cols[i % cols.length];
+                ctx.save(); ctx.strokeStyle = 'rgba(80,80,80,0.55)'; ctx.lineWidth = Math.max(1.5, S * 0.002); ctx.beginPath(); ctx.moveTo(p[0], p[1] + r * 1.3); ctx.bezierCurveTo(p[0] - r, p[1] + r * 2.2, p[0] + r, p[1] + r * 3, p[0], p[1] + r * 4); ctx.stroke();
+                const g = ctx.createRadialGradient(p[0] - r * 0.35, p[1] - r * 0.35, r * 0.1, p[0], p[1], r * 1.3); g.addColorStop(0, '#ffffff'); g.addColorStop(0.25, c); g.addColorStop(1, c);
+                ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(p[0], p[1], r, r * 1.25, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(p[0], p[1] + r * 1.25); ctx.lineTo(p[0] - r * 0.18, p[1] + r * 1.5); ctx.lineTo(p[0] + r * 0.18, p[1] + r * 1.5); ctx.closePath(); ctx.fill(); ctx.restore();
+            }
+            for (let i = 0; i < 18; i++) { ctx.globalAlpha = 0.9; drawMotif(ctx, 'star', rnd() * W, rnd() * H, S * (0.01 + rnd() * 0.022), cols[Math.floor(rnd() * cols.length)]); } ctx.globalAlpha = 1;
+        }
+        function artSport(ctx, W, H, pal, rnd, S) {
+            const rays = ctx.createRadialGradient(W * 0.15, -H * 0.1, 0, W * 0.15, -H * 0.1, Math.max(W, H)); rays.addColorStop(0, 'rgba(255,255,255,0.35)'); rays.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = rays; ctx.fillRect(0, 0, W, H);
+            const sw = S * 0.11; ctx.save(); for (let x = -H; x < W + H; x += sw * 2.2) { ctx.globalAlpha = 0.2; ctx.fillStyle = pal.acc; ctx.beginPath(); ctx.moveTo(x, H); ctx.lineTo(x + sw, H); ctx.lineTo(x + sw + H * 0.55, 0); ctx.lineTo(x + H * 0.55, 0); ctx.closePath(); ctx.fill(); } ctx.restore();
+            ctx.save(); ctx.fillStyle = '#ffffff'; for (let i = 0; i < 90; i++) { const p = edgePoint(rnd, W, H, S * 0.25); ctx.globalAlpha = 0.12 + rnd() * 0.2; ctx.beginPath(); ctx.arc(p[0], p[1], S * 0.006 * (1 + rnd() * 2), 0, Math.PI * 2); ctx.fill(); } ctx.restore();
+            ctx.save(); ctx.strokeStyle = pal.acc; ctx.globalAlpha = 0.9; ctx.lineWidth = S * 0.012; ctx.beginPath(); ctx.moveTo(0, H * 0.92); ctx.lineTo(W * 0.4, H * 0.86); ctx.stroke(); ctx.beginPath(); ctx.moveTo(W, H * 0.08); ctx.lineTo(W * 0.6, H * 0.14); ctx.stroke(); ctx.restore();
+        }
+        function artYouth(ctx, W, H, pal, rnd, S) {
+            bokeh(ctx, W * 0.1, H * 0.2, S * 0.5, '#ff2d87', 0.6); bokeh(ctx, W * 0.92, H * 0.85, S * 0.55, '#00e5ff', 0.5); bokeh(ctx, W * 0.8, H * 0.1, S * 0.35, '#ffe600', 0.35);
+            ctx.save(); ctx.fillStyle = '#ffffff'; ctx.globalAlpha = 0.16; const st = S * 0.035; for (let y = 0; y < H * 0.35; y += st) for (let x = 0; x < W * 0.3; x += st) { ctx.beginPath(); ctx.arc(x, y, st * 0.22 * (1 - y / (H * 0.4)), 0, Math.PI * 2); ctx.fill(); } ctx.restore();
+            ctx.save(); ctx.strokeStyle = '#00e5ff'; ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = S * 0.02; ctx.lineWidth = S * 0.006; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(W * 0.9, H * 0.18, S * 0.07, 0, Math.PI * 2); ctx.stroke(); ctx.strokeStyle = '#ff2d87'; ctx.shadowColor = '#ff2d87'; ctx.beginPath(); ctx.arc(W * 0.08, H * 0.82, S * 0.09, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+            ctx.save(); ctx.fillStyle = '#ffe600'; ctx.globalAlpha = 0.9; const bx = W * 0.07, by = H * 0.1, k = S * 0.06; ctx.beginPath(); ctx.moveTo(bx + k * 0.5, by - k); ctx.lineTo(bx - k * 0.2, by + k * 0.1); ctx.lineTo(bx + k * 0.15, by + k * 0.1); ctx.lineTo(bx - k * 0.3, by + k); ctx.lineTo(bx + k * 0.6, by - k * 0.15); ctx.lineTo(bx + k * 0.2, by - k * 0.15); ctx.closePath(); ctx.fill(); ctx.restore();
+            for (let i = 0; i < 20; i++) sparkle(ctx, rnd() * W, rnd() * H, S * (0.008 + rnd() * 0.018), '#ffffff', 0.4 + rnd() * 0.5);
+        }
+        function artNature(ctx, W, H, pal, rnd, S) {
+            bokeh(ctx, W * 0.85, H * 0.1, S * 0.5, '#fff7c2', 0.8);
+            for (let i = 0; i < 12; i++) { const p = edgePoint(rnd, W, H, S * 0.3); bokeh(ctx, p[0], p[1], S * (0.04 + rnd() * 0.08), '#ffffff', 0.45); }
+            const branch = (sx, sy, ang, len, depth) => {
+                const ex = sx + Math.cos(ang) * len, ey = sy + Math.sin(ang) * len;
+                ctx.save(); ctx.strokeStyle = '#2e7d32'; ctx.globalAlpha = 0.7; ctx.lineWidth = Math.max(2, S * 0.005 * depth); ctx.beginPath(); ctx.moveTo(sx, sy); ctx.quadraticCurveTo((sx + ex) / 2 + (rnd() - 0.5) * len * 0.3, (sy + ey) / 2 + (rnd() - 0.5) * len * 0.3, ex, ey); ctx.stroke(); ctx.restore();
+                for (let k = 1; k <= 6; k++) { const t = k / 7, lx = sx + (ex - sx) * t, ly = sy + (ey - sy) * t; [-1, 1].forEach(sd => { ctx.save(); ctx.translate(lx, ly); ctx.rotate(ang + sd * (0.9 + rnd() * 0.4)); const g = ctx.createLinearGradient(0, 0, S * 0.07, 0); g.addColorStop(0, '#2e7d32'); g.addColorStop(1, rnd() > 0.5 ? '#81c784' : '#43a047'); ctx.fillStyle = g; ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.ellipse(S * 0.035, 0, S * 0.04, S * 0.015, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }); }
+            };
+            branch(-S * 0.02, H * 0.05, 0.5, S * 0.55, 2); branch(-S * 0.02, H * 0.55, 0.15, S * 0.4, 1.5); branch(W + S * 0.02, H * 0.95, Math.PI + 0.55, S * 0.55, 2); branch(W + S * 0.02, H * 0.45, Math.PI - 0.2, S * 0.4, 1.5);
+        }
+        function artModern(ctx, W, H, pal, rnd, S) {
+            const blob = (x, y, r, c1, c2, a) => { const g = ctx.createLinearGradient(x - r, y - r, x + r, y + r); g.addColorStop(0, c1); g.addColorStop(1, c2); ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.restore(); };
+            blob(W * 0.05, H * 0.1, S * 0.5, '#6ea8fe', '#0d6efd', 0.55); blob(W * 0.98, H * 0.92, S * 0.6, '#a5b4fc', '#6366f1', 0.45); blob(W * 0.92, H * 0.08, S * 0.22, '#fde68a', '#fb923c', 0.7); blob(W * 0.12, H * 0.95, S * 0.18, '#99f6e4', '#14b8a6', 0.7);
+            ctx.save(); ctx.strokeStyle = pal.acc; ctx.globalAlpha = 0.12; ctx.lineWidth = Math.max(1, S * 0.002); const st = S * 0.08; for (let x = 0; x < W; x += st) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); } for (let y = 0; y < H; y += st) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); } ctx.restore();
+        }
+        const DESIGN_ART = { luxury: artLuxury, islamic: artIslamic, romantic: artRomantic, kids: artKids, sport: artSport, youth: artYouth, nature: artNature, modern: artModern };
+        function drawProceduralBg(ctx, W, H, st, styleKey, seed) {
+            const pal = st.pal, S = Math.min(W, H), rnd = mulberry32(seed * 9301 + 49297);
+            const g = ctx.createLinearGradient(0, 0, W * 0.35, H); g.addColorStop(0, pal.a); g.addColorStop(1, pal.b); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+            const rg = ctx.createRadialGradient(W * (0.3 + rnd() * 0.4), H * (0.2 + rnd() * 0.3), 0, W / 2, H / 2, Math.max(W, H) * 0.8);
+            rg.addColorStop(0, pal.dark ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.6)'); rg.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+            (DESIGN_ART[styleKey] || artModern)(ctx, W, H, pal, rnd, S);
+            const vg = ctx.createRadialGradient(W / 2, H / 2, S * 0.35, W / 2, H / 2, Math.max(W, H) * 0.8); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, pal.dark ? 'rgba(0,0,0,0.42)' : 'rgba(0,0,0,0.1)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+        }
+
+        // ---- التخطيط ----
+        function collageRects(n, zx, zy, zw, zh, gap) {
+            const wide = zw / zh >= 1.2; const out = [];
+            if (n === 3 && wide) {
+                const bw = (zw - gap) * 0.58, sw = zw - gap - bw, sh = (zh - gap) / 2;
+                out.push({ x: zx, y: zy, w: bw, h: zh }, { x: zx + bw + gap, y: zy, w: sw, h: sh }, { x: zx + bw + gap, y: zy + sh + gap, w: sw, h: sh });
+                return out;
+            }
+            let rows;
+            if (n === 1) rows = [1]; else if (n === 2) rows = wide ? [2] : [1, 1]; else if (n === 3) rows = [1, 2]; else if (n === 4) rows = [2, 2]; else rows = wide ? [3, 2] : [2, 3];
+            const rh = (zh - gap * (rows.length - 1)) / rows.length; let idx = 0;
+            rows.forEach((cnt, r) => {
+                const cw = (zw - gap * (cnt - 1)) / cnt;
+                for (let c = 0; c < cnt && idx < n; c++, idx++) out.push({ x: zx + c * (cw + gap), y: zy + r * (rh + gap), w: cw, h: rh });
+            });
+            return out;
+        }
+        function shapePath(ctx, x, y, w, h, rad, shape) {
+            if (shape === 'oval') { ctx.beginPath(); ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2); }
+            else if (shape === 'arch' && h > w * 0.8) { const R = w / 2; ctx.beginPath(); ctx.moveTo(x, y + h - rad); ctx.lineTo(x, y + R); ctx.arc(x + R, y + R, R, Math.PI, 0); ctx.lineTo(x + w, y + h - rad); ctx.quadraticCurveTo(x + w, y + h, x + w - rad, y + h); ctx.lineTo(x + rad, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - rad); ctx.closePath(); }
+            else rrPath(ctx, x, y, w, h, rad);
+        }
+        function drawPhotoCell(ctx, img, r, pal, seed, i, tilt, styleKey) {
+            const shape = { romantic: 'oval', kids: 'oval', islamic: 'arch' }[styleKey] || 'rect';
+            const b = Math.max(6, Math.round(Math.min(r.w, r.h) * 0.03)); const rad = Math.min(r.w, r.h) * 0.07;
+            ctx.save(); ctx.translate(r.x + r.w / 2, r.y + r.h / 2);
+            if (tilt) ctx.rotate((designRand(seed + i * 7) * 2 - 1) * 0.022);
+            const w = r.w * (tilt ? 0.97 : 1), h = r.h * (tilt ? 0.97 : 1);
+            ctx.shadowColor = 'rgba(0,0,0,0.38)'; ctx.shadowBlur = b * 3.2; ctx.shadowOffsetY = b * 0.9;
+            shapePath(ctx, -w / 2, -h / 2, w, h, rad, shape);
+            if (pal.gold) { const g = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2); g.addColorStop(0, '#fff3c4'); g.addColorStop(0.5, '#d4af37'); g.addColorStop(1, '#8a6a12'); ctx.fillStyle = g; } else ctx.fillStyle = pal.dark ? pal.acc : '#ffffff';
+            ctx.fill(); ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+            ctx.save(); shapePath(ctx, -w / 2 + b, -h / 2 + b, w - 2 * b, h - 2 * b, rad * 0.75, shape); ctx.clip();
+            coverImage(ctx, img, -w / 2 + b, -h / 2 + b, w - 2 * b, h - 2 * b, 0.32);
+            const sh = ctx.createLinearGradient(0, -h / 2, 0, h / 2); sh.addColorStop(0, 'rgba(255,255,255,0.10)'); sh.addColorStop(0.5, 'rgba(255,255,255,0)'); sh.addColorStop(1, 'rgba(0,0,0,0.16)'); ctx.fillStyle = sh; ctx.fillRect(-w / 2, -h / 2, w, h);
+            ctx.restore(); ctx.restore();
+        }
+        function wrapLines(ctx, text, maxW) {
+            const words = String(text).split(/\s+/).filter(Boolean); const lines = []; let cur = '';
+            words.forEach(w => { const t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width <= maxW || !cur) cur = t; else { lines.push(cur); cur = w; } });
+            if (cur) lines.push(cur); return lines;
+        }
+        function textFill(ctx, pal, y0, y1) {
+            if (!pal.gold) return pal.txt;
+            const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#fff3c4'); g.addColorStop(0.5, '#e8c547'); g.addColorStop(1, '#a87c1b'); return g;
+        }
+        function drawOrnamentLine(ctx, cx, y, w, color) {
+            ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = Math.max(2, w * 0.006); ctx.globalAlpha = 0.85;
+            ctx.beginPath(); ctx.moveTo(cx - w / 2, y); ctx.lineTo(cx - w * 0.06, y); ctx.moveTo(cx + w * 0.06, y); ctx.lineTo(cx + w / 2, y); ctx.stroke();
+            drawMotif(ctx, 'diamond', cx, y, Math.max(5, w * 0.03), color); ctx.restore();
+        }
+        function drawDesignText(ctx, lines, zx, zy, zw, zh, pal, st, opts) {
+            const padX = Math.max(14, zw * 0.06), padY = Math.max(10, zh * 0.1);
+            if (opts.panel) {
+                ctx.save(); rrPath(ctx, zx, zy, zw, zh, Math.min(zw, zh) * 0.08);
+                ctx.fillStyle = pal.dark ? 'rgba(0,0,0,0.40)' : 'rgba(255,255,255,0.66)'; ctx.fill();
+                ctx.lineWidth = Math.max(2, Math.min(zw, zh) * 0.012); ctx.strokeStyle = pal.acc; ctx.globalAlpha = 0.9; ctx.stroke(); ctx.restore();
+            }
+            const innerW = zw - padX * 2, innerH = zh - padY * 2; const fam = `${st.font}, Cairo, Tahoma, Arial, sans-serif`;
+            ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; try { ctx.direction = 'rtl'; } catch (e) { }
+            let size = Math.min(innerH * 0.7, innerW * 0.5, 340), blocks = [];
+            for (let guard = 0; guard < 60; guard++) {
+                blocks = []; let total = 0; const sub = opts.school ? 1 : 0.55;
+                lines.forEach((ln, i) => {
+                    const fs = i === 0 ? size : size * sub; ctx.font = `800 ${Math.round(fs)}px ${fam}`;
+                    const wl = wrapLines(ctx, ln, innerW); wl.forEach(t => { blocks.push({ t, fs, li: i }); total += fs * 1.28; });
+                });
+                if (lines.length > 1 && !opts.school) total += size * 0.3;
+                if (total <= innerH && blocks.every(b => { ctx.font = `800 ${Math.round(b.fs)}px ${fam}`; return ctx.measureText(b.t).width <= innerW; })) break;
+                size *= 0.92; if (size < 14) break;
+            }
+            let total = blocks.reduce((s, b) => s + b.fs * 1.28, 0) + (lines.length > 1 && !opts.school ? size * 0.3 : 0);
+            let y = zy + padY + (innerH - total) / 2; const cx = zx + zw / 2;
+            const fillStyle = textFill(ctx, pal, y, y + total);
+            blocks.forEach((b, i) => {
+                y += b.fs * 1.0; ctx.font = `800 ${Math.round(b.fs)}px ${fam}`;
+                ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(2, b.fs * 0.09); ctx.strokeStyle = pal.dark ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.85)'; ctx.strokeText(b.t, cx, y);
+                ctx.shadowColor = 'rgba(0,0,0,0.28)'; ctx.shadowBlur = b.fs * 0.12; ctx.shadowOffsetY = b.fs * 0.04; ctx.fillStyle = fillStyle; ctx.fillText(b.t, cx, y);
+                ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+                y += b.fs * 0.28;
+                if (b.li === 0 && blocks[i + 1] && blocks[i + 1].li !== 0 && !opts.school) { drawOrnamentLine(ctx, cx, y + size * 0.05, Math.min(innerW * 0.5, size * 3.2), pal.acc); y += size * 0.3; }
+            });
+            if (lines.length === 1 && blocks.length === 1 && zh > size * 1.9) drawOrnamentLine(ctx, cx, y + size * 0.18, Math.min(innerW * 0.45, size * 3), pal.acc);
+            ctx.restore();
+        }
+        function drawFrameBorder(ctx, W, H, pal) {
+            const S = Math.min(W, H), m = Math.max(10, S * 0.022);
+            ctx.save(); ctx.strokeStyle = pal.acc; ctx.globalAlpha = 0.85; ctx.lineWidth = Math.max(2, S * 0.006);
+            rrPath(ctx, m, m, W - 2 * m, H - 2 * m, S * 0.03); ctx.stroke();
+            ctx.lineWidth = Math.max(1, S * 0.0025); rrPath(ctx, m * 1.8, m * 1.8, W - 3.6 * m, H - 3.6 * m, S * 0.022); ctx.stroke();
+            [[m * 1.8, m * 1.8], [W - m * 1.8, m * 1.8], [m * 1.8, H - m * 1.8], [W - m * 1.8, H - m * 1.8]].forEach(p => drawMotif(ctx, 'diamond', p[0], p[1], Math.max(6, S * 0.018), pal.acc));
+            ctx.restore();
+        }
+
+        function composeStoreDesign(ctx, W, H, o) {
+            const st = o.st, pal = st.pal, spec = activeDesignSpec || {}; const S = Math.min(W, H);
+            ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+            if (o.bg) coverImage(ctx, o.bg, 0, 0, W, H, 0.5); else drawProceduralBg(ctx, W, H, st, o.styleKey, o.seed);
+            const hasPhotos = o.photos.length > 0, hasText = o.lines.length > 0;
+            if (hasPhotos || hasText) { const ov = ctx.createLinearGradient(0, 0, 0, H); ov.addColorStop(0, pal.dark ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.28)'); ov.addColorStop(1, pal.dark ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.12)'); ctx.fillStyle = ov; ctx.fillRect(0, 0, W, H); }
+            const strip = W / H > 3.2;
+            if (spec.shape === 'دائرة') { ctx.save(); ctx.strokeStyle = pal.acc; ctx.globalAlpha = 0.9; ctx.lineWidth = Math.max(3, S * 0.012); ctx.beginPath(); ctx.arc(W / 2, H / 2, S * 0.475, 0, Math.PI * 2); ctx.stroke(); ctx.lineWidth = Math.max(2, S * 0.004); ctx.beginPath(); ctx.arc(W / 2, H / 2, S * 0.44, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+            else if (!strip) drawFrameBorder(ctx, W, H, pal);
+            const pad = Math.max(16, Math.round(S * (strip ? 0.08 : 0.065))), gap = Math.max(10, Math.round(S * 0.025));
+            const ax = pad, ay = pad, aw = W - pad * 2, ah = H - pad * 2; const flip = o.seed % 2 === 0; const tilt = o.photos.length >= 2 && !spec.shape;
+            const circle = spec.shape === 'دائرة', clock = spec.kind === 'clock'; const wide = W / H >= 1.35;
+            let photoZone = null, textZone = null;
+            if (circle) {
+                const side = S * 0.64, cx0 = (W - side) / 2, cy0 = (H - side) / 2;
+                if (hasPhotos && hasText) { photoZone = { x: cx0, y: cy0, w: side, h: side * 0.62 }; textZone = { x: cx0 + side * 0.04, y: cy0 + side * 0.66, w: side * 0.92, h: side * 0.34 }; }
+                else if (hasPhotos) photoZone = { x: cx0, y: cy0, w: side, h: side };
+                else textZone = { x: cx0, y: cy0 + side * 0.18, w: side, h: side * 0.64 };
+            } else if (clock) {
+                const zh1 = ah * 0.36;
+                if (hasPhotos && hasText) { photoZone = { x: ax + aw * 0.08, y: ay + ah * 0.06, w: aw * 0.84, h: zh1 }; textZone = { x: ax + aw * 0.1, y: ay + ah * 0.58, w: aw * 0.8, h: ah * 0.34 }; }
+                else if (hasPhotos) { photoZone = { x: ax + aw * 0.08, y: ay + ah * 0.06, w: aw * 0.84, h: ah * 0.37 }; }
+                else textZone = { x: ax + aw * 0.1, y: ay + ah * 0.58, w: aw * 0.8, h: ah * 0.34 };
+            } else if (hasPhotos && hasText) {
+                if (wide) { const pw = aw * 0.58, tw = aw - pw - gap; photoZone = { x: flip ? ax + tw + gap : ax, y: ay, w: pw, h: ah }; textZone = { x: flip ? ax : ax + pw + gap, y: ay, w: tw, h: ah }; }
+                else { const ph = ah * 0.68, th = ah - ph - gap; photoZone = { x: ax, y: flip ? ay + th + gap : ay, w: aw, h: ph }; textZone = { x: ax, y: flip ? ay : ay + ph + gap, w: aw, h: th }; }
+            } else if (hasPhotos) photoZone = { x: ax, y: ay, w: aw, h: ah };
+            else textZone = { x: ax, y: strip ? ay : ay + ah * 0.12, w: aw, h: strip ? ah : ah * 0.76 };
+
+            if (photoZone) collageRects(o.photos.length, photoZone.x, photoZone.y, photoZone.w, photoZone.h, gap).forEach((r, i) => drawPhotoCell(ctx, o.photos[i], r, pal, o.seed, i, tilt, o.styleKey));
+            if (textZone) drawDesignText(ctx, o.lines, textZone.x, textZone.y, textZone.w, textZone.h, pal, st, { panel: !strip || hasText, school: !!spec.school });
+            if (clock) {
+                const cx = W / 2, cy = H / 2, R = S * 0.05;
+                ctx.save(); ctx.fillStyle = pal.dark ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.8)'; ctx.beginPath(); ctx.arc(cx, cy, R * 1.5, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = pal.acc; ctx.lineWidth = Math.max(3, S * 0.005); ctx.beginPath(); ctx.arc(cx, cy, R * 1.5, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(cx, cy, R * 1.1, 0, Math.PI * 2); ctx.lineWidth = Math.max(1.5, S * 0.002); ctx.stroke(); ctx.restore();
+            }
+            if (circle) { ctx.globalCompositeOperation = 'destination-in'; ctx.beginPath(); ctx.arc(W / 2, H / 2, S / 2, 0, Math.PI * 2); ctx.fillStyle = '#000'; ctx.fill(); ctx.globalCompositeOperation = 'source-over'; }
+        }
+
+        function setDesignProgress(msg) { const p = document.getElementById('designProgress'); if (p) { p.style.display = msg ? 'block' : 'none'; p.textContent = msg || ''; } }
+        function loadDesignPhotos(files) {
+            const urls = files.map(f => URL.createObjectURL(f));
+            return Promise.all(urls.map(u => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = u; }))).then(arr => { urls.forEach(u => setTimeout(() => URL.revokeObjectURL(u), 60000)); return arr.filter(Boolean); });
+        }
+        async function renderStoreDesign() {
+            if (!activeDesignProduct || designBusy) return;
+            designBusy = true;
+            const gb = document.getElementById('designStudioGenBtn'); if (gb) { gb.disabled = true; gb.innerHTML = '⏳ جاري التصميم...'; }
+            try {
+                const rawText = ((document.getElementById('designStudioText') || {}).value || '');
+                const lines = rawText.split(/\n+/).map(s => s.trim().slice(0, 70)).filter(Boolean).slice(0, 5);
+                const input = document.getElementById('designStudioImages');
+                const files = (activeDesignSpec && activeDesignSpec.textOnly) ? [] : Array.from((input && input.files) || []).slice(0, 5);
+                designState.seed = Math.floor(Math.random() * 900000) + 1;
+                const size = storeDesignCanvasSize();
+                try { await Promise.all([document.fonts.load('800 40px Cairo'), document.fonts.load('800 40px Changa')]); } catch (e) { }
+                setDesignProgress('🖼️ بنجهّز صورك...');
+                const photos = await loadDesignPhotos(files);
+                setDesignProgress('🤖 الذكاء الاصطناعي بيرسم خلفية التصميم... (ممكن ياخد لحد دقيقتين)');
+                const sc = 1024 / Math.max(size.w, size.h); const aw = Math.max(256, Math.round(size.w * sc / 8) * 8), ah = Math.max(256, Math.round(size.h * sc / 8) * 8);
+                const bg = await loadAiBackground(buildAiPrompt(), aw, ah, designState.seed);
+                setDesignProgress(bg ? '🎨 بنركّب التصميم النهائي...' : '🎨 تعذر الاتصال بالذكاء الاصطناعي، بنستخدم خلفية احترافية جاهزة...');
+                const st = DESIGN_STYLES[designState.style] || DESIGN_STYLES.luxury;
+                const canvas = document.createElement('canvas'); canvas.width = size.w; canvas.height = size.h; const ctx = canvas.getContext('2d');
+                const opts = { st, styleKey: designState.style, seed: designState.seed, photos, lines, bg };
+                let blob = null;
+                try { composeStoreDesign(ctx, size.w, size.h, opts); blob = await new Promise((res, rej) => { try { canvas.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png'); } catch (e) { rej(e); } }); }
+                catch (e) { opts.bg = null; composeStoreDesign(ctx, size.w, size.h, opts); blob = await new Promise(res => canvas.toBlob(res, 'image/png')); }
+                if (latestStoreDesignDataUrl) try { URL.revokeObjectURL(latestStoreDesignDataUrl); } catch (e) { }
+                latestStoreDesignBlob = blob; latestStoreDesignDataUrl = URL.createObjectURL(blob);
+                const preview = document.getElementById('designStudioPreview');
+                if (preview) {
+                    preview.style.display = 'block';
+                    preview.innerHTML = `<img src="${latestStoreDesignDataUrl}" alt="التصميم النهائي" style="${activeDesignSpec.shape ? 'border-radius:50%;' : ''}"><div style="font-size:12px;color:#64748b;margin-top:6px;">${esc(activeDesignProduct.name)} — ${esc(activeDesignSpec.size)} — ${size.w}×${size.h} بكسل${bg ? ' — تصميم بالذكاء الاصطناعي ✨' : ''}</div>`;
+                    preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                const actions = document.getElementById('designStudioResultActions'); if (actions) actions.style.display = 'flex';
+                setDesignProgress('');
+            } catch (err) {
+                console.error(err); setDesignProgress(''); alert('حصلت مشكلة في إنشاء التصميم، جرب مرة تانية.');
+            } finally {
+                designBusy = false; if (gb) { gb.disabled = false; gb.innerHTML = '✨ إنشاء التصميم بالذكاء الاصطناعي'; }
+            }
+        }
+        function downloadStoreDesign() { if (!latestStoreDesignDataUrl) return; const a = document.createElement('a'); a.href = latestStoreDesignDataUrl; a.download = (activeDesignProduct && activeDesignProduct.name || 'design').replace(/\s+/g, '-') + '.png'; document.body.appendChild(a); a.click(); a.remove(); }
+        async function shareStoreDesign() {
+            if (!latestStoreDesignBlob) return;
+            const pname = (activeDesignProduct && activeDesignProduct.name) || ''; const psize = (activeDesignSpec && activeDesignSpec.size) || '';
+            const text = `جاهز لإرسال تصميمي\nالمنتج: ${pname}\nالمقاس: ${psize}`;
+            try {
+                const file = new File([latestStoreDesignBlob], pname.replace(/\s+/g, '-') + '.png', { type: 'image/png' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
+            } catch (e) { if (e && e.name === 'AbortError') return; }
+            downloadStoreDesign();
+            const phone = normalizeWaPhone((storeData && storeData.phone) || '201285957035');
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text + '\nتم تحميل التصميم، سأرفقه هنا.')}`, '_blank', 'noopener,noreferrer');
+        }
         window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installPromptEvent=event; const banner=document.getElementById('installBanner'); if(banner) banner.classList.add('show'); });
-        async function installStoreApp(){ if(!installPromptEvent){ alert('على أندرويد اضغط تثبيت من إشعار المتصفح أو من قائمة ⋮ ثم إضافة إلى الشاشة الرئيسية. على آيفون اضغط مشاركة ثم إضافة إلى الشاشة الرئيسية.'); return; } installPromptEvent.prompt(); await installPromptEvent.userChoice; installPromptEvent=null; dismissInstallBanner(); }
+        async function installStoreApp() {
+            const ua = navigator.userAgent || '';
+            if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) { alert('التطبيق متثبت بالفعل ✅'); dismissInstallBanner(); return; }
+            if (/FBAN|FBAV|Instagram|WhatsApp|Line\/|Snapchat|TikTok|MicroMessenger/i.test(ua)) { alert('افتح رابط المتجر من متصفح كروم (القائمة ⋮ ثم فتح في المتصفح) وبعدها اضغط تثبيت التطبيق.'); return; }
+            if (!installPromptEvent) {
+                if (/iphone|ipad|ipod/i.test(ua)) alert('على آيفون: افتح الرابط من Safari، اضغط زر المشاركة ثم "إضافة إلى الشاشة الرئيسية".');
+                else alert('اضغط على القائمة ⋮ في كروم ثم "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية". لو الخيار مش ظاهر، اقفل الصفحة وافتحها تاني وانتظر ثواني.');
+                return;
+            }
+            installPromptEvent.prompt(); try { await installPromptEvent.userChoice; } catch (e) { } installPromptEvent = null; dismissInstallBanner();
+        }
+        window.addEventListener('appinstalled', () => { dismissInstallBanner(); });
         function dismissInstallBanner(){const banner=document.getElementById('installBanner');if(banner)banner.classList.remove('show');}
         if ('serviceWorker' in navigator) window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); setTimeout(()=>{ if(!window.matchMedia('(display-mode: standalone)').matches && !installPromptEvent){ const banner=document.getElementById('installBanner'); if(banner) banner.classList.add('show'); } },4000); });
         function renderProducts(productsToRender) {
@@ -3295,7 +3778,7 @@
             if (dealProduct && dealContainer) { 
                 const dp = sellOrCost(dealProduct);
                 const priceDisplay = dealProduct.isByGram ? `${dp} ج.م (${dealProduct.grams || ''}ج)` : (dealProduct.isArea ? `${dp} ج.م/م²` : (dealProduct.isMeter ? `${dp} ج.م/متر` : `${dp} ج.م`)); 
-                dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">${window.importerMode ? 'سعر المستورد' : 'عرض خاص'}</div><img src="${dealProduct.image}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${esc(dealProduct.name)}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Cairo';" onclick="addToCart('${dealProduct.id}', '${jsAttr(dealProduct.name)}', ${dp}, ${dealProduct.isMeter || false}, ${dealProduct.isArea || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button>${isBolaEmadStore() && isDesignableProduct(dealProduct) && !window.importerMode ? `<button class="design-own-btn deal-design-btn" onclick="openDesignChat('${dealProduct.id}')"><i class="fa-solid fa-wand-magic-sparkles"></i> صمم بنفسك</button>` : ''}</div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`;
+                dealContainer.innerHTML = `<div class="deal-card"><div class="deal-ribbon">${window.importerMode ? 'سعر المستورد' : 'عرض خاص'}</div><img src="${esc(safeImg(dealProduct.image))}" class="deal-img"><div class="deal-info"><h3 class="deal-name">${esc(dealProduct.name)}</h3><div class="deal-price">${priceDisplay}</div><button class="cart-circle-btn" style="width: auto; padding: 5px 20px; border-radius:50px; font-size:14px; font-family:'Cairo';" onclick="addToCart('${dealProduct.id}', '${jsAttr(dealProduct.name)}', ${dp}, ${dealProduct.isMeter || false}, ${dealProduct.isArea || false})">أضف للعربة <i class="fa-solid fa-cart-plus"></i></button>${isBolaEmadStore() && isDesignableProduct(dealProduct) && !window.importerMode ? `<button class="design-own-btn deal-design-btn" onclick="openDesignChat('${dealProduct.id}')"><i class="fa-solid fa-wand-magic-sparkles"></i> صمم بنفسك</button>` : ''}</div><div class="details-badge" onclick="showProductDetails('${dealProduct.id}')">التفاصيل</div></div>`;
             }
 
             const shown = regularProducts.slice(0, visibleProductLimit);
@@ -3305,7 +3788,7 @@
                     const priceDisplay = product.isByGram ? `${dp} ج.م (${product.grams || ''}ج)` : (product.isArea ? `${dp} ج.م / م²` : (product.isMeter ? `${dp} ج.م / م` : `${dp} ج.م`));
                     return `<div class="product-card">
                         <div class="details-badge" onclick="showProductDetails('${product.id}')">التفاصيل</div>
-                        <img src="${product.image || ''}" class="product-img" loading="lazy" decoding="async">
+                        <img src="${esc(safeImg(product.image))}" class="product-img" loading="lazy" decoding="async">
                         ${Number(product.minQty)>1 ? `<div class="details-badge" style="left:auto;right:8px;background:#b91c1c;">أقل كمية ${product.minQty}</div>` : ''}
                         <div class="product-info">
                             <span class="product-cat">${esc(product.category)}</span>
@@ -3771,8 +4254,9 @@
         function normalizeWaPhone(p) {
             p = String(p || '').replace(/[^0-9]/g, '');
             if (p.startsWith('00')) p = p.slice(2);
+            if (p.startsWith('200') && p.length >= 13) p = '20' + p.slice(3);
             if (p.startsWith('0') && p.length >= 10) p = '20' + p.slice(1);
-            if (p.length === 10) p = '20' + p;
+            if (p.length === 10 && p[0] === '1') p = '20' + p;
             return p;
         }
         function sendImporterOrder() {
@@ -3812,6 +4296,7 @@
                 openStudioOrderWizard();
                 return;
             }
+            if (!storeData || !storeData.phone) return alert('رقم واتساب المتجر غير مضبوط. تواصل مع صاحب المتجر.');
             db.collection("stores").doc(currentStoreId).update({
                 ordersCount: firebase.firestore.FieldValue.increment(1)
             }).catch(e => console.log(e));
@@ -3823,7 +4308,7 @@
                 msg += `${i + 1}- ${item.name} (${qtyDesc}) بـ ${itemTotal} ج.م\n`; 
             }); 
             msg += `\n*الإجمالي: ${total} ج.م*`; 
-            window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); 
+            window.open(`https://wa.me/${normalizeWaPhone(storeData.phone)}?text=${encodeURIComponent(msg)}`, '_blank'); 
         }
 
         function applyCafeLook() {
@@ -4226,7 +4711,7 @@
             }).catch(e => alert('تعذر حفظ الطلب: ' + (e.message || e)));
         }
 
-        function sendPrescriptionDirectly() { let msg = `*طلب صرف روشتة من ${storeData.name}* 💊\n\nمرحباً، أريد صرف الأدوية الموجودة في الروشتة التي سأقوم بإرسال صورتها لكم الآن.`; window.open(`https://wa.me/${storeData.phone}?text=${encodeURIComponent(msg)}`, '_blank'); closeModal('prescriptionModal'); }
+        function sendPrescriptionDirectly() { let msg = `*طلب صرف روشتة من ${storeData.name}* 💊\n\nمرحباً، أريد صرف الأدوية الموجودة في الروشتة التي سأقوم بإرسال صورتها لكم الآن.`; window.open(`https://wa.me/${normalizeWaPhone(storeData.phone)}?text=${encodeURIComponent(msg)}`, '_blank'); closeModal('prescriptionModal'); }
 
         function openModal(id) { 
             document.getElementById(id).style.display = 'block'; 
@@ -4783,7 +5268,7 @@
                     <div id="invoiceToDownload" style="background:white; padding:20px; border-radius:12px;">
                         <h3 style="text-align:center; margin-bottom:5px; color:var(--primary);">${storeData.name || 'المتجر'}</h3>
                         <p style="text-align:center; font-size:13px; color:#666; margin-bottom:15px;">فاتورة للعميل: <strong>${customer}</strong></p>
-                        ${items.map(i => `<div style="display:flex;justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f0f0;"><span>${i.name} ${i.desc ? '('+i.desc+')' : '× '+i.qty}</span><span>${i.total.toFixed(0)} ج</span></div>`).join('')}
+                        ${items.map(i => `<div style="display:flex;justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f0f0;"><span>${esc(i.name)} ${i.desc ? '('+esc(i.desc)+')' : '× '+esc(i.qty)}</span><span>${i.total.toFixed(0)} ج</span></div>`).join('')}
                         <div style="margin-top:12px;">
                             <div style="display:flex;justify-content:space-between; font-weight:bold; font-size:16px;"><span>الإجمالي</span><span>${total} ج.م</span></div>
                             <div style="display:flex;justify-content:space-between;"><span>المدفوع</span><span>${paid} ج.م</span></div>
@@ -4844,16 +5329,16 @@
                     const payBtn = (o.remaining > 0) ? `<button onclick="markOrderPaidFull('${doc.id}', ${Number(o.total)||0})" style="margin-top:8px; width:100%; background:#22c55e; color:white; border:none; padding:8px 10px; border-radius:8px; font-weight:800; cursor:pointer; font-family:'Cairo'; font-size:13px;"><i class="fa-solid fa-circle-check"></i> تم دفع المبلغ بالكامل</button>` : '';
                     const items = Array.isArray(o.items) ? o.items : [];
                     const itemsHtml = items.length ? items.map(i => {
-                        const qtyTxt = i.desc ? i.desc : ('× ' + (i.qty || 1));
+                        const qtyTxt = esc(i.desc ? i.desc : ('× ' + (i.qty || 1)));
                         const lineTotal = (i.total != null ? i.total : ((i.price || 0) * (i.qty || 1)));
                         return `<div style="display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px dashed #eee; font-size:13px;">
-                            <span style="font-weight:700; color:#1e293b;">${i.name || 'صنف'} <small style="color:#64748b; font-weight:600;">(${qtyTxt})</small></span>
+                            <span style="font-weight:700; color:#1e293b;">${esc(i.name || 'صنف')} <small style="color:#64748b; font-weight:600;">(${qtyTxt})</small></span>
                             <span style="font-weight:800; color:#2563eb; white-space:nowrap;">${Number(lineTotal).toFixed(0)} ج</span>
                         </div>`;
                     }).join('') : '<div style="font-size:13px; color:#94a3b8;">لا توجد تفاصيل أصناف</div>';
                     list.innerHTML += `
                         <div class="dash-card" style="border-right:4px solid ${o.type==='cafe' ? '#b91c1c' : (o.remaining > 0 ? '#ef4444' : '#22c55e')};">
-                            <strong>${o.type==='cafe' ? formatTableLabel(o.tableNo || o.customer || '') : (o.customer || 'عميل')}</strong>
+                            <strong>${esc(o.type==='cafe' ? formatTableLabel(o.tableNo || o.customer || '') : (o.customer || 'عميل'))}</strong>
                             ${o.type==='cafe' ? '<div style="display:inline-block;background:#b91c1c;color:#fff;border-radius:999px;padding:2px 10px;font-size:12px;margin-right:6px;">طلب مطعم</div>' : ''}
                             <div style="background:#f8fafc; border-radius:10px; padding:8px 10px; margin:8px 0;">
                                 <div style="font-size:12px; color:#64748b; font-weight:800; margin-bottom:4px;">الأصناف في الفاتورة</div>
@@ -4866,19 +5351,19 @@
                             ${o.type === 'studio' ? `
                                 <div style="margin-top:10px; background:#fff7ed; border-radius:10px; padding:10px;">
                                     <div style="font-weight:800; color:#c2410c; margin-bottom:6px;">طلب طباعة / استوديو</div>
-                                    <div style="font-size:13px;">واتساب العميل: <b dir="ltr">${o.customerPhone || '-'}</b></div>
+                                    <div style="font-size:13px;">واتساب العميل: <b dir="ltr">${esc(o.customerPhone || '-')}</b></div>
                                     <div style="font-size:13px;">الاستلام: <b>${o.delivery === 'delivery' ? 'دليفري' : 'من الفرع'}</b></div>
-                                    ${o.address ? `<div style="font-size:13px;">العنوان: <b>${o.address}</b></div>` : ''}
+                                    ${o.address ? `<div style="font-size:13px;">العنوان: <b>${esc(o.address)}</b></div>` : ''}
                                     <div style="font-size:13px;">الدفع: <b>${o.paymentMethod === 'instapay' ? 'إنستا باي' : 'محفظة'}</b></div>
                                     ${(o.designs && o.designs.length ? o.designs : (o.items||[]).map(it => ({...it, images: it.images || o.images || [], notes: it.notes || o.notes || ''}))).map(d => `
                                         <div style="margin-top:8px; background:#fff; border-radius:10px; padding:8px; border:1px solid #fed7aa;">
-                                            <div style="font-weight:800; color:#9a3412;">${d.name || 'منتج'}</div>
-                                            ${d.notes ? `<div style="font-size:12px; margin-top:3px;">التفاصيل: ${d.notes}</div>` : ''}
+                                            <div style="font-weight:800; color:#9a3412;">${esc(d.name || 'منتج')}</div>
+                                            ${d.notes ? `<div style="font-size:12px; margin-top:3px;">التفاصيل: ${esc(d.notes)}</div>` : ''}
                                             <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
-                                                ${(d.images||[]).map(im => `<img src="${im}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;" onclick="window.open(this.src)">`).join('') || '<span style="font-size:12px;color:#94a3b8;">بدون صور</span>'}
+                                                ${(d.images||[]).map(im => `<img src="${esc(safeImg(im))}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;" onclick="openImageSrc(this.src)">`).join('') || '<span style="font-size:12px;color:#94a3b8;">بدون صور</span>'}
                                             </div>
                                         </div>`).join('')}
-                                    ${o.receipt ? `<div style="margin-top:8px;font-size:12px;font-weight:800;">إيصال الدفع:</div><img src="${o.receipt}" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;margin-top:4px;" onclick="window.open(this.src)">` : ''}
+                                    ${o.receipt ? `<div style="margin-top:8px;font-size:12px;font-weight:800;">إيصال الدفع:</div><img src="${esc(safeImg(o.receipt))}" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;margin-top:4px;" onclick="openImageSrc(this.src)">` : ''}
                                     ${o.customerPhone ? `<a href="https://wa.me/${('20'+(o.customerPhone||'').replace(/^0/,'').replace(/[^0-9]/g,''))}" target="_blank" style="display:block;margin-top:8px;background:#25D366;color:#fff;text-align:center;padding:8px;border-radius:8px;font-weight:800;text-decoration:none;">واتساب العميل</a>` : ''}
                                     <button onclick="downloadStudioOrderPack('${doc.id}')" style="margin-top:8px;width:100%;background:#111827;color:#fff;border:none;padding:10px;border-radius:8px;font-weight:800;cursor:pointer;font-family:'Cairo';"><i class="fa-solid fa-download"></i> تحميل الصور وتفاصيل الطلب</button>
                                 </div>` : ''}
@@ -4968,7 +5453,7 @@
             const rows = items.map(i => {
                 const qty = i.desc ? i.desc : ('× ' + (i.qty || 1));
                 const line = (i.total != null ? i.total : ((i.price || 0) * (i.qty || 1)));
-                return `<tr><td style="text-align:right">${i.name || 'صنف'} (${qty})</td><td style="text-align:left;white-space:nowrap;font-weight:800">${Number(line).toFixed(0)} ج</td></tr>`;
+                return `<tr><td style="text-align:right">${esc(i.name || 'صنف')} (${esc(qty)})</td><td style="text-align:left;white-space:nowrap;font-weight:800">${Number(line).toFixed(0)} ج</td></tr>`;
             }).join('') || '<tr><td>لا توجد أصناف</td></tr>';
             const addr = (storeData.fullAddress || '').trim();
             const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>ريسيت</title>
@@ -5035,7 +5520,7 @@
             const q = (input.value || '').trim();
             if (!q) return;
             const chat = document.getElementById('assistantChat');
-            chat.innerHTML += `<div style="text-align:left; margin-bottom:10px;"><span style="background:var(--primary); color:white; padding:8px 14px; border-radius:18px 18px 4px 18px; display:inline-block; max-width:80%; font-size:14px;">${q}</span></div>`;
+            chat.innerHTML += `<div style="text-align:left; margin-bottom:10px;"><span style="background:var(--primary); color:white; padding:8px 14px; border-radius:18px 18px 4px 18px; display:inline-block; max-width:80%; font-size:14px;">${esc(q)}</span></div>`;
             input.value = '';
             chat.scrollTop = chat.scrollHeight;
 
@@ -5052,12 +5537,12 @@
 
             // معلومات التاجر المخصصة
             if (storeData.assistantInfo && (lower.includes('معلومات') || lower.includes('عن المتجر') || lower.includes('توصيل') || lower.includes('شحن') || lower.includes('وقت'))) {
-                reply += storeData.assistantInfo + '<br><br>';
+                reply += esc(storeData.assistantInfo).replace(/\n/g, '<br>') + '<br><br>';
             }
 
             // بحث في المنتجات
             const matched = storeProducts.filter(p => 
-                p.name.toLowerCase().includes(lower) || 
+                String(p.name || '').toLowerCase().includes(lower) || 
                 (p.description && p.description.toLowerCase().includes(lower)) ||
                 (p.category && p.category.toLowerCase().includes(lower))
             );
@@ -5065,18 +5550,18 @@
             if (matched.length > 0) {
                 reply += matched.slice(0, 5).map(p => {
                     let priceStr = p.isArea ? p.price + ' ج/م²' : (p.isMeter ? p.price + ' ج/متر' : p.price + ' ج');
-                    return `• <strong>${p.name}</strong>: ${priceStr}${p.description ? ' — ' + p.description.substring(0, 60) : ''}`;
+                    return `• <strong>${esc(p.name)}</strong>: ${priceStr}${p.description ? ' — ' + esc(String(p.description).substring(0, 60)) : ''}`;
                 }).join('<br>');
             } else if (lower.includes('سعر') || lower.includes('أسعار') || lower.includes('كام') || lower.includes('بكام') || lower.includes('منتجات') || lower.includes('عندكم')) {
                 if (storeProducts.length === 0) return 'حالياً مفيش منتجات معروضة.';
                 reply += 'إليك بعض منتجاتنا:<br>' + storeProducts.slice(0, 6).map(p => {
                     let priceStr = p.isArea ? p.price + ' ج/م²' : (p.isMeter ? p.price + ' ج/متر' : p.price + ' ج');
-                    return `• ${p.name}: <strong>${priceStr}</strong>`;
+                    return `• ${esc(p.name)}: <strong>${priceStr}</strong>`;
                 }).join('<br>');
             } else if (lower.includes('مرحبا') || lower.includes('السلام') || lower.includes('ازيك') || lower.includes('أهلا')) {
-                reply = `أهلاً بيك في متجر ${storeData.name || ''}! 👋<br>اسألني عن أي منتج أو سعر وأنا هساعدك.`;
+                reply = `أهلاً بيك في متجر ${esc(storeData.name || '')}! 👋<br>اسألني عن أي منتج أو سعر وأنا هساعدك.`;
             } else if (storeData.assistantInfo) {
-                reply = storeData.assistantInfo;
+                reply = esc(storeData.assistantInfo).replace(/\n/g, '<br>');
             } else {
                 reply = 'ممكن توضح أكتر؟ اكتب اسم المنتج أو اسأل عن الأسعار.<br>مثلاً: "سعر المراي" أو "عندكم هدايا؟"';
             }
@@ -5090,7 +5575,7 @@
             if (id === 'assistantModal') {
                 const chat = document.getElementById('assistantChat');
                 if (chat && chat.innerHTML.trim() === '') {
-                    chat.innerHTML = `<div style="text-align:right; margin-bottom:10px;"><span style="background:white; border:1px solid #eee; padding:8px 14px; border-radius:18px 18px 18px 4px; display:inline-block; max-width:85%; font-size:14px;">أهلاً! أنا مساعد متجر <strong>${storeData.name || ''}</strong> 🤖<br>اسألني عن أي منتج أو سعر.</span></div>`;
+                    chat.innerHTML = `<div style="text-align:right; margin-bottom:10px;"><span style="background:white; border:1px solid #eee; padding:8px 14px; border-radius:18px 18px 18px 4px; display:inline-block; max-width:85%; font-size:14px;">أهلاً! أنا مساعد متجر <strong>${esc(storeData.name || '')}</strong> 🤖<br>اسألني عن أي منتج أو سعر.</span></div>`;
                 }
             }
         };
