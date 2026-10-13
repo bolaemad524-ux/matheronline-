@@ -824,6 +824,18 @@
             <div id="adminPasswordResult" style="margin-top:10px; font-size:13px; white-space:pre-line;"></div>
         </div>
 
+        <h3 style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px; color:#b45309; text-align: right;">👤 دخول الإدارة إلى حساب تاجر</h3>
+        <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
+            <p style="font-size:13px; color:var(--text-gray); margin-bottom:10px;">استخدم دخول الإدارة الموثق لفتح لوحة أي تاجر بدون معرفة كلمة سره. سيظهر تنبيه واضح داخل الحساب بأن الجلسة إدارية.</p>
+            <label style="font-weight:bold; font-size:14px; color:var(--text-gray); margin-bottom:5px; display:block;">رقم هاتف التاجر:</label>
+            <div class="phone-input-wrapper">
+                <span>+20</span>
+                <input type="tel" id="adminImpersonatePhone" placeholder="10xxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.startsWith('0')) this.value = this.value.substring(1);">
+            </div>
+            <button onclick="adminEnterMerchantAccount()" class="btn-primary" style="background:#b45309; color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;">دخول إلى حساب التاجر 👤</button>
+            <div id="adminImpersonateResult" style="margin-top:10px; font-size:13px; white-space:pre-line;"></div>
+        </div>
+
         <h3 style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px; text-align: right;">➕ إضافة متجر يدوياً</h3>
         <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
             <input type="text" id="manualStoreName" placeholder="اسم المتجر">
@@ -859,6 +871,7 @@
     </div>
 
     <div id="merchantDashboardApp">
+        <div id="adminImpersonationBanner" style="display:none; background:#fff7ed; color:#9a3412; border:1px solid #fdba74; padding:10px 14px; text-align:center; font-weight:800; font-size:13px;">دخول إداري إلى حساب التاجر — هذه ليست جلسة التاجر العادية <button onclick="exitAdminImpersonation()" style="margin-right:8px; background:#9a3412; color:#fff; border:none; border-radius:7px; padding:6px 10px; cursor:pointer; font-family:'Cairo'; font-weight:800;">العودة للإدارة</button></div>
         <div class="dash-header">
             <div class="dash-header-icons" style="align-items:center; flex-wrap:wrap; max-width:72%;">
                 <i class="fa-solid fa-share-nodes" onclick="shareStoreLink()" title="مشاركة المتجر"></i>
@@ -2159,6 +2172,7 @@
                 if(isLoggedAsAdmin) {
                     document.getElementById('storeApp').style.display = 'none';
                     document.getElementById('merchantDashboardApp').style.display = 'block';
+                    showAdminImpersonationBanner();
                     if (isSettingsLocked()) { const ns = document.getElementById('nav-settings'); if (ns) ns.style.display = 'none'; }
                 } else {
                     document.getElementById('storeApp').style.display = 'block';
@@ -2564,6 +2578,40 @@
                 try { await getSecondaryAuth().signOut(); } catch (_) {}
                 if (result) result.innerText = 'تعذر تغيير كلمة السر: ' + (e.message || e);
             }
+        }
+        async function adminEnterMerchantAccount() {
+            const admin = firebase.auth().currentUser;
+            if (!admin || admin.email !== ADMIN_EMAIL) return alert('سجّل دخول الإدارة الأول.');
+            const rawPhone = (document.getElementById('adminImpersonatePhone')?.value || '').trim().replace(/[^0-9]/g, '');
+            const result = document.getElementById('adminImpersonateResult');
+            if (!rawPhone) return alert('اكتب رقم هاتف التاجر.');
+            let phone = rawPhone;
+            if (phone.startsWith('0')) phone = phone.substring(1);
+            if (phone.startsWith('20')) phone = phone.substring(2);
+            phone = '20' + phone;
+            if (result) result.innerText = 'جاري فتح حساب التاجر...';
+            try {
+                const snap = await db.collection('platform_merchants').where('phone', '==', phone).limit(1).get();
+                if (snap.empty) throw new Error('هذا الرقم غير مسجل.');
+                const merchant = snap.docs[0].data() || {};
+                if (merchant.status === 'suspended') throw new Error('هذا المتجر موقوف حالياً.');
+                sessionStorage.setItem('loggedStoreId', snap.docs[0].id);
+                sessionStorage.setItem('adminImpersonation', '1');
+                sessionStorage.setItem('adminImpersonatorEmail', admin.email);
+                window.location.href = window.location.pathname + '?store=' + encodeURIComponent(snap.docs[0].id) + '&admin=1';
+            } catch (e) {
+                if (result) result.innerText = 'تعذر فتح الحساب: ' + (e.message || e);
+            }
+        }
+        function showAdminImpersonationBanner() {
+            const banner = document.getElementById('adminImpersonationBanner');
+            if (banner && sessionStorage.getItem('adminImpersonation') === '1') banner.style.display = 'block';
+        }
+        function exitAdminImpersonation() {
+            sessionStorage.removeItem('adminImpersonation');
+            sessionStorage.removeItem('adminImpersonatorEmail');
+            sessionStorage.removeItem('loggedStoreId');
+            window.location.href = window.location.pathname + '?super=bola';
         }
         function changeAdminPassword(event) {
             const newPass = document.getElementById('adminNewPassword').value.trim();
