@@ -624,7 +624,10 @@
                     
                     <label>كلمة المرور</label>
                     <input type="password" id="loginPass" placeholder="••••••••">
+                    <label style="margin-top:4px;">البريد الإلكتروني <span style="font-size:11px; color:#a89b7c; font-weight:normal;">(مطلوب عند إنشاء الحساب)</span></label>
+                    <input type="email" id="loginEmail" placeholder="example@email.com" dir="ltr" autocomplete="email">
                     <button class="main-btn" onclick="checkMerchantLogin()">تسجيل الدخول</button>
+                    <button type="button" onclick="forgotMerchantPassword()" style="background:transparent; color:#d4af37; border:none; padding:8px; margin-top:8px; font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; text-decoration:underline;">نسيت كلمة السر؟</button>
                     <div class="auth-divider">أو</div>
                     <button type="button" class="auth-create-btn" onclick="startNewAccountFlow()">
                         <i class="fa-solid fa-user-plus"></i> إنشاء حساب جديد
@@ -1697,7 +1700,7 @@
         let cafeAreasDraft = [];
         const isSuperAdmin = urlParams.get('super') === 'bola'; 
 
-        let tempPhone = ""; let tempPass = ""; let tempCategory = ""; let selectedPlan = ""; let selectedPrice = 0; let receiptBase64 = "";
+        let tempPhone = ""; let tempPass = ""; let tempEmail = ""; let tempCategory = ""; let selectedPlan = ""; let selectedPrice = 0; let receiptBase64 = "";
         const TUTORIAL_VIDEO_URL = "https://www.facebook.com/share/v/19Me5hDr8a/";
         let platformPlans = { month: 60, quarter: 200, year: 720, hidePaid: false };
         let pendingNewSignup = false;
@@ -2154,13 +2157,15 @@
             if (mode !== 'signup') mode = 'login';
             let rawPhone = document.getElementById('loginPhone').value.trim().replace(/[^0-9]/g, '');
             tempPass = document.getElementById('loginPass').value.trim();
-            
+            const enteredEmail = (document.getElementById('loginEmail')?.value || '').trim().toLowerCase();
             if(!rawPhone || !tempPass) return alert("أدخل رقم الموبايل والباسورد.");
+            if (mode === 'signup' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(enteredEmail)) return alert("اكتب بريد إلكتروني صحيح لإنشاء الحساب واستعادة كلمة السر.");
+            if (mode === 'signup') tempEmail = enteredEmail;
             if(rawPhone.startsWith('0')) rawPhone = rawPhone.substring(1);
             if(rawPhone.startsWith('20')) rawPhone = rawPhone.substring(2);
-            
             tempPhone = "20" + rawPhone;
             let fakeEmail = tempPhone + "@bola-stores.com";
+            const signupEmail = mode === 'signup' ? enteredEmail : fakeEmail;
             const authPass = merchantAuthPass(tempPass);
             if (tempPass.length < (mode === 'signup' ? 6 : 4)) return alert(mode === 'signup' ? "الرقم السري 6 أحرف أو أرقام على الأقل." : "الرقم السري 4 أرقام على الأقل.");
             
@@ -2188,12 +2193,12 @@
 
             if (mode === 'signup') {
                 // إنشاء حساب Auth هو نفسه فحص التكرار
-                auth.createUserWithEmailAndPassword(fakeEmail, authPass)
+                auth.createUserWithEmailAndPassword(signupEmail, authPass)
                 .then(startSignupFlow)
                 .catch(err => {
                     if (err.code === 'auth/email-already-in-use') {
                         // يا إما مسجل فعلاً، يا إما حساب ناقص (اتعمل ومكملش)
-                        auth.signInWithEmailAndPassword(fakeEmail, authPass)
+                        auth.signInWithEmailAndPassword(signupEmail, authPass)
                         .then(() => findDoc())
                         .then(snap => {
                             if (snap.empty) { startSignupFlow(); }
@@ -2220,13 +2225,53 @@
                 const legacy = String((doc.data() && doc.data().password) || '');
                 const typed = String(tempPass || '');
                 if (legacy && (legacy === typed || legacy === merchantAuthPass(typed))) {
-                    finish(doc);
+                    const legacyEmail = tempPhone + '@bola-stores.com';
+                    auth.signInWithEmailAndPassword(legacyEmail, authPass)
+                        .then(() => attachRecoveryEmailAfterLogin(doc, enteredEmail, legacyEmail))
+                        .then(() => finish(doc))
+                        .catch(() => finish(doc));
                     return;
                 }
-                auth.signInWithEmailAndPassword(fakeEmail, authPass)
+                const authEmail = String((doc.data() && (doc.data().authEmail || doc.data().recoveryEmail || doc.data().email)) || fakeEmail).trim().toLowerCase();
+                auth.signInWithEmailAndPassword(authEmail, authPass)
+                .then(() => attachRecoveryEmailAfterLogin(doc, enteredEmail, authEmail))
                 .then(() => finish(doc))
                 .catch(() => { resetBtn(); alert("الرقم السري غير صحيح!"); });
             }).catch(() => { resetBtn(); alert("تعذر الاتصال. حاول تاني."); });
+        }
+
+        function attachRecoveryEmailAfterLogin(doc, enteredEmail, authEmail) {
+            const email = String(enteredEmail || '').trim().toLowerCase();
+            const isFakeEmail = String(authEmail || '').toLowerCase().endsWith('@bola-stores.com');
+            const user = firebase.auth().currentUser;
+            if (!user || !isFakeEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return Promise.resolve();
+            return user.updateEmail(email).then(() => doc.ref.update({ authEmail: email, recoveryEmail: email })).catch(() => {});
+        }
+
+        function forgotMerchantPassword() {
+            const raw = (document.getElementById('loginPhone')?.value || '').trim().replace(/[^0-9]/g, '');
+            if (!raw) return alert('اكتب رقم الهاتف أولاً.');
+            let phone = raw;
+            if (phone.startsWith('0')) phone = phone.substring(1);
+            if (phone.startsWith('20')) phone = phone.substring(2);
+            phone = '20' + phone;
+            const btn = document.querySelector('#authStep1 button[onclick="forgotMerchantPassword()"]');
+            if (btn) { btn.disabled = true; btn.innerText = 'جاري إرسال رابط الاستعادة...'; }
+            db.collection('platform_merchants').where('phone', '==', phone).limit(1).get().then(snap => {
+                if (snap.empty) throw new Error('not-found');
+                const data = snap.docs[0].data() || {};
+                const email = String(data.authEmail || data.recoveryEmail || data.email || '').trim().toLowerCase();
+                if (!email || email.endsWith('@bola-stores.com')) throw new Error('no-email');
+                return firebase.auth().sendPasswordResetEmail(email);
+            }).then(() => alert('تم إرسال رابط إعادة تعيين كلمة السر إلى بريدك الإلكتروني. افتح الرسالة واضغط الرابط ثم اكتب كلمة السر الجديدة.'))
+            .catch(err => {
+                if (err.message === 'no-email') alert('هذا الحساب لا يوجد له بريد إلكتروني مرتبط بعد. سجّل الدخول مرة، واكتب بريدك في خانة البريد، ثم جرّب الاستعادة مرة أخرى.');
+                else if (err.message === 'not-found') alert('رقم الهاتف غير مسجل.');
+                else if (err.code === 'auth/user-not-found') alert('لا يوجد حساب Firebase مرتبط بهذا البريد. تواصل مع الإدارة.');
+                else alert('تعذر إرسال رابط الاستعادة. تأكد من البريد أو حاول مرة أخرى.');
+            }).finally(() => {
+                if (btn) { btn.disabled = false; btn.innerText = 'نسيت كلمة السر؟'; }
+            });
         }
 
         function processLoginSuccess(doc) {
@@ -2314,14 +2359,13 @@
             tempCategory = document.getElementById('newStoreCategory').value;
             const btn = document.getElementById('startTrialBtn');
             btn.innerText = "جاري إنشاء المتجر... ⏳"; btn.disabled = true;
-            
             const storeId = generateShortId();
             let expiry = Date.now() + (3 * 24 * 60 * 60 * 1000); 
-            let fakeEmail = tempPhone + "@bola-stores.com";
-            
-            ensureMerchantAuth(fakeEmail, tempPass).then(() => {
+            const accountEmail = tempEmail || (tempPhone + "@bola-stores.com");
+
+            ensureMerchantAuth(accountEmail, tempPass).then(() => {
                 db.collection("platform_merchants").doc(storeId).set({
-                    phone: tempPhone, storeType: tempCategory, plan: 'trial', status: 'active', expiryDate: expiry, createdAt: new Date()
+                    phone: tempPhone, authEmail: accountEmail, recoveryEmail: accountEmail, storeType: tempCategory, plan: 'trial', status: 'active', expiryDate: expiry, createdAt: new Date()
                 }).then(() => {
                     return db.collection("stores").doc(storeId).set({
                         name: "متجر جديد", address: "وصف المتجر", phone: tempPhone, facebook: "", instagram: "", logo: null, categories: getDefaultCategories(tempCategory), storeType: tempCategory, visitors: 0, ordersCount: 0, dailyVisits: {}
@@ -2363,11 +2407,11 @@
             const btn = document.querySelector('#authStep3 .main-btn');
             if (btn) { btn.innerText = "جاري الإرسال... ⏳"; btn.disabled = true; }
             const storeId = generateShortId();
-            let fakeEmail = tempPhone + "@bola-stores.com";
+            const accountEmail = tempEmail || (tempPhone + "@bola-stores.com");
 
-            ensureMerchantAuth(fakeEmail, tempPass).then(() => {
-                db.collection("platform_merchants").doc(storeId).set({ 
-                    phone: tempPhone, storeType: tempCategory, 
+            ensureMerchantAuth(accountEmail, tempPass).then(() => {
+                db.collection("platform_merchants").doc(storeId).set({
+                    phone: tempPhone, authEmail: accountEmail, recoveryEmail: accountEmail, storeType: tempCategory,
                     plan: selectedPlan, pricePaid: selectedPrice, receipt: receiptBase64, 
                     status: 'pending', createdAt: new Date() 
                 }).then(() => { 
