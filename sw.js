@@ -1,16 +1,38 @@
-const CACHE_NAME = 'bola-emad-store-v1';
-const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
+// Service Worker - متجر بولا عماد (v4)
+const CACHE = 'bola-store-v4';
+const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
+
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL).catch(() => {})));
 });
-self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim());
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
 });
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return;
-  event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-    const copy = response.clone();
-    caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-    return response;
-  }).catch(() => caches.match('./index.html'))));
+
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return; // Firebase والذكاء الاصطناعي وغيرهم يمرّوا عادي
+
+  // الصفحة نفسها: الشبكة أولاً عشان التحديثات توصل فوراً، والكاش احتياطي بدون إنترنت
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      fetch(req).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put('index.html', copy)); return res; })
+        .catch(() => caches.match('index.html').then(r => r || caches.match('./')))
+    );
+    return;
+  }
+  // باقي الملفات الثابتة: من الكاش وتتحدث في الخلفية
+  e.respondWith(
+    caches.match(req).then(cached => {
+      const net = fetch(req).then(res => { if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); } return res; }).catch(() => cached);
+      return cached || net;
+    })
+  );
 });
