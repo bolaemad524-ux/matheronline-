@@ -811,6 +811,19 @@
             <div id="adminRecoveryResult" style="margin-top:10px; font-size:13px; white-space:pre-line;"></div>
         </div>
 
+        <h3 style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px; color:#7c3aed; text-align: right;">🔑 تعيين كلمة سر جديدة لتاجر</h3>
+        <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
+            <p style="font-size:13px; color:var(--text-gray); margin-bottom:10px;">لن يتم عرض كلمة السر الحالية. اكتب كلمة سر جديدة للتاجر، وسيحاول النظام تحديثها مباشرة أو يرسل رابط تغيير إلى بريده المرتبط.</p>
+            <label style="font-weight:bold; font-size:14px; color:var(--text-gray); margin-bottom:5px; display:block;">رقم هاتف التاجر:</label>
+            <div class="phone-input-wrapper">
+                <span>+20</span>
+                <input type="tel" id="adminPasswordPhone" placeholder="10xxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.startsWith('0')) this.value = this.value.substring(1);">
+            </div>
+            <input type="password" id="adminMerchantNewPassword" placeholder="كلمة السر الجديدة (6 أحرف/أرقام على الأقل)" minlength="6">
+            <button onclick="adminChangeMerchantPassword()" class="btn-primary" style="background:#7c3aed; color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;">تغيير كلمة السر 🔑</button>
+            <div id="adminPasswordResult" style="margin-top:10px; font-size:13px; white-space:pre-line;"></div>
+        </div>
+
         <h3 style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px; text-align: right;">➕ إضافة متجر يدوياً</h3>
         <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
             <input type="text" id="manualStoreName" placeholder="اسم المتجر">
@@ -2511,6 +2524,45 @@
             } catch (e) {
                 try { await getSecondaryAuth().signOut(); } catch (_) {}
                 if (result) result.innerText = 'تعذر الربط: ' + (e.message || e);
+            }
+        }
+        async function adminChangeMerchantPassword() {
+            const admin = firebase.auth().currentUser;
+            if (!admin || admin.email !== ADMIN_EMAIL) return alert('سجّل دخول الإدارة الأول.');
+            const rawPhone = (document.getElementById('adminPasswordPhone')?.value || '').trim().replace(/[^0-9]/g, '');
+            const newPass = (document.getElementById('adminMerchantNewPassword')?.value || '').trim();
+            const result = document.getElementById('adminPasswordResult');
+            if (!rawPhone || !newPass) return alert('اكتب رقم الهاتف وكلمة السر الجديدة.');
+            if (newPass.length < 6) return alert('كلمة السر الجديدة يجب أن تكون 6 أحرف أو أرقام على الأقل.');
+            let phone = rawPhone;
+            if (phone.startsWith('0')) phone = phone.substring(1);
+            if (phone.startsWith('20')) phone = phone.substring(2);
+            phone = '20' + phone;
+            if (result) result.innerText = 'جاري تحديث كلمة السر...';
+            try {
+                const snap = await db.collection('platform_merchants').where('phone', '==', phone).limit(1).get();
+                if (snap.empty) throw new Error('هذا الرقم غير مسجل.');
+                const doc = snap.docs[0];
+                const merchant = doc.data() || {};
+                const secondary = getSecondaryAuth();
+                const authEmail = String(merchant.authEmail || merchant.email || (phone + '@bola-stores.com')).trim().toLowerCase();
+                const oldPassword = String(merchant.password || '');
+                if (oldPassword) {
+                    await secondary.signInWithEmailAndPassword(authEmail, merchantAuthPass(oldPassword));
+                    await secondary.currentUser.updatePassword(newPass);
+                    await secondary.signOut();
+                    await doc.ref.update({ password: firebase.firestore.FieldValue.delete() });
+                    if (result) result.innerText = 'تم تغيير كلمة السر مباشرة ✅';
+                } else if (authEmail && !authEmail.endsWith('@bola-stores.com')) {
+                    await firebase.auth().sendPasswordResetEmail(authEmail);
+                    if (result) result.innerText = 'تم إرسال رابط تغيير كلمة السر إلى بريد التاجر ✅\nسيكتب التاجر كلمة السر الجديدة من الرابط.'.replace(/\\n/g, '\n');
+                } else {
+                    throw new Error('لا يمكن التغيير المباشر لهذا الحساب لأنه لا يملك كلمة سر قديمة أو بريد استعادة مرتبط. أضف البريد أولاً ثم اطلب من التاجر تسجيل الدخول مرة.');
+                }
+                document.getElementById('adminMerchantNewPassword').value = '';
+            } catch (e) {
+                try { await getSecondaryAuth().signOut(); } catch (_) {}
+                if (result) result.innerText = 'تعذر تغيير كلمة السر: ' + (e.message || e);
             }
         }
         function changeAdminPassword(event) {
