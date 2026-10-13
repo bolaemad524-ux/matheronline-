@@ -798,6 +798,19 @@
             <div id="secureResult" style="margin-top:10px; font-size:13px; white-space:pre-line;"></div>
         </div>
 
+        <h3 style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px; color:#0f766e; text-align: right;">✉️ إضافة بريد لحساب تاجر قديم</h3>
+        <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
+            <p style="font-size:13px; color:var(--text-gray); margin-bottom:10px;">اكتب رقم الهاتف والبريد. إذا كان باسورد الحساب القديم ما زال محفوظاً، سيتم ربط البريد فوراً. وإلا سيُحفظ كطلب ربط ويُفعّل عند أول تسجيل دخول ناجح للتاجر.</p>
+            <label style="font-weight:bold; font-size:14px; color:var(--text-gray); margin-bottom:5px; display:block;">رقم هاتف التاجر:</label>
+            <div class="phone-input-wrapper">
+                <span>+20</span>
+                <input type="tel" id="adminRecoveryPhone" placeholder="10xxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.startsWith('0')) this.value = this.value.substring(1);">
+            </div>
+            <input type="email" id="adminRecoveryEmail" placeholder="البريد الإلكتروني للتاجر" dir="ltr" autocomplete="email">
+            <button onclick="linkMerchantRecoveryEmail()" class="btn-primary" style="background:#0f766e; color:white; border:none; padding:12px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;">حفظ وربط البريد ✉️</button>
+            <div id="adminRecoveryResult" style="margin-top:10px; font-size:13px; white-space:pre-line;"></div>
+        </div>
+
         <h3 style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:20px; text-align: right;">➕ إضافة متجر يدوياً</h3>
         <div class="admin-form" style="text-align: right; background:var(--light-bg); padding:20px; border-radius:10px;">
             <input type="text" id="manualStoreName" placeholder="اسم المتجر">
@@ -2241,11 +2254,12 @@
         }
 
         function attachRecoveryEmailAfterLogin(doc, enteredEmail, authEmail) {
-            const email = String(enteredEmail || '').trim().toLowerCase();
+            const pending = (doc.data() && doc.data().pendingRecoveryEmail) || '';
+            const email = String(enteredEmail || pending || '').trim().toLowerCase();
             const isFakeEmail = String(authEmail || '').toLowerCase().endsWith('@bola-stores.com');
             const user = firebase.auth().currentUser;
             if (!user || !isFakeEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return Promise.resolve();
-            return user.updateEmail(email).then(() => doc.ref.update({ authEmail: email, recoveryEmail: email })).catch(() => {});
+            return user.updateEmail(email).then(() => doc.ref.update({ authEmail: email, recoveryEmail: email, pendingRecoveryEmail: firebase.firestore.FieldValue.delete() })).catch(() => {});
         }
 
         function forgotMerchantPassword() {
@@ -2260,7 +2274,7 @@
             db.collection('platform_merchants').where('phone', '==', phone).limit(1).get().then(snap => {
                 if (snap.empty) throw new Error('not-found');
                 const data = snap.docs[0].data() || {};
-                const email = String(data.authEmail || data.recoveryEmail || data.email || '').trim().toLowerCase();
+                const email = String(data.authEmail || data.email || '').trim().toLowerCase();
                 if (!email || email.endsWith('@bola-stores.com')) throw new Error('no-email');
                 return firebase.auth().sendPasswordResetEmail(email);
             }).then(() => alert('تم إرسال رابط إعادة تعيين كلمة السر إلى بريدك الإلكتروني. افتح الرسالة واضغط الرابط ثم اكتب كلمة السر الجديدة.'))
@@ -2459,6 +2473,44 @@
                     (failed.length ? '\n⚠️ فشل (' + failed.length + '):\n' + failed.join('\n') : '');
             } catch (e) {
                 out.innerText = 'حدث خطأ: ' + (e.message || e);
+            }
+        }
+        async function linkMerchantRecoveryEmail() {
+            const admin = firebase.auth().currentUser;
+            if (!admin || admin.email !== ADMIN_EMAIL) return alert('سجّل دخول الإدارة الأول.');
+            const rawPhone = (document.getElementById('adminRecoveryPhone')?.value || '').trim().replace(/[^0-9]/g, '');
+            const email = (document.getElementById('adminRecoveryEmail')?.value || '').trim().toLowerCase();
+            const result = document.getElementById('adminRecoveryResult');
+            if (!rawPhone || !email) return alert('اكتب رقم الهاتف والبريد الإلكتروني.');
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('اكتب بريد إلكتروني صحيح.');
+            let phone = rawPhone;
+            if (phone.startsWith('0')) phone = phone.substring(1);
+            if (phone.startsWith('20')) phone = phone.substring(2);
+            phone = '20' + phone;
+            if (result) result.innerText = 'جاري البحث وربط البريد...';
+            try {
+                const snap = await db.collection('platform_merchants').where('phone', '==', phone).limit(1).get();
+                if (snap.empty) throw new Error('هذا الرقم غير مسجل.');
+                const doc = snap.docs[0];
+                const merchant = doc.data() || {};
+                const oldPassword = String(merchant.password || '');
+                const secondary = getSecondaryAuth();
+                if (oldPassword) {
+                    const fakeEmail = phone + '@bola-stores.com';
+                    await secondary.signInWithEmailAndPassword(fakeEmail, merchantAuthPass(oldPassword));
+                    const user = secondary.currentUser;
+                    await user.updateEmail(email);
+                    await secondary.signOut();
+                    await doc.ref.update({ authEmail: email, recoveryEmail: email, pendingRecoveryEmail: firebase.firestore.FieldValue.delete(), password: firebase.firestore.FieldValue.delete() });
+                    if (result) result.innerText = 'تم ربط البريد بالحساب فعلياً ✅\nيمكن للتاجر الآن استخدام «نسيت كلمة السر؟».'.replace(/\\n/g, '\n');
+                } else {
+                    await doc.ref.update({ pendingRecoveryEmail: email });
+                    if (result) result.innerText = 'تم حفظ البريد كطلب ربط ✅\nسيتم ربطه تلقائياً عند أول تسجيل دخول ناجح للتاجر.'.replace(/\\n/g, '\n');
+                }
+                document.getElementById('adminRecoveryEmail').value = '';
+            } catch (e) {
+                try { await getSecondaryAuth().signOut(); } catch (_) {}
+                if (result) result.innerText = 'تعذر الربط: ' + (e.message || e);
             }
         }
         function changeAdminPassword(event) {
