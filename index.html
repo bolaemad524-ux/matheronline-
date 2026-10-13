@@ -2130,6 +2130,7 @@
                 if(isLoggedAsAdmin) {
                     document.getElementById('storeApp').style.display = 'none';
                     document.getElementById('merchantDashboardApp').style.display = 'block';
+                    if (isSettingsLocked()) { const ns = document.getElementById('nav-settings'); if (ns) ns.style.display = 'none'; }
                 } else {
                     document.getElementById('storeApp').style.display = 'block';
                     document.getElementById('merchantDashboardApp').style.display = 'none';
@@ -2240,6 +2241,12 @@
             }
             
             if (mData.status === 'active' || mData.status === 'suspended' || !mData.status) {
+                try {
+                    const lockedPhones = ['201285957035'];
+                    const mPhone = String(mData.phone || '').replace(/[^0-9]/g, '');
+                    if (mData.settingsLocked === true || lockedPhones.indexOf(mPhone) !== -1) sessionStorage.setItem('settingsLocked', '1');
+                    else sessionStorage.removeItem('settingsLocked');
+                } catch (e) {}
                 sessionStorage.setItem('loggedStoreId', sId);
                 showToast("جاري الدخول...");
                 setTimeout(() => { 
@@ -2744,7 +2751,11 @@
         }
 
         // دوال تبديل وعرض لوحة تحكم التاجر (App Dashboard)
+        function isSettingsLocked() {
+            try { return sessionStorage.getItem('settingsLocked') === '1'; } catch (e) { return false; }
+        }
         function switchDashView(viewId, element) {
+            if (viewId === 'dash-settings' && isSettingsLocked()) { showToast("الإعدادات غير متاحة لحسابك. تواصل مع الإدارة."); return; }
             document.querySelectorAll('.dash-view').forEach(v => v.style.display = 'none');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(viewId).style.display = 'block';
@@ -3181,6 +3192,7 @@
             setTimeout(ensureUniqueSlug, 3000);
         }
         function saveStoreSettingsRaw() {
+            if (isSettingsLocked()) { showToast("الإعدادات غير متاحة لحسابك. تواصل مع الإدارة."); return; }
             let pVal = document.getElementById('adminPhone').value.trim(); let finalP = pVal ? normalizeWaPhone(pVal) : "";
             const updates = { 
                 name: document.getElementById('adminStoreName').value, 
