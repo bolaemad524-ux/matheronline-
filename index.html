@@ -3997,7 +3997,19 @@
             }
             installPromptEvent.prompt(); try { await installPromptEvent.userChoice; } catch (e) { } installPromptEvent = null; dismissInstallBanner();
         }
-        window.addEventListener('appinstalled', () => { dismissInstallBanner(); });
+        window.addEventListener('appinstalled', () => { 
+            dismissInstallBanner(); 
+            if (typeof showToast === 'function') showToast('تم تنزيل التطبيق بنجاح ✅');
+            else alert('تم تنزيل التطبيق بنجاح ✅');
+            // محاولة إشعار المتصفح
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('BOLA Emad Studio', { body: 'تم تنزيل التطبيق بنجاح ✅', icon: '/favicon.ico' });
+            } else if ('Notification' in window && Notification.permission !== 'denied') {
+                Notification.requestPermission().then(p => {
+                    if (p === 'granted') new Notification('BOLA Emad Studio', { body: 'تم تنزيل التطبيق بنجاح ✅' });
+                });
+            }
+        });
         function dismissInstallBanner(){const banner=document.getElementById('installBanner');if(banner)banner.classList.remove('show');}
         if ('serviceWorker' in navigator) window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); setTimeout(()=>{ if(!window.matchMedia('(display-mode: standalone)').matches && !installPromptEvent){ const banner=document.getElementById('installBanner'); if(banner) banner.classList.add('show'); } },4000); });
         function renderProducts(productsToRender) {
@@ -4423,14 +4435,16 @@
             let quantity = 1;
             let qtyDesc = '';
             const minQty = productMinQty(id);
-            if (minQty > 1 && !isArea && !isMeter) {
-                pendingMinQtyItem = { id, name, price, minQty };
-                const box = document.getElementById('minQtyText');
-                if (box) box.innerText = 'المنتج "' + name + '" لا يُباع بقطعة واحدة.\nأقل عدد للطلب هو ' + minQty + ' قطعة.';
-                const inp = document.getElementById('minQtyInput');
-                if (inp) inp.value = String(minQty);
-                openModal('minQtyModal');
-                return;
+            if (!isArea && !isMeter) {
+                // اسأل العميل كام قطعة عايز
+                let qtyInput = prompt('عايز كام قطعة من "' + name + '"؟', minQty > 1 ? String(minQty) : "1");
+                if (qtyInput === null || qtyInput.trim() === "" || isNaN(qtyInput) || Number(qtyInput) <= 0) return;
+                quantity = Number(qtyInput);
+                if (minQty > 1 && quantity < minQty) {
+                    alert('أقل كمية للطلب من هذا المنتج هي ' + minQty + ' قطعة');
+                    return;
+                }
+                qtyDesc = '(' + quantity + ' قطعة)';
             } else if (isArea) {
                 let len = prompt(`أدخل الطول (متر) للمنتج "${name}":`, "1");
                 if (len === null || len.trim() === "" || isNaN(len) || Number(len) <= 0) return;
